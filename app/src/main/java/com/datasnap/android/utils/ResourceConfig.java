@@ -3,8 +3,6 @@ package com.datasnap.android.utils;
 import android.content.Context;
 import android.content.res.Resources;
 
-import com.datasnap.android.utils.ConfigOptions;
-
 import static com.datasnap.android.utils.Utils.isNullOrEmpty;
 
 public class ResourceConfig {

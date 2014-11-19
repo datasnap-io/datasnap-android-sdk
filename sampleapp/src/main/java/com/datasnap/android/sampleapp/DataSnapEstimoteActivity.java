@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -47,10 +46,6 @@ public class DataSnapEstimoteActivity extends Activity  {
     private static final String TAG = DataSnapEstimoteActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1234;
     private static final Region ALL_ESTIMOTE_BEACONS_REGION = new Region("rid", null, null, null);
-    // Handle to SharedPreferences for this app
-    SharedPreferences mPrefs;
-    // Handle to a SharedPreferences editor
-    SharedPreferences.Editor mEditor;
     private Address address;
     private String addressString;
     private BeaconManager beaconManager;
@@ -151,7 +146,7 @@ public class DataSnapEstimoteActivity extends Activity  {
     }
 
     public void sendAllEvents(){
-        DataSnap.trackEvents(eventStore, null, null);
+        DataSnap.trackEvents(eventStore, null);
 
 
     }

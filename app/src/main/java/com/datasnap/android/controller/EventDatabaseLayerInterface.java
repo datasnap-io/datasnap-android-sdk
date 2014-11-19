@@ -1,7 +1,6 @@
 package com.datasnap.android.controller;
 
 import com.datasnap.android.models.EventWrapper;
-import com.datasnap.android.models.EventWrapperSuper;
 import com.datasnap.android.utils.IThreadedLayer;
 import java.util.List;
 

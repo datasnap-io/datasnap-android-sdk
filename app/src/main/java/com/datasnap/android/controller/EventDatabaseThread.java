@@ -5,7 +5,6 @@ import android.util.Pair;
 
 import com.datasnap.android.Defaults;
 import com.datasnap.android.models.EventWrapper;
-import com.datasnap.android.models.EventWrapperSuper;
 import com.datasnap.android.utils.LooperThreadWithHandler;
 import java.util.LinkedList;
 import java.util.List;

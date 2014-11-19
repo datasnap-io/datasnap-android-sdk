@@ -6,7 +6,6 @@ import android.os.Handler;
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.models.EventListContainer;
 import com.datasnap.android.models.EventWrapper;
-import com.datasnap.android.models.EventWrapperSuper;
 import com.datasnap.android.utils.Logger;
 import com.datasnap.android.controller.EventDatabaseLayerInterface.PayloadCallback;
 import com.datasnap.android.controller.EventDatabaseLayerInterface.RemoveCallback;
@@ -113,7 +112,8 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
 
             if (payloads.size() == 0) {
                 // there is nothing to flush, we're done
-                if (callback != null) callback.onFlushCompleted(true, eventListContainer);
+                if (callback != null)
+                    callback.onFlushCompleted(true, eventListContainer);
             } else {
                 Logger.d("Sending eventListContainer to the servers .. %s", range);
                 // now let's make a request on the flushing thread

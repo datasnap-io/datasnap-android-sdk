@@ -1,5 +1,3 @@
-
-
 package com.datasnap.android.controller;
 
 import android.annotation.SuppressLint;
@@ -15,7 +13,6 @@ import android.util.Pair;
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.Defaults;
 import com.datasnap.android.models.EventWrapper;
-import com.datasnap.android.models.EventWrapperSuper;
 import com.datasnap.android.utils.Logger;
 
 import java.util.LinkedList;
@@ -23,10 +20,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class EventDatabase extends SQLiteOpenHelper {
-
-  //
-  // Singleton
-  //
 
   private static EventDatabase instance;
 
@@ -38,10 +31,6 @@ public class EventDatabase extends SQLiteOpenHelper {
     return instance;
   }
 
-  //
-  // Instance
-  //
-
   /**
    * Caches the count of the database without requiring SQL count to be
    * called every time. This will allow us to quickly determine whether
@@ -49,8 +38,6 @@ public class EventDatabase extends SQLiteOpenHelper {
    */
   private AtomicLong count;
   private boolean initialCount;
-
-  private EventSerializerInterface serializer = new JsonPayloadSerializer();
 
   private EventDatabase(Context context) {
     super(context, Defaults.Database.NAME, null, Defaults.Database.VERSION);
@@ -72,7 +59,7 @@ public class EventDatabase extends SQLiteOpenHelper {
     try {
       db.execSQL(sql);
     } catch (SQLException e) {
-      Logger.e(e, "Failed to create Segment SQL lite database");
+      Logger.e(e, "Failed to create Datasnap SQL lite database");
     }
   }
 
@@ -108,7 +95,7 @@ public class EventDatabase extends SQLiteOpenHelper {
     ensureCount();
 
     long rowCount = getRowCount();
-    final int maxQueueSize = DataSnap.getOptions().getMaxQueueSize();
+    final int maxQueueSize = DataSnap.getConfigOptions().getMaxQueueSize();
     if (rowCount >= maxQueueSize) {
       Logger.w("Cant add action, the database is larger than max queue size (%d).", maxQueueSize);
       return false;
@@ -186,6 +173,10 @@ public class EventDatabase extends SQLiteOpenHelper {
   /**
    * Get the next (limit) events from the database
    */
+
+
+  // DEBUG HERE!!!!
+
   public List<Pair<Long, EventWrapper>> getEvents(int limit) {
 
     List<Pair<Long, EventWrapper>> result = new LinkedList<Pair<Long, EventWrapper>>();
@@ -215,13 +206,15 @@ public class EventDatabase extends SQLiteOpenHelper {
           long id = cursor.getLong(0);
           String json = cursor.getString(1);
 
-          EventWrapper payload = serializer.deserialize(json);
+          EventWrapper payload = new EventWrapper();
+          payload.setEventStr(json);
+                  //serializer.deserialize(json);
 
           if (payload != null)
               result.add(new Pair<Long, EventWrapper>(id, payload));
         }
       } catch (SQLiteException e) {
-        Logger.e(e, "Failed to open or read from the Segment payload db");
+        Logger.e(e, "Failed to open or read from the Datasnap db");
       } finally {
         try {
           if (cursor != null) cursor.close();

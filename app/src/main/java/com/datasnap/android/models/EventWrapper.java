@@ -31,17 +31,20 @@ public class EventWrapper  {
 
     private String eventStr;
 
+    public EventWrapper() {
+
+      //  this.event = event;
+    }
+
   public EventWrapper(JSONObject obj, IEvent event) {
 
       this.event = event;
   }
 
 
-  public EventWrapper(String userId, String eventStr, Props properties,
-                      Options options) {
+  public EventWrapper(String userId, String eventStr) {
       this.eventStr = eventStr;
 
- //   setProperties(properties);
   }
 
 

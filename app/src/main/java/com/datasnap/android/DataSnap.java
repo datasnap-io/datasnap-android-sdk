@@ -6,8 +6,6 @@ import com.datasnap.android.controller.EventDatabase;
 import com.datasnap.android.controller.EventDatabaseLayerInterface;
 import com.datasnap.android.controller.EventDatabaseThread;
 import com.datasnap.android.models.EventWrapper;
-import com.datasnap.android.models.EventWrapperSuper;
-//import com.datasnap.android.models.SuperOfEventWrapperSuper;
 import com.datasnap.android.utils.ConfigOptions;
 import com.datasnap.android.utils.Logger;
 import com.datasnap.android.utils.ResourceConfig;
@@ -21,9 +19,7 @@ import com.datasnap.android.controller.FlushThread.BatchFactory;
 import com.datasnap.android.controller.IFlushLayer;
 import com.datasnap.android.controller.IFlushLayer.FlushCallback;
 import com.datasnap.android.models.EventListContainer;
-import com.datasnap.android.models.Context;
 import com.datasnap.android.models.Options;
-import com.datasnap.android.models.Props;
 import com.datasnap.android.controller.BasicRequester;
 import com.datasnap.android.controller.IRequestLayer;
 import com.datasnap.android.controller.IRequester;
@@ -40,10 +36,8 @@ import static com.datasnap.android.utils.Utils.isNullOrEmpty;
 public final class DataSnap {
   private static AnalyticsStatistics statistics;
 
-  private static Context globalContext;
- // private static SuperOfEventWrapperSuper bundledIntegrations;
   private static String apiKey;
-  private static ConfigOptions options;
+  private static ConfigOptions configOptions;
   private static HandlerTimer flushTimer;
   private static EventDatabase database;
   private static EventDatabaseLayerInterface databaseLayer;
@@ -56,7 +50,7 @@ public final class DataSnap {
   private static SimpleStringCache anonymousIdCache;
   private static SimpleStringCache userIdCache;
   private static SimpleStringCache groupIdCache;
-  //private static SettingsCache settingsCache;
+
 
   private DataSnap() {
     throw new AssertionError("No instances allowed");
@@ -119,8 +113,6 @@ public final class DataSnap {
   }
 
 
-    // main handler....
-
   public static void initialize(android.content.Context context) {
     if (initialized) return;
     String apiKey = ResourceConfig.getApiKey(context);
@@ -135,15 +127,6 @@ public final class DataSnap {
     initialize(context, apiKey, options);
   }
 
-
-    // initialize statistics...
-    // initialize logging...
-    // initialize database..
-    // initialize database thread..
-    // initialize requester
-    // initialize requester thread..
-    // initialize and start threads...
-    // caches too...
   public static void initialize(android.content.Context context, String apiKey, ConfigOptions options) {
     String errorPrefix = "DataSnap client must be initialized with a valid ";
     if (context == null) throw new IllegalArgumentException(errorPrefix + "android context.");
@@ -155,7 +138,7 @@ public final class DataSnap {
 
     DataSnap.statistics = new AnalyticsStatistics();
     DataSnap.apiKey = apiKey;
-    DataSnap.options = options;
+    DataSnap.configOptions = options;
     // set logging based on the debug mode
     Logger.setLog(options.isDebug());
 
@@ -183,15 +166,6 @@ public final class DataSnap {
         new FlushThread(DataSnap.databaseLayer, batchFactory, DataSnap.requestLayer);
 
     DataSnap.flushTimer = new HandlerTimer(options.getFlushAfter(), flushClock);
-
- //   DataSnap.refreshSettingsTimer =
-  //      new HandlerTimer(options.getSettingsCacheExpiry() + 1000, refreshSettingsClock);
-
-   // DataSnap.settingsLayer = new SettingsThread(requester);
-
-   // settingsCache = new SettingsCache(context, settingsLayer, options.getSettingsCacheExpiry());
-    // globalContext = generateContext(context);
-
     initialized = true;
 
     // start the other threads
@@ -200,13 +174,8 @@ public final class DataSnap {
     DataSnap.flushLayer.start();
    // DataSnap.settingsLayer.start();
 
-    // tell the server to look for settings right now
-  //  DataSnap.refreshSettingsTimer.scheduleNow();
   }
 
-/*  private static Context generateContext(android.content.Context context) {
-    return new Context(infoManager.build(context));
-  }*/
 
   /**
    * Factory that creates batches from action payloads.
@@ -232,38 +201,20 @@ public final class DataSnap {
   };
 
   //
-  // API Calls
+  // API Calls --> trackEvent() or trackEvents()
   //
 
   public static void trackEvent(IEvent event) {
-      trackEvent(event, null, null);
+      if (configOptions == null)
+          configOptions = new ConfigOptions();
+      trackEvent(event , configOptions);
   }
 
-  public static void trackEvent(IEvent event, Options options) {
-      trackEvent(event, null, options);
+  public static void trackEvent(IEvent event, String s) {
+      trackEvent(event);
   }
 
-  public static void trackEvent(IEvent event, Props properties) {
-      trackEvent(event, properties, null);
-  }
-
-  /**
-   *
-   *
-   * EventWrapper will use an automatically generated userId unless one has been
-   * provided by identify(..).
-   *
-   * @param event describes what this user just did. It's a human readable
-   * description like "Played a Song", "Printed a Report" or
-   * "Updated Status".
-   * @param properties a dictionary with items that describe the event in more
-   * detail. This argument is optional, but highly
-   * recommended. You'll find these properties extremely useful
-   * later.
-   * @param options options allows you to set a timestamp, an anonymousId, a context,
-   * and select specific integrations.
-   */
-  public static void trackEvent(IEvent event, Props properties, Options options) {
+  public static void trackEvent(IEvent event, ConfigOptions options) {
     checkInitialized();
 
       Gson gson = new Gson(); // Or use new GsonBuilder().create();
@@ -282,18 +233,13 @@ public final class DataSnap {
           "analytics-android #trackEvent must be initialized with a valid event name.");
     }
 
-    if (properties == null) properties = new Props();
-    if (options == null) options = new Options();
-
-    EventWrapper eventWrapper = new EventWrapper(eventUserId, json, properties, options);
+    EventWrapper eventWrapper = new EventWrapper(eventUserId, json);
     enqueue(eventWrapper);
-  //  integrationManager.trackEvent(trackEvent);
     statistics.updateTracks(1);
   }
 
 
-
-    public static void trackEvents(ArrayList<IEvent> eventArrayList, Props properties, Options options) {
+    public static void trackEvents(ArrayList<IEvent> eventArrayList, Options options) {
 
         for (IEvent event : eventArrayList) {
             checkInitialized();
@@ -313,12 +259,10 @@ public final class DataSnap {
                         "analytics-android #trackEvent must be initialized with a valid event name.");
             }
 
-            if (properties == null)
-                properties = new Props();
             if (options == null)
                 options = new Options();
 
-            EventWrapper eventWrapper = new EventWrapper(eventUserId, json, properties,  options);
+            EventWrapper eventWrapper = new EventWrapper(eventUserId, json);
             enqueue(eventWrapper);
             statistics.updateTracks(1);
         }
@@ -353,8 +297,6 @@ public final class DataSnap {
 
   /**
    * Enqueues a an event
-   * {@link com.datasnap.android.models.EventWrapper}, alias,
-   * or any action of type {@link com.datasnap.android.models.EventWrapperSuper}
    */
   public static void enqueue(final EventWrapper payload) {
     statistics.updateInsertAttempts(1);
@@ -372,7 +314,7 @@ public final class DataSnap {
           Logger.w("Item %s failed to be enqueued.", "description string");
         }
        //   flushes depending on rowcount
-        if (rowCount >= options.getFlushAt()) {
+        if (rowCount >= configOptions.getFlushAt()) {
           DataSnap.flush(true);
         }
       }
@@ -434,9 +376,6 @@ public final class DataSnap {
       }
     });
 
-    // flush all the integrations as well
-   // integrationManager.flush();
-
     if (!async) {
       try {
         latch.await();
@@ -469,34 +408,11 @@ public final class DataSnap {
     requestLayer.quit();
     // closes the database
     database.close();
-    options = null;
+    configOptions = null;
     apiKey = null;
     initialized = false;
   }
 
-  //
-  // Getters and Setters
-  //
-
-  /**
-   * Gets the unique anonymous ID generated for this user
-   * until a userId is provided.
-   *
-   * Use this ID as the "from" ID to alias your new
-   * userId if the user was just created.
-   */
-  public static String getAnonymousId() {
-    checkInitialized();
-    return anonymousIdCache.get();
-  }
-
-  /**
-   * Allows you to set your own anonymousId. Used mostly for testing.
-   */
-  public static void setAnonymousId(String anonymousId) {
-    checkInitialized();
-    anonymousIdCache.set(anonymousId);
-  }
 
   /**
    * Gets the userId thats currently saved for this
@@ -527,14 +443,12 @@ public final class DataSnap {
     DataSnap.apiKey = apiKey;
   }
 
-
-
   /**
    * Gets the Datasnap.io client options
    */
-  public static ConfigOptions getOptions() {
-    if (options == null) checkInitialized();
-    return options;
+  public static ConfigOptions getConfigOptions() {
+    if (configOptions == null) checkInitialized();
+    return configOptions;
   }
 
   /**
@@ -545,15 +459,7 @@ public final class DataSnap {
     return statistics;
   }
 
-  /**
-   * Allow custom {link {@link com.datasnap.android.controller.IRequester} for counting requests,
-   * bandwidth, or testing.
-   */
-  public static void setRequester(IRequester requester) {
-    if (requestLayer instanceof RequestThread) {
-      ((RequestThread) requestLayer).setRequester(requester);
-    }
-  }
+
 
 
 }
