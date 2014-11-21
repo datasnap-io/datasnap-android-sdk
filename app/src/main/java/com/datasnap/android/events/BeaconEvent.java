@@ -13,8 +13,6 @@ public class BeaconEvent implements IEvent {
 	private String[] organizationIds;
 	private String[] projectIds;
 	private Place place;
-    private Place place2;
-
     private User user;
 	private Beacon beacon;
 	private DeviceInfo deviceInfo; // for now
@@ -30,11 +28,10 @@ public class BeaconEvent implements IEvent {
 	 * @param additionalProperties
 	 */
 	public BeaconEvent(String eventType, String[] organizationIds,
-			String[] projectIds, Place place,Place place2, User user, Beacon beacon,
+			String[] projectIds, Place place,User user, Beacon beacon,
 			DeviceInfo deviceInfo, Map<String, Object> additionalProperties) {
 		this.eventType = eventType;
 		this.place = place;
-        this.place2 = place2;
         this.user = user;
 		this.beacon = beacon;
 		this.setDeviceInfo(deviceInfo);
@@ -42,6 +39,29 @@ public class BeaconEvent implements IEvent {
 		this.organizationIds = organizationIds;
 		this.projectIds = projectIds;
 	}
+
+    public BeaconEvent(String eventType, String[] organizationIds,
+                       String[] projectIds, Beacon beacon,
+                       DeviceInfo deviceInfo) {
+        this.eventType = eventType;
+        this.beacon = beacon;
+        this.setDeviceInfo(deviceInfo);
+        this.organizationIds = organizationIds;
+        this.projectIds = projectIds;
+    }
+
+
+    public BeaconEvent(String eventType, String[] organizationIds,
+                       String[] projectIds, Place place, User user, Beacon beacon,
+                       DeviceInfo deviceInfo) {
+        this.eventType = eventType;
+        this.place = place;
+        this.user = user;
+        this.beacon = beacon;
+        this.setDeviceInfo(deviceInfo);
+        this.organizationIds = organizationIds;
+        this.projectIds = projectIds;
+    }
 
 	//@JsonIgnore
 	private Map<String, Object> additionalProperties;
@@ -130,19 +150,6 @@ public class BeaconEvent implements IEvent {
 		this.place = place;
 	}
 
-    /**
-     * @return
-     */
-    public Place getPlace2() {
-        return place;
-    }
-
-    /**
-     * @param place2
-     */
-    public void setPlace2(Place place2) {
-        this.place2 = place2;
-    }
 
 
 

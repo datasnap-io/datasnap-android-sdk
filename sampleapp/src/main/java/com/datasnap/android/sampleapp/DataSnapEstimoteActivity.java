@@ -12,6 +12,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.telephony.TelephonyManager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -23,12 +24,10 @@ import com.datasnap.android.DataSnap;
 import com.datasnap.android.eventproperties.Beacon;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.IEvent;
-import com.datasnap.android.eventproperties.Defaults;
 import com.datasnap.android.eventproperties.Device;
 import com.datasnap.android.eventproperties.DeviceInfo;
-import com.datasnap.android.eventproperties.Place;
-import com.datasnap.android.eventproperties.PropId;
-import com.datasnap.android.eventproperties.User;
+import com.datasnap.android.utils.Config;
+import com.datasnap.android.utils.ConfigOptions;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+
 import com.google.android.gms.location.LocationListener;
 
 
@@ -49,22 +48,41 @@ public class DataSnapEstimoteActivity extends Activity  {
     private Address address;
     private String addressString;
     private BeaconManager beaconManager;
-    private HashMap<String, com.estimote.sdk.Beacon> beaconDictionary;
+    private HashMap<String, String> beaconDictionary;
     private TextView textView;
     private Device device;
-    private String[] organizationIds = {Defaults.ORGANISATION_ID};
-    private String[] projectIds = {Defaults.PROJECT_ID};
+    private String[] organizationIds = {Config.ORG_ID};
+    private String[] projectIds = {Config.PROJECT_ID};
     private ArrayList<IEvent> eventStore;
+
     private LocationManager mgr;
     private Location location;
     private LocationListener locationListener;
 
+    private String carrierName;
 
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+     //   outState.putParcelable
+        BeaconStore beaconStore = new BeaconStore(beaconDictionary);
+        outState.putParcelable("beaconStore", beaconStore);
+
+    }
     // Estimote Beaconmanager intiliazed & monitors for beacons
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ConfigOptions configOptions = new ConfigOptions();
+
+        beaconDictionary = (savedInstanceState != null) ?
+                ((BeaconStore)savedInstanceState.getParcelable("beaconStore")).getBeaconStore() : new HashMap<String, String>();
+
+        TelephonyManager manager = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        carrierName = manager.getNetworkOperatorName();
+
         DataSnap.initialize(getApplicationContext(), Config.API_KEY);  // add config here as well...
         setContentView(R.layout.activity_main);
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -85,7 +103,7 @@ public class DataSnapEstimoteActivity extends Activity  {
         beaconManager = new BeaconManager(this);
         textView = (TextView) findViewById(R.id.log_text);
         textView.setMovementMethod(new ScrollingMovementMethod());
-        beaconDictionary = new HashMap<String, com.estimote.sdk.Beacon>();
+
         device = getDeviceInfo();
         // create event store
         eventStore = new ArrayList<IEvent>();
@@ -96,62 +114,48 @@ public class DataSnapEstimoteActivity extends Activity  {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        getActionBar().setSubtitle("Beacons Found: "+beacons.size()+" (ordered by approx dist)");
+                        textView.setText("");
                         for (com.estimote.sdk.Beacon beacon : beacons) {
+                            appendNewBeaconsToLog(beacon);
+                            createBeaconSightingEvent(beacon);
                             if (!beaconDictionary.containsKey(beacon.getMacAddress())) {
-                                beaconDictionary.put(beacon.getMacAddress(), beacon);
-                                appendToLog(beacon);
-                                createBeaconSightingEvent();
-                            }
+                               beaconDictionary.put(beacon.getMacAddress(), beacon.getName());
+                                appendNewBeaconsToLog(beacon);
                         }
-                        getActionBar().setSubtitle("Found beacons: " + beacons.size());
-                        sendAllEvents();
                     }
-                });
-            }
+                }
         });
-    }
+    }})
+        ;}
 
      /*  Creates an example datasnap event - for more event types see
      http://datasnap-io.github.io/sendingdata/
      */
-    public void createBeaconSightingEvent(){
+    public void createBeaconSightingEvent(com.estimote.sdk.Beacon estimoteBeacon){
         String eventType = "beacon_sighting";
-        User user = new User();
-        PropId propId = new PropId();
-        propId.setMobileDeviceIosIdfa("1a847de9f24b18eee3fac634b833b7887b32dea3");
-        propId.setGlobalDistinctId("userid1234");
-        user.setId(propId);
-        Place majorPlace = new Place();
-        majorPlace.setName("major");
-
-        Place minorPlace = new Place();
-        minorPlace.setName("major");
-       // minorPlace.setAddress();
-
         Beacon beacon = new Beacon();
+        beacon.setName(estimoteBeacon.getName());
+        beacon.setIdentifier(estimoteBeacon.getProximityUUID()+""+estimoteBeacon.getMajor()+""+estimoteBeacon.getMinor());
+        beacon.setHardware(estimoteBeacon.getMacAddress());
+        beacon.setBatteryLevel("" + estimoteBeacon.getMeasuredPower());
+        beacon.setRssi("" + estimoteBeacon.getRssi());
+        beacon.setName(estimoteBeacon.getName());
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setCreated(Utils.getTime());
         deviceInfo.setDevice(device);
-        Beacon beacon2 = new Beacon();
-        String beaconid2 = "SHDG-test";
-        beacon2.setIdentifier(beaconid2);
-
-        // add optional additional properties to an event
-        Map<String, Object> additionalProperties = new HashMap<String, Object>();
-        additionalProperties.put("beacontest", beacon2);
-        additionalProperties.put("beacontest2", beacon2);
-        IEvent event = new BeaconEvent(eventType, organizationIds, projectIds, majorPlace, minorPlace, user, beacon,
-                deviceInfo, additionalProperties);
-        addToEventStore(event);
+        IEvent event = new BeaconEvent(eventType, organizationIds, projectIds, beacon,
+                deviceInfo);
+        dispatchEvent(event);
     }
 
+
+    // optionally switch on sending multiple events simultaneously to the SDK for processing
     public void sendAllEvents(){
-        DataSnap.trackEvents(eventStore, null);
+        DataSnap.trackEvents(eventStore);
 
 
     }
-
-
 
     public void addToEventStore(IEvent event){
         eventStore.add(event) ;
@@ -165,7 +169,7 @@ public class DataSnapEstimoteActivity extends Activity  {
 /*
     outputs event to sample app UI display
 */
-    private void appendToLog(com.estimote.sdk.Beacon beacon){
+    private void appendNewBeaconsToLog(com.estimote.sdk.Beacon beacon){
         textView.append("Time: " +Utils.getTime() + System.getProperty("line.separator")
                 + "Event Type: Beacon Sighting" + System.getProperty("line.separator")
                 + "Beacon name: " + beacon.getName()
@@ -176,19 +180,28 @@ public class DataSnapEstimoteActivity extends Activity  {
         + "*******************************" + System.getProperty("line.separator"));
     }
 
+   // optionally use this to turn off beacon sightings for same beacon
+    private void appendToSeenLog(com.estimote.sdk.Beacon beacon){
+        textView.append("Beacons currently in range:" + System.getProperty("line.separator")
+                + "Beacon name: " + beacon.getName()
+                + System.getProperty("line.separator") +
+                "(mac address:" + beacon.getMacAddress() + ")"
+                + System.getProperty("line.separator") + "This beacon sighting has already been dispatched to Datasnap for data analysis"
+                + System.getProperty("line.separator")
+                + "*******************************" + System.getProperty("line.separator"));
+    }
+
+
     private Device getDeviceInfo() {
         Device device = new Device();
-        //  device.setUserAgent("Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30");
         device.setIpAddress(getIpAddress());
         device.setPlatform(android.os.Build.VERSION.SDK);
         device.setOsVersion(System.getProperty("os.version"));
         device.setModel(android.os.Build.MODEL);
         device.setManufacturer(android.os.Build.MANUFACTURER);
         device.setName(android.os.Build.DEVICE);
-        device.setVendorId("63A7355F-5AF2-4E20-BE55-C3E80D0305B1");
-        device.setCarrierName("Verizon");
-        device.setCountryCode("1");
-        device.setNetworkCode("327");
+        device.setVendorId(android.os.Build.BRAND);
+        device.setCarrierName(carrierName);
         return device;
     }
 

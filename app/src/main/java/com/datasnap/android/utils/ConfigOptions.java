@@ -10,6 +10,7 @@ import static com.datasnap.android.utils.Utils.isNullOrEmpty;
  */
 public class ConfigOptions {
 
+
   /**
    * Whether or not debug logging is enabled to ADT logcat
    */

@@ -9,6 +9,7 @@ import com.datasnap.android.models.EventWrapper;
 import com.datasnap.android.utils.ConfigOptions;
 import com.datasnap.android.utils.Logger;
 import com.datasnap.android.utils.ResourceConfig;
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.datasnap.android.utils.AnonymousIdCache;
 import com.datasnap.android.utils.SimpleStringCache;
@@ -19,13 +20,13 @@ import com.datasnap.android.controller.FlushThread.BatchFactory;
 import com.datasnap.android.controller.IFlushLayer;
 import com.datasnap.android.controller.IFlushLayer.FlushCallback;
 import com.datasnap.android.models.EventListContainer;
-import com.datasnap.android.models.Options;
 import com.datasnap.android.controller.BasicRequester;
 import com.datasnap.android.controller.IRequestLayer;
 import com.datasnap.android.controller.IRequester;
 import com.datasnap.android.controller.RequestThread;
 import com.datasnap.android.stats.AnalyticsStatistics;
 import com.datasnap.android.utils.HandlerTimer;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -216,8 +217,9 @@ public final class DataSnap {
 
   public static void trackEvent(IEvent event, ConfigOptions options) {
     checkInitialized();
-
-      Gson gson = new Gson(); // Or use new GsonBuilder().create();
+      GsonBuilder gsonBuilder = new GsonBuilder();
+      gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+      Gson gson = gsonBuilder.create();
       String json = gson.toJson(event); // serializes target to Json
         if (optedOut) return;
 
@@ -239,12 +241,15 @@ public final class DataSnap {
   }
 
 
-    public static void trackEvents(ArrayList<IEvent> eventArrayList, Options options) {
+    public static void trackEvents(ArrayList<IEvent> eventArrayList) {
 
         for (IEvent event : eventArrayList) {
             checkInitialized();
-            Gson gson = new Gson(); // Or use new GsonBuilder().create();
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+            Gson gson = gsonBuilder.create();
             String json = gson.toJson(event); // serializes target to Json
+
             if (optedOut) return;
 
             String eventUserId = getOrSetEventUserId(null);
@@ -259,8 +264,8 @@ public final class DataSnap {
                         "analytics-android #trackEvent must be initialized with a valid event name.");
             }
 
-            if (options == null)
-                options = new Options();
+            if (configOptions == null)
+                configOptions = new ConfigOptions();
 
             EventWrapper eventWrapper = new EventWrapper(eventUserId, json);
             enqueue(eventWrapper);
