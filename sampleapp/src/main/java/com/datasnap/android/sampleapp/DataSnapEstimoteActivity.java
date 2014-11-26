@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import java.io.IOException;
 
 import com.datasnap.android.DataSnap;
@@ -43,7 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.LocationListener;
 
 
@@ -74,7 +72,6 @@ public class DataSnapEstimoteActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //   outState.putParcelable
         BeaconStore beaconStore = new BeaconStore(beaconDictionary);
         outState.putParcelable("beaconStore", beaconStore);
 
@@ -227,32 +224,7 @@ public class DataSnapEstimoteActivity extends Activity {
         return user;
     }
 
-
-    public void getIdThread() {
-
-        Info adInfo = null;
-
-            try {
-                adInfo = AdvertisingIdClient.getAdvertisingIdInfo(getApplicationContext());
-            } catch (GooglePlayServicesRepairableException e) {
-                e.printStackTrace();
-            } catch (GooglePlayServicesNotAvailableException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-        final String id = adInfo.getId();
-        final boolean isLAT = adInfo.isLimitAdTrackingEnabled();
-    }
-
-
-
     private Device getDeviceInfo() {
-     //    String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
-       //         Settings.Secure.ANDROID_ID);
-
         Device device = new Device();
         device.setIpAddress(getIpAddress());
         device.setPlatform(android.os.Build.VERSION.SDK);
@@ -260,7 +232,6 @@ public class DataSnapEstimoteActivity extends Activity {
         device.setModel(android.os.Build.MODEL);
         device.setManufacturer(android.os.Build.MANUFACTURER);
         device.setName(android.os.Build.DEVICE);
-       // global_distinct_id
         device.setVendorId(android.os.Build.BRAND);
         device.setCarrierName(carrierName);
         return device;

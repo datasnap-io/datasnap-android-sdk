@@ -20,11 +20,11 @@ public class Communication extends Property {
         this.description = description;
     }
 
-    public Tags getPropTags() {
+    public Tags getTags() {
         return tags;
     }
 
-    public void setPropTags(Tags tags) {
+    public void setTags(Tags tags) {
         this.tags = tags;
     }
 
@@ -60,19 +60,19 @@ public class Communication extends Property {
         this.name = name;
     }
 
-    public Type getPropTypes() {
+    public Type getTypes() {
         return types;
     }
 
-    public void setPropTypes(Type types) {
+    public void setTypes(Type types) {
         this.types = types;
     }
 
-    public Content getPropContent() {
+    public Content getContent() {
         return content;
     }
 
-    public void setPropContent(Content content) {
+    public void setContent(Content content) {
         this.content = content;
     }
 

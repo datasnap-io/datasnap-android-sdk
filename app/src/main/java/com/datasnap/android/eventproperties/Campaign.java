@@ -149,11 +149,11 @@ public class Campaign extends Property {
         this.name = name;
     }
 
-    public Tags getPropTags() {
+    public Tags getTags() {
         return tags;
     }
 
-    public void setPropTags(Tags tags) {
+    public void setTags(Tags tags) {
         this.tags = tags;
     }
 

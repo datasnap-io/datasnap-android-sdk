@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Datasnap Server-->
     <string name="datasnap_server">https://api-events-staging.datasnap.io/v1.0/events</string>
+    <!-- Api Key-->
     <string name="apiKey">M0xBSjg0S1RYWDRDV1hBQUM4VUJQSlRWWjp3ZHBjWWdOR2VheWxGUTBRZ1JKZ3RIaUhSdUZSK2lNR1JrWGVCbUNSRTNV</string>
-    <string name="analytics_write_key">67</string>
+    <!-- Organization Ids -->
     <string-array name="organizationIds">
         <item>46xj08dMrRFeaOOler4eYa</item>
     </string-array>
-    <string-array
-        name="projectIds">
+    <!-- Project Ids -->
+    <string-array name="projectIds">
         <item>46xj08dMrRFeaOOler4eYa</item>
     </string-array>
 
