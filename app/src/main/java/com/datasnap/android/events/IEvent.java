@@ -4,8 +4,8 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
-public interface IEvent  {
+public interface IEvent {
 
-	Map<String, Object> getAdditionalProperties();
+    Map<String, Object> getAdditionalProperties();
 
 }

@@ -17,10 +17,10 @@ public class Stopwatch {
 
   */
 /**
-   * Create and start a new timed operation.
-   *
-   * @param msg Message representing the operation
-   *//*
+ * Create and start a new timed operation.
+ *
+ * @param msg Message representing the operation
+ *//*
 
   public Stopwatch(String msg) {
     this.msg = msg;
@@ -29,8 +29,8 @@ public class Stopwatch {
 
   */
 /**
-   * Start the operation
-   *//*
+ * Start the operation
+ *//*
 
   public void start() {
     start = System.currentTimeMillis();
@@ -38,8 +38,8 @@ public class Stopwatch {
 
   */
 /**
-   * End the operation and log its result
-   *//*
+ * End the operation and log its result
+ *//*
 
   public void end() {
     end = System.currentTimeMillis();
@@ -49,8 +49,8 @@ public class Stopwatch {
 
   */
 /**
-   * Returns the millisecond duration of this operation
-   *//*
+ * Returns the millisecond duration of this operation
+ *//*
 
   public long duration() {
     return end - start;

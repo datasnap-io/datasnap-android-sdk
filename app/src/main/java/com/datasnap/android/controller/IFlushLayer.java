@@ -10,30 +10,30 @@ import com.datasnap.android.utils.IThreadedLayer;
  */
 public interface IFlushLayer extends IThreadedLayer {
 
-  //
-  // Callbacks
-  //
+    //
+    // Callbacks
+    //
 
-  /**
-   * Callback for the
-   * {@link IFlushLayer#flush(IFlushLayer.FlushCallback)} method
-   */
-  public interface FlushCallback {
     /**
-     * Called when all messages have been flushed from the queue
-     *
-     * @param success True for successful flush, false for not.
-     * @param eventListContainer The eventListContainer that was sent to the server
+     * Callback for the
+     * {@link IFlushLayer#flush(IFlushLayer.FlushCallback)} method
      */
-    void onFlushCompleted(boolean success, EventListContainer eventListContainer);
-  }
+    public interface FlushCallback {
+        /**
+         * Called when all messages have been flushed from the queue
+         *
+         * @param success            True for successful flush, false for not.
+         * @param eventListContainer The eventListContainer that was sent to the server
+         */
+        void onFlushCompleted(boolean success, EventListContainer eventListContainer);
+    }
 
-  //
-  // Methods
-  //
+    //
+    // Methods
+    //
 
-  /**
-   * Triggers a flush from the local action database to the server.
-   */
-  void flush(FlushCallback callback);
+    /**
+     * Triggers a flush from the local action database to the server.
+     */
+    void flush(FlushCallback callback);
 }

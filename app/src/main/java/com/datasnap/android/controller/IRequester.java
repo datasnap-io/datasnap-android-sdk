@@ -9,7 +9,7 @@ import org.apache.http.client.methods.HttpPost;
 
 public interface IRequester {
 
-  HttpResponse send(HttpPost httpPost);
+    HttpResponse send(HttpPost httpPost);
 
- // SuperOfEventWrapperSuper fetchSettings();
+    // SuperOfEventWrapperSuper fetchSettings();
 }

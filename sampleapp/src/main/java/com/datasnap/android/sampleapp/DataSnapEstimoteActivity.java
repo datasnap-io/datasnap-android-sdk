@@ -12,6 +12,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -20,39 +21,47 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import java.io.IOException;
+
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.eventproperties.Beacon;
+import com.datasnap.android.eventproperties.Id;
+import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.IEvent;
 import com.datasnap.android.eventproperties.Device;
 import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.utils.Config;
-import com.datasnap.android.utils.ConfigOptions;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.LocationListener;
 
 
-public class DataSnapEstimoteActivity extends Activity  {
+public class DataSnapEstimoteActivity extends Activity {
 
     private static final String TAG = DataSnapEstimoteActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1234;
     private static final Region ALL_ESTIMOTE_BEACONS_REGION = new Region("rid", null, null, null);
     private Address address;
     private String addressString;
+    private String advertisingId;
+    private boolean advertisingIdOptIn;
     private BeaconManager beaconManager;
     private HashMap<String, String> beaconDictionary;
     private TextView textView;
     private Device device;
-    private String[] organizationIds = {Config.ORG_ID};
-    private String[] projectIds = {Config.PROJECT_ID};
+    private String[] organizationIds;
+    private String[] projectIds;
     private ArrayList<IEvent> eventStore;
 
     private LocationManager mgr;
@@ -63,43 +72,56 @@ public class DataSnapEstimoteActivity extends Activity  {
 
 
     @Override
-    protected void onSaveInstanceState(Bundle outState)
-    {
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-     //   outState.putParcelable
+        //   outState.putParcelable
         BeaconStore beaconStore = new BeaconStore(beaconDictionary);
         outState.putParcelable("beaconStore", beaconStore);
 
     }
+
     // Estimote Beaconmanager intiliazed & monitors for beacons
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ConfigOptions configOptions = new ConfigOptions();
-
         beaconDictionary = (savedInstanceState != null) ?
-                ((BeaconStore)savedInstanceState.getParcelable("beaconStore")).getBeaconStore() : new HashMap<String, String>();
+                ((BeaconStore) savedInstanceState.getParcelable("beaconStore")).getBeaconStore() : new HashMap<String, String>();
 
-        TelephonyManager manager = (TelephonyManager)getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager manager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         carrierName = manager.getNetworkOperatorName();
 
-        DataSnap.initialize(getApplicationContext(), Config.API_KEY);  // add config here as well...
+        DataSnap.initialize(getApplicationContext(), new Config());
+        organizationIds = DataSnap.getOrgIds();
+        projectIds = DataSnap.getProjectIds();
         setContentView(R.layout.activity_main);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Acquire a reference to the system Location Manager
-         mgr = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        mgr = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         // Define a listener that responds to location updates
         location = mgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
-                float accuracy=location.getAccuracy();
+                float accuracy = location.getAccuracy();
                 // Called when a new location is found by the network location provider.
                 makeUseOfNewLocation(location);
             }
         };
 
-        addressString =  getAddress(location);
+
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(getApplicationContext());
+                    advertisingId = adInfo.getId();
+                    advertisingIdOptIn = adInfo.isLimitAdTrackingEnabled();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        addressString = getAddress(location);
         beaconManager = new BeaconManager(this);
         textView = (TextView) findViewById(R.id.log_text);
         textView.setMovementMethod(new ScrollingMovementMethod());
@@ -114,29 +136,31 @@ public class DataSnapEstimoteActivity extends Activity  {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        getActionBar().setSubtitle("Beacons Found: "+beacons.size()+" (ordered by approx dist)");
+                        getActionBar().setSubtitle("Beacons Found: " + beacons.size() + " (ordered by approx dist)");
                         textView.setText("");
                         for (com.estimote.sdk.Beacon beacon : beacons) {
                             appendNewBeaconsToLog(beacon);
                             createBeaconSightingEvent(beacon);
                             if (!beaconDictionary.containsKey(beacon.getMacAddress())) {
-                               beaconDictionary.put(beacon.getMacAddress(), beacon.getName());
+                                beaconDictionary.put(beacon.getMacAddress(), beacon.getName());
                                 appendNewBeaconsToLog(beacon);
+                            }
                         }
                     }
-                }
-        });
-    }})
-        ;}
+                });
+            }
+        })
+        ;
+    }
 
-     /*  Creates an example datasnap event - for more event types see
-     http://datasnap-io.github.io/sendingdata/
-     */
-    public void createBeaconSightingEvent(com.estimote.sdk.Beacon estimoteBeacon){
+    /*  Creates an example datasnap event - for more event types see
+    http://datasnap-io.github.io/sendingdata/
+    */
+    public void createBeaconSightingEvent(com.estimote.sdk.Beacon estimoteBeacon) {
         String eventType = "beacon_sighting";
         Beacon beacon = new Beacon();
-        beacon.setName(estimoteBeacon.getName());
-        beacon.setIdentifier(estimoteBeacon.getProximityUUID()+""+estimoteBeacon.getMajor()+""+estimoteBeacon.getMinor());
+        User user = getUserInfo();
+        beacon.setIdentifier(estimoteBeacon.getProximityUUID() + "" + estimoteBeacon.getMajor() + "" + estimoteBeacon.getMinor());
         beacon.setHardware(estimoteBeacon.getMacAddress());
         beacon.setBatteryLevel("" + estimoteBeacon.getMeasuredPower());
         beacon.setRssi("" + estimoteBeacon.getRssi());
@@ -144,44 +168,44 @@ public class DataSnapEstimoteActivity extends Activity  {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setCreated(Utils.getTime());
         deviceInfo.setDevice(device);
-        IEvent event = new BeaconEvent(eventType, organizationIds, projectIds, beacon,
+        IEvent event = new BeaconEvent(eventType, organizationIds, projectIds, beacon, user,
                 deviceInfo);
         dispatchEvent(event);
     }
 
 
     // optionally switch on sending multiple events simultaneously to the SDK for processing
-    public void sendAllEvents(){
+    public void sendAllEvents() {
         DataSnap.trackEvents(eventStore);
 
 
     }
 
-    public void addToEventStore(IEvent event){
-        eventStore.add(event) ;
-     //   dispatchEvent(event);
+    public void addToEventStore(IEvent event) {
+        eventStore.add(event);
+        //   dispatchEvent(event);
     }
 
-    public void dispatchEvent(IEvent event){
+    public void dispatchEvent(IEvent event) {
         DataSnap.trackEvent(event);
     }
 
-/*
-    outputs event to sample app UI display
-*/
-    private void appendNewBeaconsToLog(com.estimote.sdk.Beacon beacon){
-        textView.append("Time: " +Utils.getTime() + System.getProperty("line.separator")
+    /*
+        outputs event to sample app UI display
+    */
+    private void appendNewBeaconsToLog(com.estimote.sdk.Beacon beacon) {
+        textView.append("Time: " + Utils.getTime() + System.getProperty("line.separator")
                 + "Event Type: Beacon Sighting" + System.getProperty("line.separator")
                 + "Beacon name: " + beacon.getName()
                 + System.getProperty("line.separator") +
                 "(mac address:" + beacon.getMacAddress() + ")"
-                + System.getProperty("line.separator") + "Result: "+ "Dispatched to Datasnap for data analysis"
+                + System.getProperty("line.separator") + "Result: " + "Dispatched to Datasnap for data analysis"
                 + System.getProperty("line.separator")
-        + "*******************************" + System.getProperty("line.separator"));
+                + "*******************************" + System.getProperty("line.separator"));
     }
 
-   // optionally use this to turn off beacon sightings for same beacon
-    private void appendToSeenLog(com.estimote.sdk.Beacon beacon){
+    // optionally use this to turn off beacon sightings for same beacon
+    private void appendToSeenLog(com.estimote.sdk.Beacon beacon) {
         textView.append("Beacons currently in range:" + System.getProperty("line.separator")
                 + "Beacon name: " + beacon.getName()
                 + System.getProperty("line.separator") +
@@ -191,8 +215,44 @@ public class DataSnapEstimoteActivity extends Activity  {
                 + "*******************************" + System.getProperty("line.separator"));
     }
 
+    private User getUserInfo() {
+        User user = new User();
+        Id id = new Id();
+        String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        id.setGlobalDistinctId(android_id);
+        id.setMobileDeviceGoogleAdvertisingId(advertisingId);
+        id.setMobileDeviceGoogleAdvertisingIdOptIn(""+advertisingIdOptIn);
+        user.setId(id);
+        return user;
+    }
+
+
+    public void getIdThread() {
+
+        Info adInfo = null;
+
+            try {
+                adInfo = AdvertisingIdClient.getAdvertisingIdInfo(getApplicationContext());
+            } catch (GooglePlayServicesRepairableException e) {
+                e.printStackTrace();
+            } catch (GooglePlayServicesNotAvailableException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        final String id = adInfo.getId();
+        final boolean isLAT = adInfo.isLimitAdTrackingEnabled();
+    }
+
+
 
     private Device getDeviceInfo() {
+     //    String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
+       //         Settings.Secure.ANDROID_ID);
+
         Device device = new Device();
         device.setIpAddress(getIpAddress());
         device.setPlatform(android.os.Build.VERSION.SDK);
@@ -200,6 +260,7 @@ public class DataSnapEstimoteActivity extends Activity  {
         device.setModel(android.os.Build.MODEL);
         device.setManufacturer(android.os.Build.MANUFACTURER);
         device.setName(android.os.Build.DEVICE);
+       // global_distinct_id
         device.setVendorId(android.os.Build.BRAND);
         device.setCarrierName(carrierName);
         return device;

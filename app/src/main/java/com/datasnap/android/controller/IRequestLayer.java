@@ -8,28 +8,28 @@ import com.datasnap.android.utils.IThreadedLayer;
  */
 public interface IRequestLayer extends IThreadedLayer {
 
-  //
-  // Callbacks
-  //
+    //
+    // Callbacks
+    //
 
-  /**
-   * Callback for the #flush method
-   */
-  public interface RequestCallback {
     /**
-     * Called when a request to the server is completed.
-     *
-     * @param success True for a successful request, false for not.
+     * Callback for the #flush method
      */
-    void onRequestCompleted(boolean success);
-  }
+    public interface RequestCallback {
+        /**
+         * Called when a request to the server is completed.
+         *
+         * @param success True for a successful request, false for not.
+         */
+        void onRequestCompleted(boolean success);
+    }
 
-  //
-  // Methods
-  //
+    //
+    // Methods
+    //
 
-  /**
-   * Send an action eventListContainer to the server.
-   */
-  void send(EventListContainer eventListContainer, RequestCallback callback);
+    /**
+     * Send an action eventListContainer to the server.
+     */
+    void send(EventListContainer eventListContainer, RequestCallback callback);
 }

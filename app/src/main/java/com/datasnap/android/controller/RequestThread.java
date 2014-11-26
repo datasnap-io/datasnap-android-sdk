@@ -1,20 +1,25 @@
 package com.datasnap.android.controller;
 
 import android.os.Handler;
+
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.models.EventWrapper;
-import com.datasnap.android.utils.Config;
+import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.Logger;
 import com.datasnap.android.models.EventListContainer;
 import com.datasnap.android.utils.LooperThreadWithHandler;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
+
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
@@ -26,88 +31,94 @@ import org.apache.http.util.EntityUtils;
  */
 public class RequestThread extends LooperThreadWithHandler implements IRequestLayer {
 
-  private IRequester requester;
+    private IRequester requester;
 
-  public RequestThread(IRequester requester) {
-    this.requester = requester;
-  }
+    public RequestThread(IRequester requester) {
+        this.requester = requester;
+    }
 
-  /**
-   * Performs the request to the server.
-   *
-   * @param eventListContainer the action eventListContainer to send
-   */
-  public void send(final EventListContainer eventListContainer, final RequestCallback callback) {
-    Handler handler = handler();
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        long start = System.currentTimeMillis();
-          String url = Config.HOST_URL;
+    /**
+     * Performs the request to the server.
+     *
+     * @param eventListContainer the action eventListContainer to send
+     */
+    public void send(final EventListContainer eventListContainer, final RequestCallback callback) {
+        Handler handler = handler();
 
-          LinkedList<EventWrapper> list = (LinkedList<EventWrapper>) eventListContainer.getBatch();
-          HttpPost post = new HttpPost(url);
+        final DsConfig ds = DataSnap.getDsConfig();
 
-          for(EventWrapper event: list) {
-             StringEntity se = null;
-              HttpResponse response = null;
-              try {
-                  String finalStr = '['+event.getEventStr() +']';
-                  se = new StringEntity(finalStr, HTTP.UTF_8);
-                  se.setContentType("application/json");
-                  post.setHeader("Content-Type", "application/json");
-                  post.setHeader("Keep-Alive", "300");
-                  post.setHeader("Connection", "Keep-Alive");
-                  post.setHeader("Accept", "application/json");
-                  post.setHeader("Authorization",
-                          "Basic "+Config.API_KEY);
-                  post.setEntity(se);
-                  HttpClient httpclient = new DefaultHttpClient();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long start = System.currentTimeMillis();
+                String url = ds.getHost();
+                LinkedList<EventWrapper> list = (LinkedList<EventWrapper>) eventListContainer.getBatch();
+                HttpPost post = new HttpPost(url);
 
-                  response = httpclient.execute(post);
-                 System.out.println(response.getStatusLine().getStatusCode());
-              } catch (UnsupportedEncodingException e) {
-                  e.printStackTrace();
-              } catch (ClientProtocolException e) {
-                  e.printStackTrace();
-              } catch (IOException e) {
-                  e.printStackTrace();
-              }
+                for (EventWrapper event : list) {
+                    StringEntity se = null;
+                    HttpResponse response = null;
+                    try {
+                        HttpHost httpproxy = new HttpHost("10.0.0.22", 8888, "http");
+                        String finalStr = '[' + event.getEventStr() + ']';
+                        se = new StringEntity(finalStr, HTTP.UTF_8);
+                        se.setContentType("application/json");
+                        post.setHeader("Content-Type", "application/json");
+                        post.setHeader("Keep-Alive", "300");
+                        post.setHeader("Connection", "Keep-Alive");
+                        post.setHeader("Accept", "application/json");
+                        post.setHeader("Authorization",
+                                "Basic " + ds.getApiKey());
+                        post.setEntity(se);
+                        HttpClient httpclient = new DefaultHttpClient();
+                        httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, httpproxy);
 
-              long duration = System.currentTimeMillis() - start;
-              DataSnap.getStatistics().updateRequestTime(duration);
+                        response = httpclient.execute(post);
+                        System.out.println(response.getStatusLine().getStatusCode());
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    } catch (ClientProtocolException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-              boolean success = false;
+                    long duration = System.currentTimeMillis() - start;
+                    DataSnap.getStatistics().updateRequestTime(duration);
 
-              if (response == null) {
-                  // there's been an error
-                  Logger.w("Failed to make request to the server.");
-              } else if (response.getStatusLine().getStatusCode() != 200) {
-                  try {
-                      // there's been a server error
-                      Logger.e("Received a failed response from the server. %s",
-                              EntityUtils.toString(response.getEntity()));
-                  } catch (ParseException e) {
-                      Logger.w(e, "Failed to parse the response from the server.");
-                  } catch (IOException e) {
-                      Logger.w(e, "Failed to read the response from the server.");
-                  }
-              } else {
+                    boolean success = false;
 
-                  Logger.d("Successfully sent an event to the server");
+                    if (response == null) {
+                        // there's been an error
+                        Logger.w("Failed to make request to the server.");
+                    } else if (response.getStatusLine().getStatusCode() != 200) {
+                        try {
+                            // there's been a server error
+                            Logger.e("Received a failed response from the server. %s",
+                                    EntityUtils.toString(response.getEntity()));
+                        } catch (ParseException e) {
+                            Logger.w(e, "Failed to parse the response from the server.");
+                        } catch (IOException e) {
+                            Logger.w(e, "Failed to read the response from the server.");
+                        }
+                    } else {
 
-                  success = true;
-              }
+                        Logger.d("Successfully sent an event to the server");
 
-              if (callback != null) callback.onRequestCompleted(success);
-          }}
-    });}
+                        success = true;
+                    }
+
+                    if (callback != null) callback.onRequestCompleted(success);
+                }
+            }
+        });
+    }
 
 
-  /**
-   * Allow custom {link {@link IRequester} for testing.
-   */
-  public void setRequester(IRequester requester) {
-    this.requester = requester;
-  }
+    /**
+     * Allow custom {link {@link IRequester} for testing.
+     */
+    public void setRequester(IRequester requester) {
+        this.requester = requester;
+    }
 }

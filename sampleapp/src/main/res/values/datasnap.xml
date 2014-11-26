@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="datasnap_server">https://api-events-staging.datasnap.io/v1.0/events</string>
+    <string name="apiKey">M0xBSjg0S1RYWDRDV1hBQUM4VUJQSlRWWjp3ZHBjWWdOR2VheWxGUTBRZ1JKZ3RIaUhSdUZSK2lNR1JrWGVCbUNSRTNV</string>
+    <string name="analytics_write_key">67</string>
+    <string-array name="organizationIds">
+        <item>46xj08dMrRFeaOOler4eYa</item>
+    </string-array>
+    <string-array
+        name="projectIds">
+        <item>46xj08dMrRFeaOOler4eYa</item>
+    </string-array>
+
+    <bool name="analytics_debugging">true</bool>
+
+    <!--Size of the queue.-->
+    <integer name="analytics_queue_size">5</integer>
+
+    <!--Flush Interval in seconds.-->
+    <integer name="analytics_flush_interval">15</integer>
+</resources>
