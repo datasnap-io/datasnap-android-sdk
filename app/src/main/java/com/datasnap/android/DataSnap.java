@@ -28,6 +28,7 @@ import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static com.datasnap.android.utils.Utils.isNullOrEmpty;
 
@@ -53,7 +54,7 @@ public final class DataSnap {
     }
 
     public static void onCreate(android.content.Context context, String apiKey) {
-        DataSnap.initialize(context, apiKey);
+        DataSnap.initialize(context);
     }
 
     public static void activityStart(Activity activity) {
@@ -61,11 +62,11 @@ public final class DataSnap {
     }
 
     public static void activityStart(Activity activity, String apiKey) {
-        DataSnap.initialize(activity, apiKey);
+        DataSnap.initialize(activity);
     }
 
     public static void activityStart(Activity activity, String apiKey, DsConfig options) {
-        DataSnap.initialize(activity, options);
+        DataSnap.initialize(activity);
         if (optedOut) return;
     }
 
@@ -100,15 +101,7 @@ public final class DataSnap {
         if (optedOut) return;
     }
 
-    // public static void initialize(android.content.Context context, String apiKey, DsConfig options) {
-
     public static void initialize(android.content.Context context) {
-        initialize(context);
-    }
-
-
-
-    public static void initialize(android.content.Context context, Object obj) {
         String errorPrefix = "DataSnap client must be initialized with a valid ";
         if (context == null) throw new IllegalArgumentException(errorPrefix + "android context.");
         if (initialized) return;
@@ -133,7 +126,7 @@ public final class DataSnap {
                 new FlushThread(DataSnap.databaseLayer, batchFactory, DataSnap.requestLayer);
 
         // DataSnap.flushTimer = new HandlerTimer(options.getFlushAfter(), flushClock);
-        DataSnap.flushTimer = new HandlerTimer(30, flushClock);
+        DataSnap.flushTimer = new HandlerTimer((int) TimeUnit.SECONDS.toMillis(10), flushClock);
 
         initialized = true;
 
@@ -170,17 +163,13 @@ public final class DataSnap {
     // API Calls --> trackEvent() or trackEvents()
     //
 
+
+
+
+
     public static void trackEvent(IEvent event) {
         if (dsConfig == null)
             dsConfig = new DsConfig();
-        trackEvent(event, dsConfig);
-    }
-
-    public static void trackEvent(IEvent event, String s) {
-        trackEvent(event);
-    }
-
-    public static void trackEvent(IEvent event, DsConfig options) {
         checkInitialized();
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
