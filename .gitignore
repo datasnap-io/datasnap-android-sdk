@@ -8,3 +8,7 @@
 /.idea/.name
 /.idea/misc.xml
 /.idea/modules.xml
+
+/app/app.iml
+/datasnap-android-sdk.iml
+/sampleapp/sampleapp.iml
