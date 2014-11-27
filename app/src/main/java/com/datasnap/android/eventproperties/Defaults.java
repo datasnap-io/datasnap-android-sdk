@@ -3,7 +3,7 @@ package com.datasnap.android.eventproperties;
 
 public class Defaults {
 
-    public static final String HOST = "https://api-events-staging.datasnap.io/v1.0/events";
+    public static final String HOST = "https://api-events.datasnap.io/v1.0/events";
 
     public static final int MAX_QUEUE_SIZE = 10000;
     public static final int TIMEOUT = 10000;
