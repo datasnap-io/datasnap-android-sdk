@@ -33,7 +33,6 @@ import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.IEvent;
 import com.datasnap.android.eventproperties.Device;
 import com.datasnap.android.eventproperties.DeviceInfo;
-import com.datasnap.android.utils.Config;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 
@@ -87,7 +86,7 @@ public class DataSnapEstimoteActivity extends Activity {
         TelephonyManager manager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
         carrierName = manager.getNetworkOperatorName();
 
-        DataSnap.initialize(getApplicationContext(), new Config());
+        DataSnap.initialize(getApplicationContext());
         organizationIds = DataSnap.getOrgIds();
         projectIds = DataSnap.getProjectIds();
         setContentView(R.layout.activity_main);

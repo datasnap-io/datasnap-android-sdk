@@ -5,6 +5,7 @@ import android.content.res.Resources;
 
 import com.datasnap.android.Defaults;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.datasnap.android.utils.Utils.isNullOrEmpty;
@@ -72,6 +73,9 @@ public class DsConfig {
     }
 
 
+    // cache the settings for 1 hour before reloading
+    public static final int SETTINGS_CACHE_EXPIRY = 1000 * 60 * 60;
+
     /**
      * Whether or not debug logging is enabled to ADT logcat
      */
@@ -91,17 +95,17 @@ public class DsConfig {
     /**
      * Flush after these many messages are added to the queue
      */
-    private int flushAt;
+    private int flushAt = 20;
 
     /**
      * Flush after this many milliseconds have passed without a flush
      */
-    private int flushAfter;
+    private int flushAfter= (int) TimeUnit.SECONDS.toMillis(10);;
 
     /**
      * Stop accepting messages after the queue reaches this capacity
      */
-    private int maxQueueSize;
+    private int maxQueueSize= 10000;
 
     /**
      * Reload the provider settings from the Segment.io after this
