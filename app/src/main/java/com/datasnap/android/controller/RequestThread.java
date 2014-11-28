@@ -1,6 +1,7 @@
 package com.datasnap.android.controller;
 
 import android.os.Handler;
+import android.util.Log;
 
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.models.EventWrapper;
@@ -44,6 +45,7 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
         Handler handler = handler();
 
         final DsConfig ds = DataSnap.getDsConfig();
+        Log.i("RequestThread.send", "Sending messages to Datasnap" + ds.getApiKey());
 
         handler.post(new Runnable() {
             @Override
@@ -83,11 +85,14 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                     if (response == null) {
                         // there's been an error
                         Logger.w("Failed to make request to the server.");
+                        Log.i("RequestThread.send", "Failed to make request to the server");
                     } else if (response.getStatusLine().getStatusCode() != 200) {
                         try {
                             // there's been a server error
+                            Log.i("RequestThread.send", "Failed to make request to the server. " + response.getStatusLine().getStatusCode());
                             Logger.e("Received a failed response from the server. %s",
                                     EntityUtils.toString(response.getEntity()));
+
                         } catch (ParseException e) {
                             Logger.w(e, "Failed to parse the response from the server.");
                         } catch (IOException e) {

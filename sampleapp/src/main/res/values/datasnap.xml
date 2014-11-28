@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Datasnap Server-->
-    <string name="datasnap_server">https://api-events-staging.datasnap.io/v1.0/events</string>
+    <string name="datasnap_server">https://api-events.datasnap.io/v1.0/events</string>
     <!-- Api Key-->
-    <string name="apiKey">QWERTYS1RYWDRDV1hBQUM4VUJQSlRWWjp3ZHBjWWdOR2VheWxGUTBRZ1JKZ3RIaUhSdUZSK2lNR1JrWGVCbUNSRTNV</string>
+    <string name="apiKey">MjFBQTNNVFhFRE1XTTJZSEJKMjFRUFQ1Ujo3Wnl0cjdzblFEaGlPM2E5SGwwaUFwZEhZQktUdGVYa05LTGNhQzlTSHcw</string>
     <!-- Organization Ids -->
     <string-array name="organizationIds">
-        <item>12xy08dMrRFeaOOler4eYa</item>
+        <item>21zzFMqYZitUC6Km4oXLBC</item>
     </string-array>
     <!-- Project Ids -->
     <string-array name="projectIds">
-        <item>12xy08dMrRFeaOOler4eYa</item>
+        <item>21zzFMqYZitUC6Km4oXLBC</item>
     </string-array>
 
     <bool name="analytics_debugging">true</bool>
