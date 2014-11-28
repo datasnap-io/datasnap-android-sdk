@@ -13,13 +13,11 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
@@ -59,19 +57,15 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                     StringEntity se = null;
                     HttpResponse response = null;
                     try {
-                        HttpHost httpproxy = new HttpHost("10.0.0.22", 8888, "http");
                         String finalStr = '[' + event.getEventStr() + ']';
                         se = new StringEntity(finalStr, HTTP.UTF_8);
                         se.setContentType("application/json");
                         post.setHeader("Content-Type", "application/json");
-                       // post.setHeader("Keep-Alive", "300");
-                      //  post.setHeader("Connection", "Keep-Alive");
                         post.setHeader("Accept", "application/json");
                         post.setHeader("Authorization",
                                 "Basic " + ds.getApiKey());
                         post.setEntity(se);
                         HttpClient httpclient = new DefaultHttpClient();
-                        httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, httpproxy);
                         response = httpclient.execute(post);
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
