@@ -5,6 +5,7 @@ package com.datasnap.android.models;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
+
 import org.json.JSONArray;
 
 public class EventListContainer {
@@ -26,7 +27,7 @@ public class EventListContainer {
     }
 
     public EventListContainer(String writeKey, List<EventWrapper> batch) {
-     this.batch = batch;
+        this.batch = batch;
     }
 }
 

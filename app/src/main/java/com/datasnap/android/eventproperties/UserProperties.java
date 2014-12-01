@@ -1,33 +1,33 @@
 package com.datasnap.android.eventproperties;
 
 public class UserProperties {
-	
-	private String userType;
-	private String high;
-	private String engagementTime;
-		
-	public String getUserType() {
-		return userType;
-	}
 
-	public void setUserType(String userType) {
-		this.userType = userType;
-	}
+    private String userType;
+    private String high;
+    private String engagementTime;
 
-	public String getHigh() {
-		return high;
-	}
+    public String getUserType() {
+        return userType;
+    }
 
-	public void setHigh(String high) {
-		this.high = high;
-	}
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
 
-	public String getEngagementTime() {
-		return engagementTime;
-	}
+    public String getHigh() {
+        return high;
+    }
 
-	public void setEngagementTime(String engagementTime) {
-		this.engagementTime = engagementTime;
-	}
-	
+    public void setHigh(String high) {
+        this.high = high;
+    }
+
+    public String getEngagementTime() {
+        return engagementTime;
+    }
+
+    public void setEngagementTime(String engagementTime) {
+        this.engagementTime = engagementTime;
+    }
+
 }

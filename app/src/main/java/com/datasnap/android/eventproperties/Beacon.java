@@ -4,10 +4,10 @@ package com.datasnap.android.eventproperties;
 //import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 
 //@JsonAutoDetect(fieldVisibility=Visibility.ANY)
-public class Beacon extends Property{
+public class Beacon extends Property {
 
-	private String identifier;
-	private String bleUuid;
+    private String identifier;
+    private String bleUuid;
     private String bleVendorUuid;
     private String bleVendorId;
     private String rssi;
@@ -25,162 +25,162 @@ public class Beacon extends Property{
     private String hardware;
     private Categories categories;
     private Tags tags;
-	
-	
-	public String getIdentifier() {
-		return identifier;
-	}
 
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
-	}
 
-	public String getBleUuid() {
-		return bleUuid;
-	}
+    public String getIdentifier() {
+        return identifier;
+    }
 
-	public void setBleUuid(String bleUuid) {
-		this.bleUuid = bleUuid;
-	}
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
 
-	public String getBleVendorUuid() {
-		return bleVendorUuid;
-	}
+    public String getBleUuid() {
+        return bleUuid;
+    }
 
-	public void setBleVendorUuid(String bleVendorUuid) {
-		this.bleVendorUuid = bleVendorUuid;
-	}
+    public void setBleUuid(String bleUuid) {
+        this.bleUuid = bleUuid;
+    }
 
-	public String getbleVendorId() {
-		return bleVendorId;
-	}
+    public String getBleVendorUuid() {
+        return bleVendorUuid;
+    }
 
-	public void setBleVendorId(String bleVendorId) {
-		this.bleVendorId = bleVendorId;
-	}
+    public void setBleVendorUuid(String bleVendorUuid) {
+        this.bleVendorUuid = bleVendorUuid;
+    }
 
-	public String getRssi() {
-		return rssi;
-	}
+    public String getbleVendorId() {
+        return bleVendorId;
+    }
 
-	public void setRssi(String rssi) {
-		this.rssi = rssi;
-	}
+    public void setBleVendorId(String bleVendorId) {
+        this.bleVendorId = bleVendorId;
+    }
 
-	public String getIsMobile() {
-		return isMobile;
-	}
+    public String getRssi() {
+        return rssi;
+    }
 
-	public void setIsMobile(String isMobile) {
-		this.isMobile = isMobile;
-	}
+    public void setRssi(String rssi) {
+        this.rssi = rssi;
+    }
 
-	public String getPreviousRssi() {
-		return previousRssi;
-	}
+    public String getIsMobile() {
+        return isMobile;
+    }
 
-	public void setPreviousRssi(String previousRssi) {
-		this.previousRssi = previousRssi;
-	}
+    public void setIsMobile(String isMobile) {
+        this.isMobile = isMobile;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getPreviousRssi() {
+        return previousRssi;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setPreviousRssi(String previousRssi) {
+        this.previousRssi = previousRssi;
+    }
 
-	public String getDwellTime() {
-		return dwellTime;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setDwellTime(String dwellTime) {
-		this.dwellTime = dwellTime;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getStartTime() {
-		return startTime;
-	}
+    public String getDwellTime() {
+        return dwellTime;
+    }
 
-	public void setStartTime(String startTime) {
-		this.startTime = startTime;
-	}
+    public void setDwellTime(String dwellTime) {
+        this.dwellTime = dwellTime;
+    }
 
-	public String getLastUpdateTime() {
-		return lastUpdateTime;
-	}
+    public String getStartTime() {
+        return startTime;
+    }
 
-	public void setLastUpdateTime(String lastUpdateTime) {
-		this.lastUpdateTime = lastUpdateTime;
-	}
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
 
-	public String getLatitude() {
-		return latitude;
-	}
+    public String getLastUpdateTime() {
+        return lastUpdateTime;
+    }
 
-	public void setLatitude(String latitude) {
-		this.latitude = latitude;
-	}
+    public void setLastUpdateTime(String lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+    }
 
-	public String getLongitude() {
-		return longitude;
-	}
+    public String getLatitude() {
+        return latitude;
+    }
 
-	public void setLongitude(String longitude) {
-		this.longitude = longitude;
-	}
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
+    }
 
-	public String getVisibility() {
-		return visibility;
-	}
+    public String getLongitude() {
+        return longitude;
+    }
 
-	public void setVisibility(String visibility) {
-		this.visibility = visibility;
-	}
+    public void setLongitude(String longitude) {
+        this.longitude = longitude;
+    }
 
-	public String getBatteryLevel() {
-		return batteryLevel;
-	}
+    public String getVisibility() {
+        return visibility;
+    }
 
-	public void setBatteryLevel(String batteryLevel) {
-		this.batteryLevel = batteryLevel;
-	}
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
+    }
 
-	public String getTemperature() {
-		return temperature;
-	}
+    public String getBatteryLevel() {
+        return batteryLevel;
+    }
 
-	public void setTemperature(String temperature) {
-		this.temperature = temperature;
-	}
+    public void setBatteryLevel(String batteryLevel) {
+        this.batteryLevel = batteryLevel;
+    }
 
-	public String getHardware() {
-		return hardware;
-	}
+    public String getTemperature() {
+        return temperature;
+    }
 
-	public void setHardware(String hardware) {
-		this.hardware = hardware;
-	}
+    public void setTemperature(String temperature) {
+        this.temperature = temperature;
+    }
 
-	public Categories getPropCategories() {
-		return categories;
-	}
+    public String getHardware() {
+        return hardware;
+    }
 
-	public void setPropCategories(Categories categories) {
-		this.categories = categories;
-	}
+    public void setHardware(String hardware) {
+        this.hardware = hardware;
+    }
 
-	public Tags getPropTags() {
-		return tags;
-	}
+    public Categories getPropCategories() {
+        return categories;
+    }
 
-	public void setPropTags(Tags tags) {
-		this.tags = tags;
-	}
+    public void setPropCategories(Categories categories) {
+        this.categories = categories;
+    }
+
+    public Tags getPropTags() {
+        return tags;
+    }
+
+    public void setPropTags(Tags tags) {
+        this.tags = tags;
+    }
 
 
 }
-	
+
 	
 

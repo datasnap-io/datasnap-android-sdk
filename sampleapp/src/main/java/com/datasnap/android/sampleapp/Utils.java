@@ -2,14 +2,10 @@ package com.datasnap.android.sampleapp;
 
 import android.content.Context;
 import android.location.Location;
-
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
+
 
 /**
  * Defines app-wide constants and utilities
@@ -65,8 +61,6 @@ public final class Utils {
         String currentDateandTime = sdf.format(d);
         return currentDateandTime;
     }
-
-
 
     /**
      * Get the latitude and longitude from the Location object returned by

@@ -4,7 +4,7 @@ import com.datasnap.android.events.IEvent;
 
 import org.json.JSONObject;
 
-public class EventWrapper  {
+public class EventWrapper {
 
     public IEvent getEvent() {
         return event;
@@ -15,11 +15,11 @@ public class EventWrapper  {
     }
 
     public IEvent event;
-  public final static String TYPE = "trackEvent";
+    public final static String TYPE = "trackEvent";
 
-  private final static String USER_ID_KEY = "userId";
-  private static final String EVENT_KEY = "beacon test event";
-  private static final String PROPERTIES_KEY = "properties";
+    private final static String USER_ID_KEY = "userId";
+    private static final String EVENT_KEY = "beacon test event";
+    private static final String PROPERTIES_KEY = "properties";
 
     public String getEventStr() {
         return eventStr;
@@ -31,19 +31,21 @@ public class EventWrapper  {
 
     private String eventStr;
 
-  public EventWrapper(JSONObject obj, IEvent event) {
+    public EventWrapper() {
 
-      this.event = event;
-  }
+        //  this.event = event;
+    }
+
+    public EventWrapper(JSONObject obj, IEvent event) {
+
+        this.event = event;
+    }
 
 
-  public EventWrapper(String userId, String eventStr, Props properties,
-                      Options options) {
-      this.eventStr = eventStr;
+    public EventWrapper(String eventStr) {
+        this.eventStr = eventStr;
 
- //   setProperties(properties);
-  }
-
+    }
 
 
 }

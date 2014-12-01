@@ -2,56 +2,52 @@ package com.datasnap.android.eventproperties;
 
 public class User {
 
-	private Tags tags;
-    private PropId Propid;
+    private Tags tags;
+    private Id id;
     private Audience audience;
-    private UserProperties userProperties; 
-	private boolean optInLocation;    
-    private boolean optInPushNotifications;   
-    private boolean optInVendor;     
-	
-	public Tags getTags() {
-		return tags;
-	}
+    private UserProperties userProperties;
+    // private boolean optInLocation;
+    //  private boolean optInPushNotifications;
+    // private boolean optInVendor;
 
-	public void setTags(Tags tags) {
-		this.tags = tags;
-	}
+    public Tags getTags() {
+        return tags;
+    }
 
-	public PropId getId() {
-		return Propid;
-	}
+    public void setTags(Tags tags) {
+        this.tags = tags;
+    }
 
-	public void setId(PropId Propid) {
-		this.Propid = Propid;
-	}
+    public Id getId() {
+        return id;
+    }
 
-	public Audience getAudience() {
-		return audience;
-	}
+    public void setId(Id id) {
+        this.id = id;
+    }
 
-	public void setAudience(Audience audience) {
-		this.audience = audience;
-	}
+    public Audience getAudience() {
+        return audience;
+    }
 
-	public UserProperties getUserProperties() {
-		return userProperties;
-	}
+    public void setAudience(Audience audience) {
+        this.audience = audience;
+    }
 
-	public void setUserProperties(UserProperties userProperties) {
-		this.userProperties = userProperties;
-	}
+    public UserProperties getUserProperties() {
+        return userProperties;
+    }
+
+    public void setUserProperties(UserProperties userProperties) {
+        this.userProperties = userProperties;
+    }
     
-    public boolean getOptInLocation() {
-		return optInLocation;
+ /*   public boolean getOptInLocation() {
+        return optInLocation;
 	}
 
 	public void setOptInLocation(boolean b) {
 		this.optInLocation = b;
-	}
-
-	public boolean getOptInPushNotifications() {
-		return optInPushNotifications;
 	}
 
 	public void setOptInPushNotifications(boolean optInPushNotifications) {
@@ -64,10 +60,9 @@ public class User {
 
 	public void setOptInVendor(boolean optInVendor) {
 		this.optInVendor = optInVendor;
-	}
+	}*/
 
 
-    
 }
 	
 	
