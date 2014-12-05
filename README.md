@@ -4,6 +4,10 @@ Datasnap Android SDK
 * Example includes a Beacon Sighting Event
 * See details about event types here: http://datasnap-io.github.io/sendingdata/
 * Events in java pojo format are in the events folders
+* The SDK stores events in the local SDK database before flushing to the Datasnap server
+* The max size for caching is currently configured to be 10,000 events 
+* The DB size will only grow if there is no network connectivity and bluetooth is switched on
+* If network connectivity is restored the database will gradually be flushed until empty
 
 Setup
 =====
