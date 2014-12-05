@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.wifi.WifiInfo;
@@ -23,7 +21,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient.Info;
-import java.io.IOException;
 
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.eventproperties.Beacon;
@@ -39,7 +36,6 @@ import com.estimote.sdk.Region;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import com.google.android.gms.location.LocationListener;
 
@@ -49,8 +45,6 @@ public class DataSnapEstimoteActivity extends Activity {
     private static final String TAG = DataSnapEstimoteActivity.class.getSimpleName();
     private static final int REQUEST_ENABLE_BT = 1234;
     private static final Region ALL_ESTIMOTE_BEACONS_REGION = new Region("rid", null, null, null);
-    private Address address;
-    private String addressString;
     private String advertisingId;
     private boolean advertisingIdOptIn;
     private BeaconManager beaconManager;
@@ -91,20 +85,6 @@ public class DataSnapEstimoteActivity extends Activity {
         projectIds = DataSnap.getProjectIds();
         setContentView(R.layout.activity_main);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // Acquire a reference to the system Location Manager
-        mgr = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        // Define a listener that responds to location updates
-        location = mgr.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                float accuracy = location.getAccuracy();
-                // Called when a new location is found by the network location provider.
-                makeUseOfNewLocation(location);
-            }
-        };
-
-
         new Thread(new Runnable() {
             public void run() {
                 try {
@@ -117,7 +97,6 @@ public class DataSnapEstimoteActivity extends Activity {
             }
         }).start();
 
-        addressString = getAddress(location);
         beaconManager = new BeaconManager(this);
         textView = (TextView) findViewById(R.id.log_text);
         textView.setMovementMethod(new ScrollingMovementMethod());
@@ -254,7 +233,6 @@ public class DataSnapEstimoteActivity extends Activity {
     @Override
     protected void onDestroy() {
         beaconManager.disconnect();
-
         super.onDestroy();
     }
 
@@ -334,56 +312,6 @@ public class DataSnapEstimoteActivity extends Activity {
         }
     }
 
-    public void makeUseOfNewLocation(Location location){
-        this.location = location;
-    }
 
-
-/*
-    optional address resolution using geocoding
-*/
-    public String getAddress(Location location) {
-        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-        List<Address> addresses = null;
-        // Try to get an address for the current location. Catch IO or network problems.
-        try {
-                /*
-                 * Call the synchronous getFromLocation() method with the latitude and
-                 * longitude of the current location. Return at most 1 address.
-                 */
-            addresses = geocoder.getFromLocation(location.getLatitude(),
-                    location.getLongitude(), 1
-            );
-
-            // Catch network or other I/O problems.
-        } catch (IOException exception1) {
-            // Log an error and return an error message
-            Log.e(Utils.APPTAG, "IO_Exception_getFromLocation");
-            // print the stack trace
-            exception1.printStackTrace();
-            // Return an error message
-            return ("IO_Exception_getFromLocation");
-            // Catch incorrect latitude or longitude values
-        } catch (IllegalArgumentException exception2) {
-            // Construct a message containing the invalid arguments
-            String errorString =
-                    "illegal_argument_exception" +
-                            location.getLatitude() +
-                            location.getLongitude();
-
-            // Log the error and print the stack trace
-            Log.e(Utils.APPTAG, errorString);
-            exception2.printStackTrace();
-            return errorString;
-        }
-        // If the reverse geocode returned an address
-        if (addresses != null && addresses.size() > 0) {
-            // Get the first address
-            address = addresses.get(0);
-            return address.toString();
-
-        }
-        return "nothing";
-    }
 
 }

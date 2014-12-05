@@ -1,11 +1,15 @@
 package com.datasnap.android;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.datasnap.android.controller.EventDatabase;
 import com.datasnap.android.controller.EventDatabaseLayerInterface;
 import com.datasnap.android.controller.EventDatabaseThread;
-import com.datasnap.android.models.EventWrapper;
+import com.datasnap.android.controller.HTTPRequester;
+import com.datasnap.android.controller.EventWrapper;
 import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.Logger;
 import com.google.gson.FieldNamingPolicy;
@@ -16,10 +20,7 @@ import com.datasnap.android.controller.FlushThread;
 import com.datasnap.android.controller.FlushThread.BatchFactory;
 import com.datasnap.android.controller.IFlushLayer;
 import com.datasnap.android.controller.IFlushLayer.FlushCallback;
-import com.datasnap.android.models.EventListContainer;
-import com.datasnap.android.controller.BasicRequester;
 import com.datasnap.android.controller.IRequestLayer;
-import com.datasnap.android.controller.IRequester;
 import com.datasnap.android.controller.RequestThread;
 import com.datasnap.android.stats.AnalyticsStatistics;
 import com.datasnap.android.utils.HandlerTimer;
@@ -28,7 +29,6 @@ import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static com.datasnap.android.utils.Utils.isNullOrEmpty;
 
@@ -44,128 +44,51 @@ public final class DataSnap {
     private static IFlushLayer flushLayer;
     private static volatile boolean initialized;
     private static volatile boolean optedOut;
+    public static boolean networkAvailable;
+    private static Gson gson;
 
     private DataSnap() {
         throw new AssertionError("No instances allowed");
     }
 
-    public static void onCreate(android.content.Context context) {
-        DataSnap.initialize(context);
-    }
-
-    public static void onCreate(android.content.Context context, String apiKey) {
-        DataSnap.initialize(context);
-    }
-
-    public static void activityStart(Activity activity) {
-        DataSnap.initialize(activity);
-    }
-
-    public static void activityStart(Activity activity, String apiKey) {
-        DataSnap.initialize(activity);
-    }
-
-    public static void activityStart(Activity activity, String apiKey, DsConfig options) {
-        DataSnap.initialize(activity);
-        if (optedOut) return;
-    }
-
-
-    /**
-     * Called when the activity has been resumed
-     *
-     * @param activity Your Android Activity
-     */
-    public static void activityResume(Activity activity) {
-        DataSnap.initialize(activity);
-        if (optedOut) return;
-    }
-
-    /**
-     * Called when the activity has been stopped
-     *
-     * @param activity Your Android Activity
-     */
-    public static void activityStop(Activity activity) {
-        DataSnap.initialize(activity);
-        if (optedOut) return;
-    }
-
-    /**
-     * Called when the activity has been paused
-     *
-     * @param activity Your Android Activity
-     */
-    public static void activityPause(Activity activity) {
-        DataSnap.initialize(activity);
-        if (optedOut) return;
-    }
 
     public static void initialize(android.content.Context context) {
         String errorPrefix = "DataSnap client must be initialized with a valid ";
         if (context == null) throw new IllegalArgumentException(errorPrefix + "android context.");
         if (initialized) return;
         DataSnap.statistics = new AnalyticsStatistics();
-
         dsConfig = DsConfig.getInstance(context);
+        // set logging based on the debug mode
+        Logger.setLog(dsConfig.isDebug());
+        networkAvailable = isNetworkAvailable(context);
         database = EventDatabase.getInstance(context);
-
-
         // now we need to create our singleton thread-safe database thread
         DataSnap.databaseLayer = new EventDatabaseThread(database);
         DataSnap.databaseLayer.start();
 
-        IRequester requester = new BasicRequester();
-
+        HTTPRequester requester = new HTTPRequester();
         // and a single request thread
         DataSnap.requestLayer = new RequestThread(requester);
         DataSnap.requestLayer.start();
-
         // start the flush thread
-        DataSnap.flushLayer =
-                new FlushThread(DataSnap.databaseLayer, batchFactory, DataSnap.requestLayer);
-
-        // DataSnap.flushTimer = new HandlerTimer(options.getFlushAfter(), flushClock);
-        DataSnap.flushTimer = new HandlerTimer((int) TimeUnit.SECONDS.toMillis(10), flushClock);
-
+        DataSnap.flushLayer = new FlushThread(DataSnap.databaseLayer, batchFactory, DataSnap.requestLayer);
+        DataSnap.flushTimer = new HandlerTimer(dsConfig.getFlushAfter(), flushClock);
         initialized = true;
-
         // start the other threads
         DataSnap.flushTimer.start();
         DataSnap.flushLayer.start();
 
+        // intitialise json builder
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+        gson = gsonBuilder.create();
+
     }
 
     /**
-     * Factory that creates batches from event payloads.
-     * <p/>
-     * Inserts system information into global batches
+     *
+     * API Calls: trackEvent() for a single vvent or trackEvents() for multiple
      */
-    private static BatchFactory batchFactory = new BatchFactory() {
-
-        @Override
-        public EventListContainer create(List<EventWrapper> payloads) {
-            return new EventListContainer(apiKey, payloads);
-        }
-    };
-
-    /**
-     * Flushes on a clock timer
-     */
-    private static Runnable flushClock = new Runnable() {
-        @Override
-        public void run() {
-            DataSnap.flush(true);
-        }
-    };
-
-    //
-    // API Calls --> trackEvent() or trackEvents()
-    //
-
-
-
-
 
     public static void trackEvent(IEvent event) {
         if (dsConfig == null)
@@ -180,7 +103,6 @@ public final class DataSnap {
             throw new IllegalArgumentException(
                     "analytics-android #trackEvent must be initialized with a valid event name.");
         }
-
         EventWrapper eventWrapper = new EventWrapper(json);
         enqueue(eventWrapper);
         statistics.updateTracks(1);
@@ -188,33 +110,76 @@ public final class DataSnap {
 
 
     public static void trackEvents(ArrayList<IEvent> eventArrayList) {
-
         for (IEvent event : eventArrayList) {
             checkInitialized();
-            GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-            Gson gson = gsonBuilder.create();
             String json = gson.toJson(event);
-
             if (optedOut) return;
             if (isNullOrEmpty(json)) {
                 throw new IllegalArgumentException(
-                        "analytics-android #trackEvent must be initialized with a valid event name.");
+                        "Event failed to be created- due to null or empty data");
             }
-
             if (dsConfig == null)
                 dsConfig = new DsConfig();
-
             EventWrapper eventWrapper = new EventWrapper(json);
             enqueue(eventWrapper);
             statistics.updateTracks(1);
         }
     }
 
-    //
-    // Internal
-    //
+    /**
+     * Flush data to the server.
+     *
+     * @param async True to block until the data is flushed
+     */
+    public static void flush(boolean async) {
+        checkInitialized();
+        statistics.updateFlushAttempts(1);
+        final long start = System.currentTimeMillis();
+        final CountDownLatch latch = new CountDownLatch(1);
 
+        flushLayer.flush(new FlushCallback() {
+            @Override
+            public void onFlushCompleted(boolean success, List<EventWrapper>batch) {
+                latch.countDown();
+                if (success) {
+                    long duration = System.currentTimeMillis() - start;
+                    statistics.updateFlushTime(duration);
+                }
+            }
+        });
+
+        if (!async) {
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                Logger.e("Interrupted while waiting for a blocking flush.");
+            }
+        }
+    }
+
+    // Factory that creates batches from event payloads.
+    private static BatchFactory batchFactory = new BatchFactory() {
+        @Override
+        public List<EventWrapper>  create(List<EventWrapper> payloads) {
+            return new ArrayList<EventWrapper> (payloads);
+        }
+    };
+
+      // Flushes on a clock timer
+    private static Runnable flushClock = new Runnable() {
+        @Override
+        public void run() {
+            DataSnap.flush(true);
+        }
+    };
+
+
+    private static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     /**
      * Enqueues a an event
@@ -246,74 +211,28 @@ public final class DataSnap {
         }
     }
 
-    //
-    // Opt out
-    //
-
     /**
-     * Turns on opt out, opting out of any analytics sent from this point forward.
-     */
-    public static void optOut() {
-        optOut(true);
-    }
-
-    /**
-     * Toggle opt out
      *
-     * @param optOut true to stop sending any more analytics.
+     * @param optOut true to stop sending any more events.
      */
     public static void optOut(boolean optOut) {
-        boolean toggled = DataSnap.optedOut != optOut;
         DataSnap.optedOut = optOut;
     }
 
-    //
-    // Actions
-    //
-
-    /**
-     * Triggers a flush of data to the server.
-     *
-     * @param async True to block until the data is flushed
-     */
-    public static void flush(boolean async) {
-        checkInitialized();
-
-        statistics.updateFlushAttempts(1);
-        final long start = System.currentTimeMillis();
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        flushLayer.flush(new FlushCallback() {
-            @Override
-            public void onFlushCompleted(boolean success, EventListContainer eventListContainer) {
-                latch.countDown();
-                if (success) {
-                    long duration = System.currentTimeMillis() - start;
-                    statistics.updateFlushTime(duration);
-                }
-            }
-        });
-
-        if (!async) {
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                Logger.e("Interrupted while waiting for a blocking flush.");
-            }
-        }
-    }
 
     /**
      * Stop the threads, and reset the client
      */
     public static void close() {
         checkInitialized();
-        // stops the looper on the timer, flush, request, and database thread
+
+        // stop the looper on the timer, & the flush, request, and database threads
         flushTimer.quit();
         flushLayer.quit();
         databaseLayer.quit();
         requestLayer.quit();
-        // closes the database
+
+        // close database and set intialized parameters to null
         database.close();
         dsConfig = null;
         apiKey = null;
@@ -356,7 +275,6 @@ public final class DataSnap {
         if (statistics == null) checkInitialized();
         return statistics;
     }
-
 
 
 }

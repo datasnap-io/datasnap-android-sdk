@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.util.Pair;
 
 import com.datasnap.android.Defaults;
-import com.datasnap.android.models.EventWrapper;
 import com.datasnap.android.utils.LooperThreadWithHandler;
 
 import java.util.LinkedList;
@@ -25,10 +24,8 @@ public class EventDatabaseThread extends LooperThreadWithHandler
     }
 
     public void enqueue(final EventWrapper payload, final EnqueueCallback callback) {
-
         Handler handler = handler();
         handler.post(new Runnable() {
-
             @Override
             public void run() {
                 boolean success = database.addEvent(payload);
@@ -40,44 +37,33 @@ public class EventDatabaseThread extends LooperThreadWithHandler
     }
 
     public void nextEvent(final PayloadCallback callback) {
-
         Handler handler = handler();
         handler.post(new Runnable() {
-
             @Override
             public void run() {
-
                 List<Pair<Long, EventWrapper>> pairs = database.getEvents(Defaults.FLUSH_AT);
-
                 long minId = 0;
                 long maxId = 0;
 
                 List<EventWrapper> payloads = new LinkedList<EventWrapper>();
-
                 if (pairs.size() > 0) {
                     minId = pairs.get(0).first;
                     maxId = pairs.get(pairs.size() - 1).first;
-
                     for (Pair<Long, EventWrapper> pair : pairs) {
                         payloads.add(pair.second);
                     }
                 }
-
                 if (callback != null) callback.onPayload(minId, maxId, payloads);
             }
         });
     }
 
     public void removePayloads(final long minId, final long maxId, final RemoveCallback callback) {
-
         Handler handler = handler();
         handler.post(new Runnable() {
-
             @Override
             public void run() {
-
                 int removed = database.removeEvents(minId, maxId);
-
                 if (callback != null) callback.onRemoved(removed);
             }
         });

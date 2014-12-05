@@ -3,7 +3,7 @@ package com.datasnap.android.utils;
 import android.os.Handler;
 import android.os.Looper;
 
-public class LooperThreadWithHandler extends Thread implements IThreadedLayer {
+public class LooperThreadWithHandler extends Thread  {
 
     private Handler handler;
 
