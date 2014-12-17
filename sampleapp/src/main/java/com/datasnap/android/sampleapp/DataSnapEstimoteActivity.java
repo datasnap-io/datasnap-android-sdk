@@ -140,6 +140,7 @@ public class DataSnapEstimoteActivity extends Activity {
         beacon.setBatteryLevel("" + estimoteBeacon.getMeasuredPower());
         beacon.setRssi("" + estimoteBeacon.getRssi());
         beacon.setName(estimoteBeacon.getName());
+        beacon.setBleVendorId("Estimote");
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setCreated(Utils.getTime());
         deviceInfo.setDevice(device);
