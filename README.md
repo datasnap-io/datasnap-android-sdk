@@ -2,7 +2,7 @@ Datasnap Android SDK
 ====================
 * Includes a sample app that integrates with Estimote beacon hardware
 * Example includes a Beacon Sighting Event
-* See details about event types here: http://datasnap-io.github.io/sendingdata/
+* See details about event types here: http://docs.datasnapio.apiary.io/
 * Events in java pojo format are in the events folders
 * The SDK stores events in the local SDK database before flushing to the Datasnap server
 * The max size for caching is currently configured to be 10,000 events 
