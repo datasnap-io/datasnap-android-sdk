@@ -108,6 +108,7 @@ public final class DataSnap {
         DataSnap.statistics = new AnalyticsStatistics();
 
         dsConfig = DsConfig.getInstance(context);
+        Logger.setLog(true);
         database = EventDatabase.getInstance(context);
 
 

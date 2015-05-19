@@ -69,6 +69,7 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                         post.setEntity(se);
                         HttpClient httpclient = new DefaultHttpClient();
                         response = httpclient.execute(post);
+
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     } catch (ClientProtocolException e) {
@@ -101,7 +102,7 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                     } else {
 
                         Logger.d("Successfully sent an event to the server");
-
+                        Log.i("RequestThread.send", "Successfully sent an event to the server");
                         success = true;
                     }
 
