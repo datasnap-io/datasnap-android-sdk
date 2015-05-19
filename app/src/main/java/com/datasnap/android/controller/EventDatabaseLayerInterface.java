@@ -1,6 +1,5 @@
 package com.datasnap.android.controller;
 
-import com.datasnap.android.models.EventWrapper;
 import com.datasnap.android.utils.IThreadedLayer;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public interface EventDatabaseLayerInterface extends IThreadedLayer {
     /**
      * Callback for when a database payload query returns
      *
-     * @author ivolo
+     *
      */
     public interface PayloadCallback {
         void onPayload(long minId, long maxId, List<EventWrapper> payloads);
@@ -38,7 +37,7 @@ public interface EventDatabaseLayerInterface extends IThreadedLayer {
     /**
      * Callback for when payloads are removed from the database
      *
-     * @author ivolo
+     *
      */
     public interface RemoveCallback {
         void onRemoved(int removed);

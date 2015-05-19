@@ -1,7 +1,8 @@
 package com.datasnap.android.controller;
 
-import com.datasnap.android.models.EventListContainer;
 import com.datasnap.android.utils.IThreadedLayer;
+
+import java.util.List;
 
 /**
  * Handles sending requests to the server end point
@@ -29,7 +30,7 @@ public interface IRequestLayer extends IThreadedLayer {
     //
 
     /**
-     * Send an action eventListContainer to the server.
+     * Send events to the server.
      */
-    void send(EventListContainer eventListContainer, RequestCallback callback);
+    void send(List<EventWrapper> batch, RequestCallback callback);
 }
