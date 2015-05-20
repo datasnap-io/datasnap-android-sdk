@@ -53,7 +53,7 @@ Android Studio:
 
 ### Minimal Sample App
 
-the /sampleapp folder is also included so you can easily run a sample app form within the latest source.
+the /sampleapp folder is also included in this Repo so you can easily run a sample app form within the latest source.
 
 
 
@@ -80,13 +80,14 @@ the /sampleapp folder is also included so you can easily run a sample app form w
 ## Data that could be sent to us and what we send automatically
 
 
-You will notice that our SDK is pretty dumb and does NOT try to itself pull information about the device.
+You will notice that our SDK is pretty dumb and does NOT try to itself pull information about the device withour SDK.
 
 We do however define these OPTIONAL properties in our API and we can easily integrate those analytic type properties into
 our reporting but we really try to let the app developer manage hwo to get and set those.
 
 Here is some sample code in our sample app showing how you could make the appropriate android API calls and set our properties:
 
+There is also some example code the exampel app on how to pull the Google Advertiser ID. Not that our SDK will never pull this information.
 
 
 ```
@@ -117,10 +118,15 @@ Here is some sample code in our sample app showing how you could make the approp
 
 ```
 
+There is also some example code the example app on how to pull the Google Advertiser ID. Not that our SDK will never pull this information.
+
+See:
+
+
 
 ## Sample event.
 
-Here is a sample method using some hardcoded values and some live data beinf retrieve via the Estimote SDK.
+Here is a sample method using some hardcoded values and some live data being retrieve via the Estimote SDK.
 
 This method will also send the event to us:
 
@@ -149,3 +155,19 @@ This method will also send the event to us:
 
 
 
+
+## Datasnap.io Backend Status Page
+
+We offer the ability to check on our server status at anytime. Also if you are a client and we have issued you an API key then that means that
+we will email you of any downtime as soon as it occurs:
+
+http://status.datasnap.io/
+
+
+## Third Party Libraries
+
+Right nwo its very minimal:
+
+```
+gson-2.3.jar
+```
