@@ -4,15 +4,15 @@
     <!-- Datasnap Server-->
     <string name="datasnap_server">https://api-events.datasnap.io/v1.0/events</string>
     <!-- Api Key-->
-    <string name="apiKey">MjFBQTNNVFhFRE1XTTJZSEJKMjFRUFQ1Ujo3Wnl0cjdzblFEaGlPM2E5SGwwaUFwZEhZQktUdGVYa05LTGNhQzlTSHcw</string>
+    <string name="datasnap_apiKey">MjFBQTNNVFhFRE1XTTJZSEJKMjFRUFQ1Ujo3Wnl0cjdzblFEaGlPM2E5SGwwaUFwZEhZQktUdGVYa05LTGNhQzlTSHcw</string>
     <!-- Organization Ids -->
-    <string-array name="organizationIds">
+    <string-array name="datasnap_organizationIds">
         <item>21zzFMqYZitUC6Km4oXLBC</item>
     </string-array>
     <!-- Project Ids -->
-    <string-array name="projectIds">
+    <string-array name="datasnap_projectIds">
         <item>21zzFMqYZitUC6Km4oXLBC</item>
     </string-array>
-    <bool name="logging">true</bool>
+    <bool name="datasnap_logging">true</bool>
 
 </resources>
