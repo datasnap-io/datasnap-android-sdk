@@ -14,18 +14,24 @@
 In order to integrate the Datasnap SDK with your application
 * Add a datasnap.xml resources file to your project containing the following information (See more details in the sample app project - required fields : datasnap server, apiKey, organizationIds, projectIds):    
 ```xml  
-    <!-- Datasnap Server-->    
-        <string name="datasnap_server">https://api-events-staging.datasnap.io/v1.0/events</string>
-        <!-- Api Key-->
-        <string name="datasnap_apiKey">K8xBSjg0S1RYWDRDV1hBQUM4VUJQSlRWWjp3ZHBjWWdOR2VheWxGUTBRZ1JKZ3RIaUhSdUZSK2lNR1JrWGVCbUNSRTNV</string>
-        <!-- Organization Ids -->
-        <string-array name="datasnap_organizationIds">
-            <item>56xj08dMrRFeaOOler4eYa</item>
-        </string-array>
-        <!-- Project Ids -->
-        <string-array name="datasnap_projectIds">
-            <item>56xj08dMrRFeaOOler4eYa</item>
-        </string-array>   
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- Datasnap Server-->
+    <string name="datasnap_server">https://api-events.datasnap.io/v1.0/events</string>
+    <!-- Api Key-->
+    <string name="datasnap_apiKey">MjFBQTNNVFhFRE1XTTJZSEJKMjFRUFQ1Ujo3Wnl0cjdzblFEaGlPM2E5SGwwaUFwZEhZQktUdGVYa05LTGNhQzlTSHcw</string>
+    <!-- Organization Ids -->
+    <string-array name="datasnap_organizationIds">
+        <item>21zzFMqYZitUC6Km4oXLBC</item>
+    </string-array>
+    <!-- Project Ids -->
+    <string-array name="datasnap_projectIds">
+        <item>21zzFMqYZitUC6Km4oXLBC</item>
+    </string-array>
+    <bool name="datasnap_logging">true</bool>
+
+</resources>
 ```
 * Initialize Datasnap and send an instance of IEvent to it, in order to send events to the datasnap server
 
