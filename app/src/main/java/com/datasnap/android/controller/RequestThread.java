@@ -86,16 +86,15 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                             // there's been a server error
                             Logger.e("Received a failed response from the server. %s",
                                     EntityUtils.toString(response.getEntity()));
-                            // there's been a server error
-                            Logger.e("Received a failed response from the server. %s",
-                                    EntityUtils.toString(response.getEntity()));
+
                         } catch (ParseException e) {
                             Logger.w(e, "Failed to parse the response from the server.");
                         } catch (IOException e) {
                             Logger.w(e, "Failed to read the response from the server.");
                         }
                     }
-                    if (callback != null) callback.onRequestCompleted(success);
+                    //its all success for now. Any http error will be discarded to not impact device.
+                    callback.onRequestCompleted(success);
                 }
         });
     }
