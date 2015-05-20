@@ -13,8 +13,8 @@ import android.util.Pair;
 
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.Defaults;
-import com.datasnap.android.models.EventWrapper;
 import com.datasnap.android.utils.Logger;
+
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,26 +23,21 @@ import java.util.concurrent.atomic.AtomicLong;
 public class EventDatabase extends SQLiteOpenHelper {
 
     private static EventDatabase instance;
+    public static String externalFilesDir;
+ // keeps db count without requiring SQL count to be called
+    private AtomicLong count;
+    private boolean initialCount;
 
     public static EventDatabase getInstance(Context context) {
         if (instance == null) {
             instance = new EventDatabase(context);
         }
-
         return instance;
     }
 
-    /**
-     * Caches the count of the database without requiring SQL count to be
-     * called every time. This will allow us to quickly determine whether
-     * our database is full and we shouldn't add anymore
-     */
-    private AtomicLong count;
-    private boolean initialCount;
-
     private EventDatabase(Context context) {
         super(context, Defaults.Database.NAME, null, Defaults.Database.VERSION);
-
+        externalFilesDir = context.getExternalFilesDir(null).getAbsolutePath();
         this.count = new AtomicLong();
     }
 
@@ -82,31 +77,24 @@ public class EventDatabase extends SQLiteOpenHelper {
         }
     }
 
-    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // migration from db version, 1->2, we want to drop all the existing items to prevent crashes
-        if (oldVersion == 1) removeEvents();
+        // get rid of all Database events
+      removeEvents();
     }
 
     /**
-     * Adds a payload to the database
+     * Adds an event to the database
      */
     public boolean addEvent(EventWrapper payload) {
-
         ensureCount();
-
         long rowCount = getRowCount();
         final int maxQueueSize = DataSnap.getDsConfig().getMaxQueueSize();
         if (rowCount >= maxQueueSize) {
             Logger.w("Cant add action, the database is larger than max queue size (%d).", maxQueueSize);
             return false;
         }
-
         boolean success = false;
-
         String json = payload.getEventStr();
-        //serializer.serialize(payload);
-
         synchronized (this) {
 
             SQLiteDatabase db = null;
@@ -117,7 +105,6 @@ public class EventDatabase extends SQLiteOpenHelper {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(Defaults.Database.EventTable.Fields.Event.NAME, json);
                 long result = db.insert(Defaults.Database.EventTable.NAME, null, contentValues);
-
                 if (result == -1) {
                     Logger.w("Database insert failed. Result: %s", result);
                 } else {
@@ -139,15 +126,10 @@ public class EventDatabase extends SQLiteOpenHelper {
      * Fetches the total amount of rows in the database
      */
     private long countRows() {
-
         String sql = String.format("SELECT COUNT(*) FROM %s", Defaults.Database.EventTable.NAME);
-
         long numberRows = 0;
-
         SQLiteDatabase db = null;
-
         synchronized (this) {
-
             try {
                 db = getWritableDatabase();
                 SQLiteStatement statement = db.compileStatement(sql);
@@ -158,7 +140,6 @@ public class EventDatabase extends SQLiteOpenHelper {
                 if (db != null) db.close();
             }
         }
-
         return numberRows;
     }
 
@@ -168,28 +149,22 @@ public class EventDatabase extends SQLiteOpenHelper {
      */
     public long getRowCount() {
         if (!initialCount) ensureCount();
+        Logger.d("Database row count:"+count.get());
         return count.get();
     }
 
     /**
-     * Get the next (limit) events from the database
+     * Get the next events from the database
      */
-
 
     // DEBUG HERE!!!!
     public List<Pair<Long, EventWrapper>> getEvents(int limit) {
-
         List<Pair<Long, EventWrapper>> result = new LinkedList<Pair<Long, EventWrapper>>();
-
         SQLiteDatabase db = null;
         Cursor cursor = null;
-
         synchronized (this) {
-
             try {
-
                 db = getWritableDatabase();
-
                 String table = Defaults.Database.EventTable.NAME;
                 String[] columns = Defaults.Database.EventTable.FIELD_NAMES;
                 String selection = null;
@@ -198,17 +173,12 @@ public class EventDatabase extends SQLiteOpenHelper {
                 String having = null;
                 String orderBy = Defaults.Database.EventTable.Fields.Id.NAME + " ASC";
                 String limitBy = "" + limit;
-
-                cursor =
-                        db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limitBy);
-
+                cursor = db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy, limitBy);
                 while (cursor.moveToNext()) {
                     long id = cursor.getLong(0);
                     String json = cursor.getString(1);
-
                     EventWrapper payload = new EventWrapper();
                     payload.setEventStr(json);
-                    //serializer.deserialize(json);
 
                     if (payload != null)
                         result.add(new Pair<Long, EventWrapper>(id, payload));
@@ -224,7 +194,6 @@ public class EventDatabase extends SQLiteOpenHelper {
                 }
             }
         }
-
         return result;
     }
 
@@ -234,15 +203,10 @@ public class EventDatabase extends SQLiteOpenHelper {
     @SuppressLint("DefaultLocale")
     public int removeEvents(long minId, long maxId) {
         ensureCount();
-
         SQLiteDatabase db = null;
-
         String idFieldName = Defaults.Database.EventTable.Fields.Id.NAME;
-
         String filter = String.format("%s >= %d AND %s <= %d", idFieldName, minId, idFieldName, maxId);
-
         int deleted = -1;
-
         synchronized (this) {
             try {
                 db = getWritableDatabase();
@@ -250,12 +214,11 @@ public class EventDatabase extends SQLiteOpenHelper {
                 // decrement the row counter
                 count.addAndGet(-deleted);
             } catch (SQLiteException e) {
-                Logger.e(e, "Failed to remove items from the Segment payload db");
+                Logger.e(e, "Failed to remove items from the Event db");
             } finally {
                 if (db != null) db.close();
             }
         }
-
         return deleted;
     }
 
@@ -275,13 +238,13 @@ public class EventDatabase extends SQLiteOpenHelper {
                 // decrement the row counter
                 count.addAndGet(-deleted);
             } catch (SQLiteException e) {
-                Logger.e(e, "Failed to remove all items from the Segment payload db");
+                Logger.e(e, "Failed to remove all items from the Event db");
             } finally {
                 if (db != null) db.close();
             }
         }
 
-        Logger.d("Removed all %d event items from the Segment payload db.", deleted);
+        Logger.d("Removed all %d event items from the event db.", deleted);
         return deleted;
     }
 }
