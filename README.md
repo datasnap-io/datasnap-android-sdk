@@ -9,6 +9,17 @@
 * The DB size will only grow if there is no network connectivity and bluetooth is switched on
 * If network connectivity is restored the database will gradually be flushed until empty
 
+
+## Current Version
+==================
+
+Version 1.0.1
+
+Error handling and Documentation updates:
+
+(./releases/datasnapsdk-1.0.1.zip)
+
+
 ## Setup
 =====
 In order to integrate the Datasnap SDK with your application
