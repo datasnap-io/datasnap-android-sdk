@@ -37,17 +37,19 @@ In order to integrate the Datasnap SDK with your application
 
 
 
-
 ## Android Quick Start
 
 Integrating Datasnap.io with an Android application? Check out the [Datasnap.io Android Sample App](https://github.com/datasnap-io/datasnap-android-estimote-sample
 ) to get started, then check back here for more detailed documentation.
+
 
 ## Installation
 
 ### Gradle
 
 Android Studio:
+
+git clone this Repo and import new project using that new local folder containing the repo into Android Studio.
 
 
 
