@@ -10,11 +10,11 @@ import static com.datasnap.android.utils.Utils.isNullOrEmpty;
 
 public class DsConfig {
 
-    static final String API_KEY_RESOURCE_IDENTIFIER = "apiKey";
-    static final String ORGANIZATION_IDS_RESOURCE_IDENTIFIER = "organizationIds";
-    static final String PROJECT_IDS_RESOURCE_IDENTIFIER = "projectIds";
+    static final String API_KEY_RESOURCE_IDENTIFIER = "datasnap_apiKey";
+    static final String ORGANIZATION_IDS_RESOURCE_IDENTIFIER = "datasnap_organizationIds";
+    static final String PROJECT_IDS_RESOURCE_IDENTIFIER = "datasnap_projectIds";
     static final String DATASNAP_SERVER_RESOURCE_IDENTIFIER = "datasnap_server";
-    static final String LOGGING = "logging";
+    static final String LOGGING = "datasnap_logging";
     private static DsConfig instance;
     private String[] orgIds;
     private String[] projectIds;
