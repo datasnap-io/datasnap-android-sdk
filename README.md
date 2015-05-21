@@ -179,7 +179,7 @@ http://status.datasnap.io/
 
 ## Third Party Libraries
 
-Right nwo its very minimal:
+Right now its very minimal:
 
 ```
 gson-2.3.jar
