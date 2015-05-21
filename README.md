@@ -15,10 +15,10 @@
 
 Version 1.0.1
 
-Error handling and Documentation updates:
+[Version 1.0.1](releases/datasnapsdk-1.0.1.zip)
 
-(./releases/datasnapsdk-1.0.1.zip)
-
+Release Notes:
+* Error handling and Documentation updates
 
 ## Setup
 =====
