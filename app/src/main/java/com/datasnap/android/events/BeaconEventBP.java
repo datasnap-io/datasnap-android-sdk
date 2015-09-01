@@ -21,6 +21,9 @@ public class BeaconEventBP implements IEvent {
     private final String eventType;
     private final String[] organizationIds;
     private final String[] projectIds;
+    private String customerOrgId;
+    private String customerVenueOrgId;
+    private String venueOrgId;
     private final Place place;
     private final User user;
     private final Beacon beacon;
@@ -40,6 +43,11 @@ public class BeaconEventBP implements IEvent {
         organizationIds = builder.organizationIds;
         projectIds = builder.projectIds;
 
+        customerOrgId = builder.customerOrgId;
+        customerVenueOrgId = builder.customerVenueOrgId;
+        venueOrgId = builder.venueOrgId;
+
+
     }
 
     public static class Builder implements IEvent {
@@ -48,6 +56,9 @@ public class BeaconEventBP implements IEvent {
 
         private String[] organizationIds;
         private String[] projectIds;
+        private String customerOrgId;
+        private String customerVenueOrgId;
+        private String venueOrgId;
         private Place place;
         private User user;
         private DeviceInfo deviceInfo; // for now

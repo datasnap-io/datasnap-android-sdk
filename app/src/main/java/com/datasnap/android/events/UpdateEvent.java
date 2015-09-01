@@ -21,6 +21,9 @@ public class UpdateEvent implements IEvent {
     private String eventType;
     private String[] organizationIds;
     private String[] projectIds;
+    private String customerOrgId;
+    private String customerVenueOrgId;
+    private String venueOrgId;
     private com.datasnap.android.eventproperties.Beacon Beacon;
     private Place place;
     private User user;
@@ -28,13 +31,17 @@ public class UpdateEvent implements IEvent {
     private Map<String, Object> additionalProperties;
 
     public UpdateEvent(String eventType, String[] organizationIds,
-                       String[] projectIds, com.datasnap.android.eventproperties.Beacon beacon, Map<String, Object> additionalProperties) {
+                       String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, com.datasnap.android.eventproperties.Beacon beacon, Map<String, Object> additionalProperties) {
         super();
         this.eventType = eventType;
         this.organizationIds = organizationIds;
         this.projectIds = projectIds;
         Beacon = beacon;
         this.additionalProperties = additionalProperties;
+        this.customerOrgId = customerOrgId;
+        this.customerVenueOrgId = customerVenueOrgId;
+        this.venueOrgId = venueOrgId;
+
     }
 
     public Map<String, Object> getAdditionalProperties() {
@@ -68,6 +75,32 @@ public class UpdateEvent implements IEvent {
     public void setProjectIds(String[] projectIds) {
         this.projectIds = projectIds;
     }
+
+
+    public String getCustomerOrgId() {
+        return customerOrgId;
+    }
+
+    public void setCustomerOrgId(String customerOrgId) {
+        this.customerOrgId = customerOrgId;
+    }
+
+    public String getCustomerVenueOrgId() {
+        return customerVenueOrgId;
+    }
+
+    public void setCustomerVenueOrgId(String customerVenueOrgId) {
+        this.customerVenueOrgId = customerVenueOrgId;
+    }
+
+    public String getVenueOrgId() {
+        return venueOrgId;
+    }
+
+    public void setVenueOrgId(String venueOrgId) {
+        this.venueOrgId = venueOrgId;
+    }
+
 
     public com.datasnap.android.eventproperties.Beacon getBeacon() {
         return Beacon;

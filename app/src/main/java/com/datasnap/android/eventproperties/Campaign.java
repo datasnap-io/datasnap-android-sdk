@@ -2,7 +2,7 @@ package com.datasnap.android.eventproperties;
 
 public class Campaign extends Property {
 
-    private String campaignId;
+    private String identifier;
     private String name;
     private Tags tags;
     private String communicationIds;
@@ -133,12 +133,12 @@ public class Campaign extends Property {
      */
 
 
-    public String getCampaignId() {
-        return campaignId;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setCampaignId(String campaignId) {
-        this.campaignId = campaignId;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     public String getName() {

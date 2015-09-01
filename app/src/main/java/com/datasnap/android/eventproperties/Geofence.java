@@ -2,18 +2,18 @@ package com.datasnap.android.eventproperties;
 
 public class Geofence {
 
-    private String id;
+    private String identifier;
     private String name;
     private String visibility;
     private Tags tags;
     private GeofenceCircle geofenceCircle;
 
-    public String getId() {
-        return id;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     public String getName() {

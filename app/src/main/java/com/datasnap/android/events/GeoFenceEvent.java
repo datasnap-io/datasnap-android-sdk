@@ -20,6 +20,9 @@ public class GeoFenceEvent implements IEvent {
     private String eventType;
     private String[] organizationIds;
     private String[] projectIds;
+    private String customerOrgId;
+    private String customerVenueOrgId;
+    private String venueOrgId;
     private Place place;
     private Geofence geofence;
     private User user;
@@ -27,7 +30,7 @@ public class GeoFenceEvent implements IEvent {
     private Map<String, Object> additionalProperties;
 
     public GeoFenceEvent(String eventType, String[] organizationIds,
-                         String[] projectIds, Place place, Geofence geofence, User user, Map<String, Object> additionalProperties) {
+                         String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, Geofence geofence, User user, Map<String, Object> additionalProperties) {
         super();
         this.eventType = eventType;
         this.organizationIds = organizationIds;
@@ -36,6 +39,9 @@ public class GeoFenceEvent implements IEvent {
         this.geofence = geofence;
         this.user = user;
         this.additionalProperties = additionalProperties;
+        this.customerOrgId = customerOrgId;
+        this.customerVenueOrgId = customerVenueOrgId;
+        this.venueOrgId = venueOrgId;
 
     }
 
@@ -69,6 +75,30 @@ public class GeoFenceEvent implements IEvent {
 
     public void setProjectIds(String[] projectIds) {
         this.projectIds = projectIds;
+    }
+
+    public String getCustomerOrgId() {
+        return customerOrgId;
+    }
+
+    public void setCustomerOrgId(String customerOrgId) {
+        this.customerOrgId = customerOrgId;
+    }
+
+    public String getCustomerVenueOrgId() {
+        return customerVenueOrgId;
+    }
+
+    public void setCustomerVenueOrgId(String customerVenueOrgId) {
+        this.customerVenueOrgId = customerVenueOrgId;
+    }
+
+    public String getVenueOrgId() {
+        return venueOrgId;
+    }
+
+    public void setVenueOrgId(String venueOrgId) {
+        this.venueOrgId = venueOrgId;
     }
 
     public Geofence getGeofence() {

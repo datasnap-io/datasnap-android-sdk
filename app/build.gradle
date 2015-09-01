@@ -4,7 +4,7 @@ android {
     buildToolsVersion "21.1.1"
 
     defaultConfig {
-        applicationId "com.datasnap.android.datasnapandroidsdk"
+
         minSdkVersion 18
         targetSdkVersion 21
         versionCode 1
@@ -12,7 +12,7 @@ android {
     }
     buildTypes {
         release {
-            runProguard minifyEnabled
+             minifyEnabled
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
