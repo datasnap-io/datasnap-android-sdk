@@ -12,6 +12,16 @@
 
 ## Current Version
 ==================
+Version 1.0.2
+
+[Version 1.0.2](releases/datasnapsdk-1.0.2.zip)
+
+Release Notes:
+* Adding venue_org_id to SDK and fixing id fields and renaming to identifier where appropriate.
+
+
+## Version Archive
+===================
 
 Version 1.0.1
 
