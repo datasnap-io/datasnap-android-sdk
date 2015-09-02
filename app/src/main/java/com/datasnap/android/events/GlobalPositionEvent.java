@@ -20,6 +20,9 @@ public class GlobalPositionEvent implements IEvent {
     private String eventType;
     private String[] organizationIds;
     private String[] projectIds;
+    private String customerOrgId;
+    private String customerVenueOrgId;
+    private String venueOrgId;
     private User user;
     private GlobalPosition GlobalPosition;
     private DeviceInfo DeviceInfo;
@@ -27,7 +30,7 @@ public class GlobalPositionEvent implements IEvent {
     private Map<String, Object> additionalProperties;
 
     public GlobalPositionEvent(String eventType, String[] organizationIds,
-                               String[] projectIds, User user, GlobalPosition globalPosition,
+                               String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, GlobalPosition globalPosition,
                                DeviceInfo deviceInfo, Map<String, Object> additionalProperties) {
         super();
         this.eventType = eventType;
@@ -37,6 +40,10 @@ public class GlobalPositionEvent implements IEvent {
         GlobalPosition = globalPosition;
         DeviceInfo = deviceInfo;
         this.additionalProperties = additionalProperties;
+        this.customerOrgId = customerOrgId;
+        this.customerVenueOrgId = customerVenueOrgId;
+        this.venueOrgId = venueOrgId;
+
     }
 
     public Map<String, Object> getAdditionalProperties() {
@@ -70,6 +77,32 @@ public class GlobalPositionEvent implements IEvent {
     public void setProjectIds(String[] projectIds) {
         this.projectIds = projectIds;
     }
+
+
+    public String getCustomerOrgId() {
+        return customerOrgId;
+    }
+
+    public void setCustomerOrgId(String customerOrgId) {
+        this.customerOrgId = customerOrgId;
+    }
+
+    public String getCustomerVenueOrgId() {
+        return customerVenueOrgId;
+    }
+
+    public void setCustomerVenueOrgId(String customerVenueOrgId) {
+        this.customerVenueOrgId = customerVenueOrgId;
+    }
+
+    public String getVenueOrgId() {
+        return venueOrgId;
+    }
+
+    public void setVenueOrgId(String venueOrgId) {
+        this.venueOrgId = venueOrgId;
+    }
+
 
     public GlobalPosition getGlobalPosition() {
         return GlobalPosition;

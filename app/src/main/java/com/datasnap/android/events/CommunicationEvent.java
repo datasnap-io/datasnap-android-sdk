@@ -20,6 +20,9 @@ public class CommunicationEvent implements IEvent {
     private String eventType;
     private String[] organizationIds;
     private String[] projectIds;
+    private String customerOrgId;
+    private String customerVenueOrgId;
+    private String venueOrgId;
     private User user;
     private Communication communication;
     private Campaign campaign;
@@ -27,7 +30,7 @@ public class CommunicationEvent implements IEvent {
     private Map<String, Object> additionalProperties;
 
     public CommunicationEvent(String eventType, String[] organizationIds,
-                              String[] projectIds, User user, Communication communication,
+                              String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, Communication communication,
                               Campaign campaign, Map<String, Object> additionalProperties) {
         super();
         this.eventType = eventType;
@@ -37,6 +40,9 @@ public class CommunicationEvent implements IEvent {
         this.communication = communication;
         this.campaign = campaign;
         this.additionalProperties = additionalProperties;
+        this.customerOrgId = customerOrgId;
+        this.customerVenueOrgId = customerVenueOrgId;
+        this.venueOrgId = venueOrgId;
 
     }
 
@@ -70,6 +76,30 @@ public class CommunicationEvent implements IEvent {
 
     public void setProjectIds(String[] projectIds) {
         this.projectIds = projectIds;
+    }
+
+    public String getCustomerOrgId() {
+        return customerOrgId;
+    }
+
+    public void setCustomerOrgId(String customerOrgId) {
+        this.customerOrgId = customerOrgId;
+    }
+
+    public String getCustomerVenueOrgId() {
+        return customerVenueOrgId;
+    }
+
+    public void setCustomerVenueOrgId(String customerVenueOrgId) {
+        this.customerVenueOrgId = customerVenueOrgId;
+    }
+
+    public String getVenueOrgId() {
+        return venueOrgId;
+    }
+
+    public void setVenueOrgId(String venueOrgId) {
+        this.venueOrgId = venueOrgId;
     }
 
     public User getUser() {

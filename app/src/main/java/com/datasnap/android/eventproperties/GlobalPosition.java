@@ -2,17 +2,17 @@ package com.datasnap.android.eventproperties;
 
 public class GlobalPosition {
 
-    private String location;
+    private Location location;
     private String altitude;
     private String accuracy;
     private String course;
     private String speed;
 
-    public String getLocation() {
+    public Location getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
 

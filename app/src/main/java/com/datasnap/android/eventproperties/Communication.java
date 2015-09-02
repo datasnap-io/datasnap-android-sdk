@@ -4,7 +4,7 @@ public class Communication extends Property {
 
     private String description;
     private Tags tags;
-    private String id;
+    private String identifier;
     private String status;
     private String communicationVendorId;
     private String name;
@@ -28,12 +28,12 @@ public class Communication extends Property {
         this.tags = tags;
     }
 
-    public String getId() {
-        return id;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     public String getStatus() {

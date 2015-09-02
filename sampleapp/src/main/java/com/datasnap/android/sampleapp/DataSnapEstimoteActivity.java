@@ -49,6 +49,9 @@ public class DataSnapEstimoteActivity extends Activity {
     private boolean advertisingIdOptIn;
     private BeaconManager beaconManager;
     private HashMap<String, String> beaconDictionary;
+    private static final String venue_org_id = "venue_org_idSampleValue";
+    private static final String customer_org_id = null; //we do not need this we can use the datasnap provided Ids
+    private static final String customer_venue_org_id = null;  //we do not need this we can use the datasnap provided Ids
     private TextView textView;
     private Device device;
     private String[] organizationIds;
@@ -144,7 +147,7 @@ public class DataSnapEstimoteActivity extends Activity {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.setCreated(Utils.getTime());
         deviceInfo.setDevice(device);
-        IEvent event = new BeaconEvent(eventType, organizationIds, projectIds, beacon, user,
+        IEvent event = new BeaconEvent(eventType, organizationIds, projectIds, customer_org_id, customer_venue_org_id, venue_org_id, beacon, user,
                 deviceInfo);
         dispatchEvent(event);
     }

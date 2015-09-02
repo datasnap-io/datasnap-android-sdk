@@ -3,7 +3,7 @@ package com.datasnap.android.eventproperties;
 import java.util.ArrayList;
 
 public class Place {
-    private String placeId;
+    private String id;
     private String name;
     private Tags tags;
     private Address address;
@@ -11,12 +11,12 @@ public class Place {
     private ArrayList<String> geofences;
     private ArrayList<String> beacons;
 
-    public String getPlaceId() {
-        return placeId;
+    public String getId() {
+        return id;
     }
 
-    public void setPlaceId(String placeId) {
-        this.placeId = placeId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {

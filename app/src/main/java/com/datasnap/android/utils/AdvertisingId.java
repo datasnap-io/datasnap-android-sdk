@@ -19,7 +19,7 @@ class AdvertisingId {
         Logger.d("User has limited ad tracking, skipping advertising ID.");
         return null;
       }
-      return info.getId();
+      return info.getIdentifier();
     } catch (GooglePlayServicesRepairableException e) {
       Logger.e(e, "Encountered an error connecting to Google Play Services.");
     } catch (GooglePlayServicesNotAvailableException e) {
