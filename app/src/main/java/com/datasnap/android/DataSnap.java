@@ -187,6 +187,8 @@ public final class DataSnap {
     public static void trackEvent(Event event) {
         checkInitialized();
         event.setDataSnapVersion(BuildConfig.VERSION_NAME);
+        if(!event.validate())
+            throw new IllegalStateException("Mandatory event data missing. Please call DataSnap.initialize before using the library.");
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
         Gson gson = gsonBuilder.create();
