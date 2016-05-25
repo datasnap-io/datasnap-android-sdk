@@ -7,7 +7,7 @@ import com.datasnap.android.eventproperties.User;
 
 import java.util.Map;
 
-public class BeaconEvent implements IEvent {
+public class BeaconEvent extends Event {
 
     private String eventType;
     private String[] organizationIds;

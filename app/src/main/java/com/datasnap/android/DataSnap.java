@@ -24,6 +24,7 @@ import com.datasnap.android.eventproperties.Device;
 import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
+import com.datasnap.android.events.Event;
 import com.datasnap.android.events.InteractionEvent;
 import com.datasnap.android.services.EstimoteService;
 import com.datasnap.android.services.GimbalService;
@@ -34,7 +35,6 @@ import com.google.android.gms.drive.realtime.internal.event.ObjectChangedDetails
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.datasnap.android.controller.EventDatabaseLayerInterface.EnqueueCallback;
-import com.datasnap.android.events.IEvent;
 import com.datasnap.android.controller.FlushThread;
 import com.datasnap.android.controller.FlushThread.BatchFactory;
 import com.datasnap.android.controller.IFlushLayer;
@@ -184,8 +184,9 @@ public final class DataSnap {
      *
      * API Calls: trackEvent() for a single event
      */
-    public static void trackEvent(IEvent event) {
+    public static void trackEvent(Event event) {
         checkInitialized();
+        event.setDataSnapVersion(BuildConfig.VERSION_NAME);
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
         Gson gson = gsonBuilder.create();
@@ -270,6 +271,7 @@ public final class DataSnap {
         device.setCarrierName(manager.getNetworkOperatorName());
         deviceInfo.setDevice(device);
         DeviceInfo.initialize(deviceInfo);
+        User.initialize(user);
         final Handler mainHandler = new Handler(dataSnapContext.getMainLooper());
         final Runnable mainRunnable = new Runnable() {
             @Override
@@ -295,6 +297,8 @@ public final class DataSnap {
 
     private static void onDataInitialized(){
         Intent intent;
+        if(vendorProperties == null)
+            return;
         switch (vendorProperties.getVendor()) {
             case GIMBAL:
                 intent = new Intent(dataSnapContext, GimbalService.class);
@@ -311,7 +315,7 @@ public final class DataSnap {
         }
         if(sharedPreferences.getBoolean(PREFERENCE_FIRST_RUN, true)){
             String eventType = "app_installed";
-            IEvent event = new InteractionEvent(eventType, getOrgIds(), getProjectIds(), null, null, null, user, null);
+            Event event = new InteractionEvent(eventType, getOrgIds(), getProjectIds(), null, null, null, user, null);
             trackEvent(event);
             sharedPreferences.edit().putBoolean(PREFERENCE_FIRST_RUN, false).commit();
         }

@@ -17,7 +17,7 @@ import java.util.Map;
 //@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 
 //Builder Pattern
-public class BeaconEventBP implements IEvent {
+public class BeaconEventBP extends Event {
     private final String eventType;
     private final String[] organizationIds;
     private final String[] projectIds;
@@ -50,7 +50,7 @@ public class BeaconEventBP implements IEvent {
 
     }
 
-    public static class Builder implements IEvent {
+    public static class Builder extends Event {
         private final String eventType;
         private final Beacon beacon;
 

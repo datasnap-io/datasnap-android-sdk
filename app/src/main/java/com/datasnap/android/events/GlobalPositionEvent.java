@@ -15,7 +15,7 @@ import java.util.Map;
 
 //@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 
-public class GlobalPositionEvent implements IEvent {
+public class GlobalPositionEvent extends Event {
 
     private String eventType;
     private String[] organizationIds;

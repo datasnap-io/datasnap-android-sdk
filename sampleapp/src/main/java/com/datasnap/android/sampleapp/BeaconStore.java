@@ -3,7 +3,7 @@ package com.datasnap.android.sampleapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.datasnap.android.events.IEvent;
+import com.datasnap.android.events.Event;
 
 import java.util.ArrayList;
 import java.util.HashMap;

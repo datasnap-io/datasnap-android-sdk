@@ -18,7 +18,7 @@ import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.CommunicationEvent;
-import com.datasnap.android.events.IEvent;
+import com.datasnap.android.events.Event;
 import com.gimbal.android.BeaconEventListener;
 import com.gimbal.android.BeaconManager;
 import com.gimbal.android.BeaconSighting;
@@ -75,7 +75,7 @@ public class GimbalService extends BaseService {
           beacon.setRssi(sighting.getBeacon().getUuid());
           beacon.setName(sighting.getBeacon().getName());
           beacon.setBleVendorId("Gimbal");
-          IEvent event = new BeaconEvent(eventType, organizationIds, projectIds, null, null, null, beacon, user,
+          Event event = new BeaconEvent(eventType, organizationIds, projectIds, null, null, null, beacon, user,
               deviceInfo);
           DataSnap.trackEvent(event);
         }
@@ -98,7 +98,7 @@ public class GimbalService extends BaseService {
           campaign.setIdentifier(DataSnap.getProjectIds()[0]);
           campaign.setCommunicationIds(communication.getIdentifier());
           String venueId = visit.getVisitID();
-          IEvent event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, venueId, venueId, user,
+          Event event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, venueId, venueId, user,
               dataSnapCommunication, campaign, null);
           DataSnap.trackEvent(event);
         }
@@ -117,7 +117,7 @@ public class GimbalService extends BaseService {
           campaign.setIdentifier(DataSnap.getProjectIds()[0]);
           campaign.setCommunicationIds(communication.getIdentifier());
           push.getPushType();
-          IEvent event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user,
+          Event event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user,
               dataSnapCommunication, campaign, null);
           DataSnap.trackEvent(event);
         }
@@ -135,7 +135,7 @@ public class GimbalService extends BaseService {
           Campaign campaign = new Campaign();
           campaign.setIdentifier(DataSnap.getProjectIds()[0]);
           campaign.setCommunicationIds(communication.getIdentifier());
-          IEvent event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user,
+          Event event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user,
               dataSnapCommunication, campaign, null);
           DataSnap.trackEvent(event);
         }

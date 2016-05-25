@@ -15,7 +15,7 @@ import java.util.Map;
 
 //@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 
-public class GeoFenceEvent implements IEvent {
+public class GeoFenceEvent extends Event {
 
     private String eventType;
     private String[] organizationIds;

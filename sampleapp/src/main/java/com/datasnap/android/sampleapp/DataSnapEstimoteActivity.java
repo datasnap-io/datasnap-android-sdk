@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.VendorProperties;
 import com.datasnap.android.eventproperties.Device;
-import com.datasnap.android.events.IEvent;
+import com.datasnap.android.events.Event;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 import com.google.android.gms.location.LocationListener;

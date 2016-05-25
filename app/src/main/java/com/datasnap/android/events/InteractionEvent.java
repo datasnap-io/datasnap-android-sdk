@@ -13,7 +13,7 @@ import java.util.Map;
 
 //@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 
-public class InteractionEvent implements IEvent {
+public class InteractionEvent extends Event {
 
     private String eventType;
     private String[] organizationIds;

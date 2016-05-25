@@ -20,5 +20,6 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':app')
+    compile fileTree(dir: 'libs', include: ['*.jar'], exclude: ['gimbal.jar', 'gimbal-slf4j-impl.jar', 'estimote-sdk-preview.jar'])
 }

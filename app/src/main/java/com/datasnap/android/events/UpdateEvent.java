@@ -14,7 +14,7 @@ import java.util.Map;
 
 //@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 
-public class UpdateEvent implements IEvent {
+public class UpdateEvent extends Event {
 
     // different types of updates- might link to other event types....
 

@@ -25,7 +25,6 @@ configurations {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
     provided fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test:runner:0.3') {
