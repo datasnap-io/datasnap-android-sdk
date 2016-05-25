@@ -19,6 +19,13 @@ public class AnalyticsStatistics extends Statistics {
 
     private static final String SUCCESSFUL_KEY = "Successful";
     private static final String FAILED_KEY = "Failed";
+    private static AnalyticsStatistics analyticsStatistics;
+
+    public static AnalyticsStatistics getInstance(){
+        if(analyticsStatistics == null)
+            analyticsStatistics = new AnalyticsStatistics();
+        return analyticsStatistics;
+    }
 
     public Statistic getIdentifies() {
         return ensure(IDENTIFY_KEY);

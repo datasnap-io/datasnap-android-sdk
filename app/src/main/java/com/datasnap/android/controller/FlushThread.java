@@ -2,10 +2,11 @@ package com.datasnap.android.controller;
 
 import android.os.Handler;
 import com.datasnap.android.DataSnap;
+import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.Logger;
 import com.datasnap.android.controller.EventDatabaseLayerInterface.PayloadCallback;
 import com.datasnap.android.controller.EventDatabaseLayerInterface.RemoveCallback;
-import com.datasnap.android.controller.IRequestLayer.RequestCallback;
+import com.datasnap.android.controller.IRequestLayer.EventRequestCallback;
 import com.datasnap.android.stats.AnalyticsStatistics;
 import com.datasnap.android.utils.LooperThreadWithHandler;
 
@@ -56,7 +57,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                 Logger.d("Starting flush operation ..");
                 flushNextEvent(new FlushCallback() {
                     @Override
-                    public void onFlushCompleted(boolean success, List<EventWrapper> batch) {
+                    public void onFlushCompleted(boolean success, List<EventWrapper> batch, int statusCode) {
                         if (success && batch.size() > 0) {
                             // we successfully sent a eventListContainer to the server, and we might
                             // have more to send, so lets trigger another flush
@@ -74,7 +75,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                             Logger.w("Flush op failed. [%d items]", batch.size());
                         }
                         if (callback != null)
-                            callback.onFlushCompleted(success, batch);
+                            callback.onFlushCompleted(success, batch, statusCode);
                     }
                 });
 
@@ -105,25 +106,63 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                 if (batch.size() == 0) {
                     // there is nothing to flush, we're done
                     if (callback != null)
-                        callback.onFlushCompleted(true,  batch);
+                        callback.onFlushCompleted(true,  batch, 0);
                 } else {
                     Logger.d("Sending events to the servers .. %s", range);
                     // now let's make a request on the flushing thread
-                    requestLayer.send(batch, new RequestCallback() {
+                    requestLayer.send(batch, new IRequestLayer.EventRequestCallback() {
 
                         @Override
-                        public void onRequestCompleted(boolean success) {
+                        public void onRequestCompleted(boolean success, final int statusCode) {
                             // we are now executing in the context of the request thread
                             if (!success) {
                                 Logger.w("Failed to send events to the servers .. %s", range);
+                                if(statusCode == 400) {
+                                  databaseLayer.removePayloads(minId, maxId, new RemoveCallback() {
+                                    @Override
+                                    public void onRemoved(int removed) {
+                                      // we are again executing in the context of the database thread
+                                      AnalyticsStatistics statistics = AnalyticsStatistics.getInstance();
+
+                                      if (removed == -1) {
+
+                                        for (int i = 0; i < removed; i += 1)
+                                          statistics.updateFailed(1);
+
+                                        Logger.e("We failed to remove payload from the database. %s", range);
+
+                                        if (callback != null)
+                                          callback.onFlushCompleted(false, batch, statusCode);
+                                      } else if (removed == 0) {
+
+                                        for (int i = 0; i < removed; i += 1)
+                                          statistics.updateFailed(1);
+
+                                        Logger.e("We didn't end up removing anything from the database. %s", range);
+
+                                        if (callback != null)
+                                          callback.onFlushCompleted(false, batch, statusCode);
+                                      } else {
+
+                                        for (int i = 0; i < removed; i += 1)
+                                          statistics.updateSuccessful(1);
+
+                                        Logger.d("Successfully removed items from the flush db. %s", range);
+
+                                        if (callback != null)
+                                          callback.onFlushCompleted(true, batch, statusCode);
+                                      }
+                                    }
+                                  });
+                                }
                                 // if we failed at flushing (connectivity issues), return
                                 if (callback != null)
-                                    callback.onFlushCompleted(false, batch);
+                                    callback.onFlushCompleted(false, batch, statusCode);
                             } else {
                                 Logger.d("Successfully sent eventListContainer to the server. %s", range);
                                 Logger.d("Removing flushed items from the db  .. %s", range);
                                 // TODO: remove BF test
-                                callback.onFlushCompleted(true, batch);
+                                callback.onFlushCompleted(true, batch, statusCode);
                                 // if we were successful, we need to first delete the old items from the
                                 // database, and then continue flushing
                                 databaseLayer.removePayloads(minId, maxId, new RemoveCallback() {
@@ -131,7 +170,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                                     @Override
                                     public void onRemoved(int removed) {
                                         // we are again executing in the context of the database thread
-                                        AnalyticsStatistics statistics = DataSnap.getStatistics();
+                                        AnalyticsStatistics statistics = AnalyticsStatistics.getInstance();
 
                                         if (removed == -1) {
 
@@ -141,7 +180,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                                             Logger.e("We failed to remove payload from the database. %s", range);
 
                                             if (callback != null)
-                                                callback.onFlushCompleted(false, batch);
+                                                callback.onFlushCompleted(false, batch, statusCode);
                                         } else if (removed == 0) {
 
                                             for (int i = 0; i < removed; i += 1)
@@ -150,7 +189,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                                             Logger.e("We didn't end up removing anything from the database. %s", range);
 
                                             if (callback != null)
-                                                callback.onFlushCompleted(false, batch);
+                                                callback.onFlushCompleted(false, batch, statusCode);
                                         } else {
 
                                             for (int i = 0; i < removed; i += 1)
@@ -159,7 +198,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                                             Logger.d("Successfully removed items from the flush db. %s", range);
 
                                             if (callback != null)
-                                                callback.onFlushCompleted(true, batch);
+                                                callback.onFlushCompleted(true, batch, statusCode);
                                         }
                                     }
                                 });

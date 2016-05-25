@@ -3,20 +3,28 @@ package com.datasnap.android.controller;
 import android.os.Handler;
 
 import com.datasnap.android.DataSnap;
+import com.datasnap.android.stats.AnalyticsStatistics;
 import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.Logger;
 import com.datasnap.android.utils.LooperThreadWithHandler;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
 /**
  * A Looper/Handler backed request thread
@@ -32,10 +40,10 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
      * Performs the request to the server.
      *
      */
-    public void send(final List<EventWrapper> batch, final RequestCallback callback) {
+    public void send(final List<EventWrapper> batch, final EventRequestCallback callback) {
         Handler handler = handler();
 
-        final DsConfig ds = DataSnap.getDsConfig();
+        final DsConfig ds = DsConfig.getInstance();
 
         handler.post(new Runnable() {
             @Override
@@ -71,7 +79,7 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                         e.printStackTrace();
                     }
                     long duration = System.currentTimeMillis() - start;
-                    DataSnap.getStatistics().updateRequestTime(duration);
+                    AnalyticsStatistics.getInstance().updateRequestTime(duration);
                     boolean success = false;
                     if (response == null) {
                         // there's been an error
@@ -94,8 +102,46 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                         }
                     }
                     //its all success for now. Any http error will be discarded to not impact device.
-                    callback.onRequestCompleted(success);
+                    callback.onRequestCompleted(success, response.getStatusLine().getStatusCode());
                 }
+        });
+    }
+
+    public void getOrganization(final OrganizationRequestCallback callback) {
+        Handler handler = handler();
+
+        final DsConfig ds = DsConfig.getInstance();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long start = System.currentTimeMillis();
+                String url = ds.getOrganizationsHost();
+                HttpGet get = new HttpGet(url);
+                HttpResponse response = null;
+                get.setHeader("Content-Type", "application/json");
+                get.setHeader("Accept", "application/json");
+                get.setHeader("Authorization",
+                    "Basic " + ds.getApiKey());
+                response = HTTPRequester.getOrganizations(get);
+
+                long duration = System.currentTimeMillis() - start;
+                AnalyticsStatistics.getInstance().updateRequestTime(duration);
+
+
+                if (response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 201  ) {
+                    HttpEntity entity = response.getEntity();
+                    try {
+                        String content = EntityUtils.toString(entity);
+                        callback.onRequestCompleted(content);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    callback.onRequestCompleted(null);
+                }
+            }
         });
     }
 

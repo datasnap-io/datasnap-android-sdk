@@ -4,6 +4,15 @@ public class DeviceInfo extends Property {
 
     public String created;
     public Device device;
+    private static DeviceInfo deviceInfo;
+
+    public static DeviceInfo getInstance(){
+        return deviceInfo;
+    }
+
+    public static void initialize(DeviceInfo info){
+        deviceInfo = info;
+    }
 
     public String getCreated() {
         return created;

@@ -6,9 +6,18 @@ public class User {
     private Id id;
     private Audience audience;
     private UserProperties userProperties;
+    private static User user;
     // private boolean optInLocation;
     //  private boolean optInPushNotifications;
     // private boolean optInVendor;
+
+    public static User getInstance(){
+        return user;
+    }
+
+    public static void initialize(User u){
+        user = u;
+    }
 
     public Tags getTags() {
         return tags;

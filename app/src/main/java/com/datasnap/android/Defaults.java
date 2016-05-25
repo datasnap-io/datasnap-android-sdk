@@ -37,6 +37,11 @@ public class Defaults {
                     public static final String NAME = "event";
                     public static final String TYPE = "TEXT";
                 }
+
+                public static class AttemptCount {
+                    public static final String NAME = "attempts";
+                    public static final String TYPE = "INTEGER";
+                }
             }
         }
     }

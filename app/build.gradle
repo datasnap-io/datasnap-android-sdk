@@ -9,6 +9,9 @@ android {
         targetSdkVersion 21
         versionCode 1
         versionName "1.0.2"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        // Enabling multidex support.
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -17,7 +20,16 @@ android {
         }
     }
 }
+configurations {
+    noExport
+}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    provided fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile('com.android.support.test:runner:0.3') {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+    compile 'com.google.android.gms:play-services:6.1.+'
 }

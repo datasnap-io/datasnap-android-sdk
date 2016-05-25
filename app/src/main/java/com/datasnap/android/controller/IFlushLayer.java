@@ -22,7 +22,7 @@ public interface IFlushLayer extends IThreadedLayer {
          *
          * @param success            True for successful flush, false for not.
          */
-        void onFlushCompleted(boolean success, List<EventWrapper> batch);
+        void onFlushCompleted(boolean success, List<EventWrapper> batch, int statusCode);
     }
 
     //

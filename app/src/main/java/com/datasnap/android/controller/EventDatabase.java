@@ -13,6 +13,7 @@ import android.util.Pair;
 
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.Defaults;
+import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.Logger;
 
 
@@ -44,14 +45,17 @@ public class EventDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        String sql = String.format("CREATE TABLE IF NOT EXISTS %s (%s %s, %s %s);",
+        String sql = String.format("CREATE TABLE IF NOT EXISTS %s (%s %s, %s %s, %s %s);",
                 Defaults.Database.EventTable.NAME,  // eventtablename
 
                 Defaults.Database.EventTable.Fields.Id.NAME,   // eventtablefieldsidname
                 Defaults.Database.EventTable.Fields.Id.TYPE, // "INTEGER PRIMARY KEY AUTOINCREMENT"
 
                 Defaults.Database.EventTable.Fields.Event.NAME,  // eventdbdataname
-                Defaults.Database.EventTable.Fields.Event.TYPE);  // TEXT
+                Defaults.Database.EventTable.Fields.Event.TYPE,
+
+                Defaults.Database.EventTable.Fields.AttemptCount.NAME,  // eventdbdataname
+                Defaults.Database.EventTable.Fields.AttemptCount.TYPE);  // TEXT
         try {
             db.execSQL(sql);
         } catch (SQLException e) {
@@ -88,7 +92,7 @@ public class EventDatabase extends SQLiteOpenHelper {
     public boolean addEvent(EventWrapper payload) {
         ensureCount();
         long rowCount = getRowCount();
-        final int maxQueueSize = DataSnap.getDsConfig().getMaxQueueSize();
+        final int maxQueueSize = DsConfig.getInstance().getMaxQueueSize();
         if (rowCount >= maxQueueSize) {
             Logger.w("Cant add action, the database is larger than max queue size (%d).", maxQueueSize);
             return false;
