@@ -4,6 +4,9 @@ package com.datasnap.android;
  * Created by paolopelagatti on 5/9/16.
  */
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiManager;
 import android.support.test.runner.AndroidJUnit4;
 import android.util.Pair;
 
@@ -41,9 +44,12 @@ public class DataSnapTest {
 
   private EventDatabase database;
   private String sampleEventJson = "{\"data_snap_version\":\"1.0.2\",\"event_type\":\"app_installed\",\"organization_ids\":[\"19CYxNMSQvfnnMf1QS4b3Z\"],\"project_ids\":[\"MyDatasnap_test-org-052516\"],\"user\":{\"id\":{\"mobile_device_google_advertising_id\":\"sample id\",\"mobile_device_google_advertising_id_opt_in\":\"true\"}}}";
+  private WifiManager wifiManager;
 
   @Before
   public void setUp() throws Exception {
+    wifiManager = (WifiManager) getTargetContext().getSystemService(Context.WIFI_SERVICE);
+    wifiManager.setWifiEnabled(true);
     database = EventDatabase.getInstance(getTargetContext());
     String apiKeyId = "3F34FXD78PCINFR99IYW950W4";
     String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";
@@ -104,6 +110,32 @@ public class DataSnapTest {
     }
     HTTPRequester httpRequester = mock(HTTPRequester.class);
     verify(httpRequester, times(1)).send(post);
+  }
+
+  @Test
+  public void shouldHandleLackOfConnectivity() throws InterruptedException {
+    //wait for organization request to complete..
+    Thread.sleep(5000);
+    wifiManager.setWifiEnabled(false);
+    HTTPRequester httpRequester = mock(HTTPRequester.class);
+    HttpPost httpPost = mock(HttpPost.class);
+    verify(httpRequester, never()).send(httpPost);
+    User user = new User();
+    Id id = new Id();
+    id.setMobileDeviceGoogleAdvertisingId("sample id");
+    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
+    user.setId(id);
+    String eventType = "app_installed";
+    Event event = new InteractionEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user, null);
+    DataSnap.trackEvent(event);
+    Thread.sleep(2000);
+    List<Pair<Long, EventWrapper>> events = database.getEvents(10);
+    assertThat(events.get(0).second.toString(), is(sampleEventJson));
+    Thread.sleep(10000);
+    wifiManager.setWifiEnabled(true);
+    Thread.sleep(10000);
+    verify(httpRequester, times(1)).send(httpPost);
+
   }
 
 }

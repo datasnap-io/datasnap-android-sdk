@@ -405,10 +405,14 @@ public final class DataSnap {
      */
     private static void flush(boolean async) {
         checkInitialized();
+        final CountDownLatch latch = new CountDownLatch(1);
+        ConnectivityManager connectivityManager
+            = (ConnectivityManager) dataSnapContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        if(activeNetworkInfo == null || !activeNetworkInfo.isConnected())
+            return;
         statistics.updateFlushAttempts(1);
         final long start = System.currentTimeMillis();
-        final CountDownLatch latch = new CountDownLatch(1);
-
         flushLayer.flush(new FlushCallback() {
             @Override
             public void onFlushCompleted(boolean success, List<EventWrapper>batch, int statusCode) {
