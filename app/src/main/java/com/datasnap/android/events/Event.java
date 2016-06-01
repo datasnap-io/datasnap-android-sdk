@@ -19,7 +19,7 @@ public abstract class Event {
     protected Map<String, Object> additionalProperties;
 
     public boolean validate(){
-        return organizationIds.length > 0 && projectIds.length > 0 && user != null && deviceInfo != null;
+        return organizationIds.length > 0 && projectIds.length > 0 && user != null;
     }
 
     public void setAdditionalProperties(Map<String, Object> additionalProperties) {
