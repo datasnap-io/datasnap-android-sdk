@@ -44,8 +44,6 @@ import com.datasnap.android.controller.RequestThread;
 import com.datasnap.android.stats.AnalyticsStatistics;
 import com.datasnap.android.utils.HandlerTimer;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -321,16 +319,6 @@ public final class DataSnap {
             trackEvent(event);
             sharedPreferences.edit().putBoolean(PREFERENCE_FIRST_RUN, false).commit();
         }
-        if(sharedPreferences.getBoolean(BEACON_SIGHTING_SWITCH, true)) {
-            gimbalService.addGimbalBeaconSightingListener();
-        } else {
-            gimbalService.releaseGimbalBeaconSightingListener();
-        }
-        if(sharedPreferences.getBoolean(COMMUNICATION_SIGHTING_SWITCH, true)) {
-            gimbalService.addGimbalCommunicationListener();
-        } else {
-            gimbalService.releaseGimbalCommunicationListener();
-        }
     }
 
     private static ServiceConnection estimoteServiceConnection = new ServiceConnection() {
@@ -354,6 +342,20 @@ public final class DataSnap {
         public void onServiceConnected(ComponentName name, IBinder service) {
             GimbalService.DataSnapBinder gimbalBinder = (GimbalService.DataSnapBinder) service;
             gimbalService = gimbalBinder.getService();
+            if(gimbalService == null)
+                return;
+            if(sharedPreferences.getBoolean(BEACON_SIGHTING_SWITCH, true)) {
+                if(gimbalService != null)
+                    gimbalService.addGimbalBeaconSightingListener();
+            } else {
+                gimbalService.releaseGimbalBeaconSightingListener();
+            }
+            if(sharedPreferences.getBoolean(COMMUNICATION_SIGHTING_SWITCH, true)) {
+                if(gimbalService != null)
+                    gimbalService.addGimbalCommunicationListener();
+            } else {
+                gimbalService.releaseGimbalCommunicationListener();
+            }
         }
     };
 
