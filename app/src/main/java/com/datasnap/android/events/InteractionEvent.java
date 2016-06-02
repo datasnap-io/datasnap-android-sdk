@@ -7,12 +7,12 @@ import java.util.Map;
 public class InteractionEvent extends Event {
 
     // opt-in stuff needed
-    public InteractionEvent(String eventType, String[] organizationIds,
-                            String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, Map<String, Object> additionalProperties) {
+    public InteractionEvent(String eventType, String organizationId,
+                            String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, Map<String, Object> additionalProperties) {
         super();
         this.eventType = eventType;
-        this.organizationIds = organizationIds;
-        this.projectIds = projectIds;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
         this.user = user;
         this.additionalProperties = additionalProperties;
         this.customerOrgId = customerOrgId;

@@ -10,13 +10,13 @@ public class GlobalPositionEvent extends Event {
 
     private GlobalPosition globalPosition;
 
-    public GlobalPositionEvent(String eventType, String[] organizationIds,
-                               String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, GlobalPosition globalPosition,
+    public GlobalPositionEvent(String eventType, String organizationId,
+                               String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, GlobalPosition globalPosition,
                                DeviceInfo deviceInfo, Map<String, Object> additionalProperties) {
         super();
         this.eventType = eventType;
-        this.organizationIds = organizationIds;
-        this.projectIds = projectIds;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
         this.user = user;
         this.globalPosition = globalPosition;
         this.deviceInfo = deviceInfo;

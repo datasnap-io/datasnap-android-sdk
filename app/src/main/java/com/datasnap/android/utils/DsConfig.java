@@ -17,8 +17,8 @@ public class DsConfig {
     static final String STAGING_ORGANIZATION_ENDPOINT = "TODO";
     static final boolean LOGGING = true;
     private static DsConfig instance;
-    private String[] orgIds;
-    private String[] projectIds;
+    private String orgId;
+    private String projectId;
     private String venue;
 
     /**
@@ -241,20 +241,20 @@ public class DsConfig {
         return this;
     }
 
-    public void setOrgIds(String[] orgIds) {
-        this.orgIds = orgIds;
+    public void setOrgId(String orgId) {
+        this.orgId = orgId;
     }
 
-    public void setProjectIds(String[] projectIds) {
-        this.projectIds = projectIds;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
 
-    public String[] getProjectIds() {
-        return projectIds;
+    public String getProjectId() {
+        return projectId;
     }
 
-    public String[] getOrgIds() {
-        return orgIds;
+    public String getOrgId() {
+        return orgId;
     }
 
     public String getVenue() {

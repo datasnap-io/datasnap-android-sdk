@@ -86,7 +86,7 @@ public final class DataSnap {
     private static SharedPreferences sharedPreferences;
     private static VendorProperties vendorProperties;
 
-    public static void initialize(android.content.Context context, String apiKeyId, String apiKeySecret, VendorProperties properties) {
+    public static void initialize(android.content.Context context, String apiKeyId, String apiKeySecret, String organizationId, String projectId, VendorProperties properties) {
         String errorPrefix = "DataSnap client must be initialized with a valid ";
         if (context == null) throw new IllegalArgumentException(errorPrefix + "android context.");
         if (initialized) return;
@@ -133,49 +133,21 @@ public final class DataSnap {
         // intitialise json builder
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-        initializeOrganization();
+        dsConfig.setOrgId(organizationId);
+        dsConfig.setProjectId(projectId);
+        initializeData();
     }
 
-    public static void initializeOrganization() {
-        DataSnap.requestLayer.getOrganization(new IRequestLayer.OrganizationRequestCallback() {
-            @Override
-            public void onRequestCompleted(String response) {
-                JSONArray organizationData;
-                try {
-                    organizationData = new JSONArray(response);
-                    for(int i=0; i < organizationData.length(); i++){
-                        JSONObject object = (JSONObject) organizationData.get(i);
-                        if("true".equals(object.getString("isvenue"))){
-                            String venue = object.getString("id");
-                            dsConfig.setVenue(venue);
-                        } else if("null".equals(object.getString("organization_id"))){
-                            String[] projects = new String[1];
-                            projects[0] = ((JSONObject)organizationData.get(0)).getString("name");
-                            dsConfig.setProjectIds(projects);
-                        } else{
-                            String[] organizations = new String[1];
-                            organizations[0] = ((JSONObject)organizationData.get(1)).getString("id");
-                            dsConfig.setOrgIds(organizations);
-                        }
-                    }
-                    initializeData();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public static String[] getOrgIds() {
+    public static String getOrgId() {
         if (dsConfig == null)
-            checkInitialized();
-        return dsConfig.getOrgIds();
+            isInitialized();
+        return dsConfig.getOrgId();
     }
 
-    public static String[]  getProjectIds() {
+    public static String  getProjectId() {
         if (dsConfig == null)
-            checkInitialized();
-        return dsConfig.getProjectIds();
+            isInitialized();
+        return dsConfig.getProjectId();
     }
 
     /**
@@ -183,7 +155,8 @@ public final class DataSnap {
      * API Calls: trackEvent() for a single event
      */
     public static void trackEvent(Event event) {
-        checkInitialized();
+        if(!isInitialized())
+            return;
         event.setDataSnapVersion(BuildConfig.VERSION_NAME);
         if(!event.validate())
             throw new IllegalStateException("Mandatory event data missing. Please call DataSnap.initialize before using the library.");
@@ -240,7 +213,6 @@ public final class DataSnap {
      * Stop the threads, and reset the client
      */
     public static void close() {
-        checkInitialized();
 
         // stop the looper on the timer, & the flush, request, and database threads
         flushTimer.quit();
@@ -315,7 +287,7 @@ public final class DataSnap {
         }
         if(sharedPreferences.getBoolean(PREFERENCE_FIRST_RUN, true)){
             String eventType = "app_installed";
-            Event event = new InteractionEvent(eventType, getOrgIds(), getProjectIds(), null, null, null, user, null);
+            Event event = new InteractionEvent(eventType, getOrgId(), getProjectId(), null, null, null, user, null);
             trackEvent(event);
             sharedPreferences.edit().putBoolean(PREFERENCE_FIRST_RUN, false).commit();
         }
@@ -404,7 +376,8 @@ public final class DataSnap {
      * @param async True to block until the data is flushed
      */
     private static void flush(boolean async) {
-        checkInitialized();
+        if(!isInitialized())
+            return;
         final CountDownLatch latch = new CountDownLatch(1);
         ConnectivityManager connectivityManager
             = (ConnectivityManager) dataSnapContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -464,9 +437,7 @@ public final class DataSnap {
         });
     }
 
-    private static void checkInitialized() {
-        if (!initialized || User.getInstance() == null || DeviceInfo.getInstance() == null || DsConfig.getInstance() == null) {
-            throw new IllegalStateException("Please call DataSnap.initialize before using the library.");
-        }
+    private static boolean isInitialized() {
+        return initialized && User.getInstance() != null && DeviceInfo.getInstance() != null && DsConfig.getInstance() != null;
     }
 }

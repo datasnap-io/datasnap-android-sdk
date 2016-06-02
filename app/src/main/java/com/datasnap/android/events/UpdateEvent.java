@@ -13,12 +13,12 @@ public class UpdateEvent extends Event {
     private com.datasnap.android.eventproperties.Beacon Beacon;
     private Place place;
 
-    public UpdateEvent(String eventType, String[] organizationIds,
-                       String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, com.datasnap.android.eventproperties.Beacon beacon, Map<String, Object> additionalProperties) {
+    public UpdateEvent(String eventType, String organizationId,
+                       String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, com.datasnap.android.eventproperties.Beacon beacon, Map<String, Object> additionalProperties) {
         super();
         this.eventType = eventType;
-        this.organizationIds = organizationIds;
-        this.projectIds = projectIds;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
         Beacon = beacon;
         this.additionalProperties = additionalProperties;
         this.customerOrgId = customerOrgId;

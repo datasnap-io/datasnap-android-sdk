@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ import com.gimbal.android.PlaceEventListener;
 import com.gimbal.android.PlaceManager;
 import com.gimbal.android.Push;
 import com.gimbal.android.Visit;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 
 import java.util.Collection;
 import java.util.List;
@@ -62,26 +64,33 @@ public class GimbalService extends BaseService {
   }
 
   public void addGimbalBeaconSightingListener() {
-      if(gimbalBeaconEventListener!=null)
-        gimbalBeaconManager.removeListener(gimbalBeaconEventListener);
-      gimbalBeaconEventListener = new BeaconEventListener() {
-        @Override
-        public void onBeaconSighting(BeaconSighting sighting) {
-          super.onBeaconSighting(sighting);
-          String eventType = "beacon_sighting";
-          Beacon beacon = new Beacon();
-          beacon.setIdentifier(sighting.getBeacon().getIdentifier());
-          beacon.setBatteryLevel(sighting.getBeacon().getBatteryLevel().toString());
-          beacon.setRssi(sighting.getBeacon().getUuid());
-          beacon.setName(sighting.getBeacon().getName());
-          beacon.setBleVendorId("Gimbal");
-          Event event = new BeaconEvent(eventType, organizationIds, projectIds, null, null, null, beacon, user,
-              deviceInfo);
-          DataSnap.trackEvent(event);
-        }
+    if(gimbalBeaconEventListener!=null)
+      gimbalBeaconManager.removeListener(gimbalBeaconEventListener);
+    gimbalBeaconEventListener = new BeaconEventListener() {
+      @Override
+      public void onBeaconSighting(BeaconSighting sighting) {
+        super.onBeaconSighting(sighting);
+        String eventType = "beacon_sighting";
+        Beacon beacon = new Beacon();
+        beacon.setIdentifier(sighting.getBeacon().getIdentifier());
+        beacon.setBatteryLevel(sighting.getBeacon().getBatteryLevel().toString());
+        beacon.setRssi(sighting.getBeacon().getUuid());
+        beacon.setName(sighting.getBeacon().getName());
+        beacon.setBleVendorId("Gimbal");
+        Event event = new BeaconEvent(eventType, organizationId, projectId, null, null, null, beacon, user,
+            deviceInfo);
+        DataSnap.trackEvent(event);
+      }
     };
-    gimbalBeaconManager.addListener(gimbalBeaconEventListener);
-    gimbalBeaconManager.startListening();
+    final Handler mainHandler = new Handler(this.getMainLooper());
+    final Runnable mainRunnable = new Runnable() {
+      @Override
+      public void run() {
+        gimbalBeaconManager.addListener(gimbalBeaconEventListener);
+        gimbalBeaconManager.startListening();
+      }
+    };
+    mainHandler.post(mainRunnable);
   }
 
   public void addGimbalCommunicationListener(){
@@ -95,10 +104,10 @@ public class GimbalService extends BaseService {
           dataSnapCommunication.setName(communication.getTitle());
           dataSnapCommunication.setDescription(communication.getDescription());
           Campaign campaign = new Campaign();
-          campaign.setIdentifier(DataSnap.getProjectIds()[0]);
+          campaign.setIdentifier(projectId);
           campaign.setCommunicationIds(communication.getIdentifier());
           String venueId = visit.getVisitID();
-          Event event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, venueId, venueId, user,
+          Event event = new CommunicationEvent(eventType, organizationId, projectId, null, venueId, venueId, user,
               dataSnapCommunication, campaign, null);
           DataSnap.trackEvent(event);
         }
@@ -114,10 +123,10 @@ public class GimbalService extends BaseService {
           dataSnapCommunication.setName(communication.getTitle());
           dataSnapCommunication.setDescription(communication.getDescription());
           Campaign campaign = new Campaign();
-          campaign.setIdentifier(DataSnap.getProjectIds()[0]);
+          campaign.setIdentifier(projectId);
           campaign.setCommunicationIds(communication.getIdentifier());
           push.getPushType();
-          Event event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user,
+          Event event = new CommunicationEvent(eventType, organizationId, projectId, null, null, null, user,
               dataSnapCommunication, campaign, null);
           DataSnap.trackEvent(event);
         }
@@ -133,9 +142,9 @@ public class GimbalService extends BaseService {
           dataSnapCommunication.setName(communication.getTitle());
           dataSnapCommunication.setDescription(communication.getDescription());
           Campaign campaign = new Campaign();
-          campaign.setIdentifier(DataSnap.getProjectIds()[0]);
+          campaign.setIdentifier(projectId);
           campaign.setCommunicationIds(communication.getIdentifier());
-          Event event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user,
+          Event event = new CommunicationEvent(eventType, organizationId, projectId, null, null, null, user,
               dataSnapCommunication, campaign, null);
           DataSnap.trackEvent(event);
         }

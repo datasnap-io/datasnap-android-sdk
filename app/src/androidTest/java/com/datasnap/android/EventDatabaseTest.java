@@ -64,7 +64,7 @@ public class EventDatabaseTest {
     id.setMobileDeviceGoogleAdvertisingId("sample ad id");
     id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
     user.setId(id);
-    DataSnap.initialize(InstrumentationRegistry.getContext(), "", "", null);
+    DataSnap.initialize(InstrumentationRegistry.getContext(), "", "", "", "", null);
     GsonBuilder gsonBuilder = new GsonBuilder();
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
     gson = gsonBuilder.create();
@@ -78,7 +78,7 @@ public class EventDatabaseTest {
   @Test
   public void shouldAddEvent() throws Exception {
     String eventType = "beacon_sighting";
-    Event event = new BeaconEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, beacon1, user,
+    Event event = new BeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, beacon1, user,
         deviceInfo);
     String json = gson.toJson(event);
     EventWrapper eventWrapper = new EventWrapper(json);
@@ -90,12 +90,12 @@ public class EventDatabaseTest {
   @Test
   public void shouldGetEvents() throws Exception {
     String eventType = "beacon_sighting";
-    Event event1 = new BeaconEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, beacon1, user,
+    Event event1 = new BeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, beacon1, user,
         deviceInfo);
     String json = gson.toJson(event1);
     EventWrapper eventWrapper1 = new EventWrapper(json);
     database.addEvent(eventWrapper1);
-    Event event2 = new BeaconEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, beacon1, user,
+    Event event2 = new BeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, beacon1, user,
         deviceInfo);
     json = gson.toJson(event2);
     EventWrapper eventWrapper2 = new EventWrapper(json);
@@ -109,7 +109,7 @@ public class EventDatabaseTest {
   @Test
   public void shouldRemoveEvents() throws Exception {
     String eventType = "beacon_sighting";
-    Event event = new BeaconEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, beacon1, user,
+    Event event = new BeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, beacon1, user,
         deviceInfo);
     String json = gson.toJson(event);
     EventWrapper eventWrapper = new EventWrapper(json);

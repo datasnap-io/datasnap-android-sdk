@@ -14,14 +14,7 @@ import com.datasnap.android.VendorProperties;
 import com.gimbal.android.BeaconEventListener;
 import com.gimbal.android.BeaconManager;
 import com.gimbal.android.BeaconSighting;
-import com.gimbal.android.Communication;
-import com.gimbal.android.CommunicationListener;
-import com.gimbal.android.CommunicationManager;
 import com.gimbal.android.Gimbal;
-import com.gimbal.android.PlaceEventListener;
-import com.gimbal.android.PlaceManager;
-import com.gimbal.android.Push;
-import com.gimbal.android.Visit;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +38,7 @@ public class DataSnapGimbalActivity extends Activity {
         VendorProperties vendorProperties = new VendorProperties();
         vendorProperties.setGimbalApiKey("044e761a-0b9f-4472-b2bb-714625e83574");
         vendorProperties.setVendor(VendorProperties.Vendor.GIMBAL);
-        DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, vendorProperties);
+        DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186",  vendorProperties);
         Gimbal.setApiKey(this.getApplication(), "044e761a-0b9f-4472-b2bb-714625e83574");
         BeaconManager gimbalBeaconManager = new com.gimbal.android.BeaconManager();
         BeaconEventListener gimbalBeaconEventListener = new BeaconEventListener() {

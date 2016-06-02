@@ -26,15 +26,6 @@ public interface IRequestLayer extends IThreadedLayer {
         void onRequestCompleted(boolean success, int statusCode);
     }
 
-    public interface OrganizationRequestCallback {
-        /**
-         * Called when an organization request to the server is completed.
-         *
-         * @param response
-         */
-        void onRequestCompleted(String response);
-    }
-
     //
     // Methods
     //
@@ -44,5 +35,4 @@ public interface IRequestLayer extends IThreadedLayer {
      */
     void send(List<EventWrapper> batch, EventRequestCallback callback);
 
-    void getOrganization(OrganizationRequestCallback callback);
 }

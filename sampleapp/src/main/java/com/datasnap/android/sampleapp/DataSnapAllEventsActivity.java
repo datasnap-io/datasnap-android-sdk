@@ -29,16 +29,11 @@ import com.datasnap.android.eventproperties.Location;
 import com.datasnap.android.eventproperties.Place;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
-import com.datasnap.android.events.BeaconEventType;
 import com.datasnap.android.events.CommunicationEvent;
 import com.datasnap.android.events.GeoFenceEvent;
 import com.datasnap.android.events.GlobalPositionEvent;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.InteractionEvent;
-import com.gimbal.android.BeaconEventListener;
-import com.gimbal.android.BeaconManager;
-import com.gimbal.android.BeaconSighting;
-import com.google.android.gms.ads.identifier.*;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -75,7 +70,7 @@ public class DataSnapAllEventsActivity extends Activity {
         setContentView(R.layout.activity_all_events);
         String apiKeyId = "3F34FXD78PCINFR99IYW950W4";
         String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";
-        DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, null);
+        DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186", null);
         beaconSighting = (Button) findViewById(R.id.beacon_sighting);
         beaconDepart = (Button) findViewById(R.id.beacon_depart);
         beaconArrive = (Button) findViewById(R.id.beacon_arrive);
@@ -129,7 +124,7 @@ public class DataSnapAllEventsActivity extends Activity {
                 beacon.setRssi("sample rssi");
                 beacon.setName("sample identifier");
                 beacon.setBleVendorId("Gimbal");
-                Event event = new BeaconEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, beacon, user,
+                Event event = new BeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, beacon, user,
                     deviceInfo);
                 DataSnap.trackEvent(event);
             }
@@ -144,7 +139,7 @@ public class DataSnapAllEventsActivity extends Activity {
                 beacon.setRssi("sample rssi");
                 beacon.setName("sample identifier");
                 beacon.setBleVendorId("Gimbal");
-                Event event = new BeaconEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, beacon, user,
+                Event event = new BeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, beacon, user,
                     deviceInfo);
                 DataSnap.trackEvent(event);
             }
@@ -159,7 +154,7 @@ public class DataSnapAllEventsActivity extends Activity {
                 beacon.setRssi("sample rssi");
                 beacon.setName("sample identifier");
                 beacon.setBleVendorId("Gimbal");
-                Event event = new BeaconEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, beacon, user,
+                Event event = new BeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, beacon, user,
                     deviceInfo);
                 DataSnap.trackEvent(event);
             }
@@ -170,7 +165,7 @@ public class DataSnapAllEventsActivity extends Activity {
                 String eventType = "geofence_depart";
                 Place place = new Place();
                 Geofence geofence = new Geofence();
-                Event event = new GeoFenceEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, place,
+                Event event = new GeoFenceEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, place,
                     geofence, user, null);
                 DataSnap.trackEvent(event);
             }
@@ -186,7 +181,7 @@ public class DataSnapAllEventsActivity extends Activity {
                 coordinates[1] = new BigDecimal("1223123123");
                 Location location = new Location(coordinates);
                 globalPosition.setLocation(location);
-                Event event = new GlobalPositionEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user,
+                Event event = new GlobalPositionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user,
                     globalPosition, deviceInfo, null);
                 DataSnap.trackEvent(event);
             }
@@ -197,7 +192,7 @@ public class DataSnapAllEventsActivity extends Activity {
                 String eventType = "ds_communication_open";
                 Communication communication = new Communication();
                 communication.setIdentifier("sample communication identifier");
-                communication.setCommunicationVendorId(DataSnap.getOrgIds()[0]);
+                communication.setCommunicationVendorId(DataSnap.getOrgId());
                 Campaign campaign = new Campaign();
                 campaign.setCommunicationIds(communication.getIdentifier());
                 campaign.setIdentifier("sample campaign identifier");
@@ -205,7 +200,7 @@ public class DataSnapAllEventsActivity extends Activity {
                 communication.setName("sample communication name");
                 String venueId = "MegaStadium01";
 
-                Event event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, venueId, venueId, user,
+                Event event = new CommunicationEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, venueId, venueId, user,
                     communication, campaign, null);
                 DataSnap.trackEvent(event);
             }
@@ -216,7 +211,7 @@ public class DataSnapAllEventsActivity extends Activity {
                 String eventType = "ds_communication_sent";
                 Communication communication = new Communication();
                 communication.setIdentifier("sample communication identifier");
-                communication.setCommunicationVendorId(DataSnap.getOrgIds()[0]);
+                communication.setCommunicationVendorId(DataSnap.getOrgId());
                 Campaign campaign = new Campaign();
                 campaign.setCommunicationIds(communication.getIdentifier());
                 campaign.setIdentifier("sample campaign identifier");
@@ -224,7 +219,7 @@ public class DataSnapAllEventsActivity extends Activity {
                 communication.setName("sample communication name");
                 String venueId = "MegaStadium01";
 
-                Event event = new CommunicationEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, venueId, venueId, user,
+                Event event = new CommunicationEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, venueId, venueId, user,
                     communication, campaign, null);
                 DataSnap.trackEvent(event);
             }
@@ -233,7 +228,7 @@ public class DataSnapAllEventsActivity extends Activity {
             @Override
             public void onClick(View v) {
                 String eventType = "app_installed";
-                Event event = new InteractionEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user, null);
+                Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
                 DataSnap.trackEvent(event);
             }
         });
@@ -241,7 +236,7 @@ public class DataSnapAllEventsActivity extends Activity {
             @Override
             public void onClick(View v) {
                 String eventType = "opt_in_vendor";
-                Event event = new InteractionEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user, null);
+                Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
                 DataSnap.trackEvent(event);
             }
         });
@@ -249,7 +244,7 @@ public class DataSnapAllEventsActivity extends Activity {
             @Override
             public void onClick(View v) {
                 String eventType = "opt_in_push_notifications";
-                Event event = new InteractionEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user, null);
+                Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
                 DataSnap.trackEvent(event);
             }
         });
@@ -257,7 +252,7 @@ public class DataSnapAllEventsActivity extends Activity {
             @Override
             public void onClick(View v) {
                 String eventType = "opt_in_location";
-                Event event = new InteractionEvent(eventType, DataSnap.getOrgIds(), DataSnap.getProjectIds(), null, null, null, user, null);
+                Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
                 DataSnap.trackEvent(event);
             }
         });

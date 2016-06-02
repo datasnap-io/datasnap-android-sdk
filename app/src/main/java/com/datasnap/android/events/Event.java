@@ -9,8 +9,8 @@ public abstract class Event {
 
     protected String dataSnapVersion;
     protected String eventType;
-    protected String[] organizationIds;
-    protected String[] projectIds;
+    protected String[] organizationIds = new String[1];
+    protected String[] projectIds = new String[1];
     protected String customerOrgId;
     protected String customerVenueOrgId;
     protected String venueOrgId;
@@ -19,7 +19,8 @@ public abstract class Event {
     protected Map<String, Object> additionalProperties;
 
     public boolean validate(){
-        return organizationIds.length > 0 && projectIds.length > 0 && user != null;
+        return this.organizationIds.length > 0 && this.organizationIds[0].length() > 0
+            && this.projectIds.length > 0 && projectIds[0].length() > 0 && this.user != null;
     }
 
     public void setAdditionalProperties(Map<String, Object> additionalProperties) {
@@ -46,20 +47,24 @@ public abstract class Event {
         this.eventType = eventType;
     }
 
-    public String[] getOrganizationIds() {
-        return organizationIds;
+    public String getOrganizationId() {
+        if(organizationIds.length == 0)
+            return null;
+        return organizationIds[0];
     }
 
-    public void setOrganizationIds(String[] organizationIds) {
-        this.organizationIds = organizationIds;
+    public void setOrganizationId(String organizationId) {
+        this.organizationIds[0] = organizationId;
     }
 
-    public String[] getProjectIds() {
-        return projectIds;
+    public String getProjectId() {
+        if(projectIds.length == 0)
+            return null;
+        return projectIds[0];
     }
 
-    public void setProjectIds(String[] projectIds) {
-        this.projectIds = projectIds;
+    public void setProjectId(String projectId) {
+        this.projectIds[0] = projectId;
     }
 
     public String getCustomerOrgId() {

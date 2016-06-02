@@ -10,13 +10,12 @@ import java.util.Map;
 public class BeaconEvent extends Event {
 
     private Place place;
-    private User user;
     private Beacon beacon;
 
     /**
      * @param eventType
-     * @param organizationIds
-     * @param projectIds
+     * @param organizationId
+     * @param projectId
      * @param customerOrgId
      * @param customerVenueOrgId
      * @param customerVenueOrgId
@@ -26,8 +25,8 @@ public class BeaconEvent extends Event {
      * @param deviceInfo
      * @param additionalProperties
      */
-    public BeaconEvent(String eventType, String[] organizationIds,
-                       String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, User user, Beacon beacon,
+    public BeaconEvent(String eventType, String organizationId,
+                       String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, User user, Beacon beacon,
                        DeviceInfo deviceInfo, Map<String, Object> additionalProperties) {
         this.eventType = eventType;
         this.place = place;
@@ -35,38 +34,38 @@ public class BeaconEvent extends Event {
         this.beacon = beacon;
         this.setDeviceInfo(deviceInfo);
         this.additionalProperties = additionalProperties;
-        this.organizationIds = organizationIds;
-        this.projectIds = projectIds;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
         this.customerOrgId = customerOrgId;
         this.customerVenueOrgId = customerVenueOrgId;
         this.venueOrgId = venueOrgId;
     }
 
-    public BeaconEvent(String eventType, String[] organizationIds,
-                       String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, Beacon beacon,
+    public BeaconEvent(String eventType, String organizationId,
+                       String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, Beacon beacon,
                        User user, DeviceInfo deviceInfo) {
         this.eventType = eventType;
         this.beacon = beacon;
         this.user = user;
         this.setDeviceInfo(deviceInfo);
-        this.organizationIds = organizationIds;
-        this.projectIds = projectIds;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
         this.customerOrgId = customerOrgId;
         this.customerVenueOrgId = customerVenueOrgId;
         this.venueOrgId = venueOrgId;
     }
 
 
-    public BeaconEvent(String eventType, String[] organizationIds,
-                       String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, User user, Beacon beacon,
+    public BeaconEvent(String eventType, String organizationId,
+                       String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, User user, Beacon beacon,
                        DeviceInfo deviceInfo) {
         this.eventType = eventType;
         this.place = place;
         this.user = user;
         this.beacon = beacon;
         this.setDeviceInfo(deviceInfo);
-        this.organizationIds = organizationIds;
-        this.projectIds = projectIds;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
         this.customerOrgId = customerOrgId;
         this.customerVenueOrgId = customerVenueOrgId;
         this.venueOrgId = venueOrgId;

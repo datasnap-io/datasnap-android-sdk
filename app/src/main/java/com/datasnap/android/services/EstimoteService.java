@@ -69,7 +69,7 @@ public class EstimoteService extends BaseService {
           beacon.setRssi("" + estimoteBeacon.getRssi());
           beacon.setName(estimoteBeacon.getName());
           beacon.setBleVendorId("Estimote");
-          Event event = new BeaconEvent(eventType, organizationIds, projectIds, null, null, null, beacon, user,
+          Event event = new BeaconEvent(eventType, organizationId, projectId, null, null, null, beacon, user,
               deviceInfo);
           DataSnap.trackEvent(event);
         }

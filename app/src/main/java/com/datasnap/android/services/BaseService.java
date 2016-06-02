@@ -34,8 +34,8 @@ public class BaseService extends Service {
 
   protected User user;
   protected DeviceInfo deviceInfo;
-  protected String[] organizationIds;
-  protected String[] projectIds;
+  protected String organizationId;
+  protected String projectId;
 
   @Override
   public IBinder onBind(Intent intent) {
@@ -57,8 +57,8 @@ public class BaseService extends Service {
     super.onStartCommand(intent, flags, startId);
     user = User.getInstance();
     deviceInfo = DeviceInfo.getInstance();
-    organizationIds = DataSnap.getOrgIds();
-    projectIds = DataSnap.getProjectIds();
+    organizationId = DataSnap.getOrgId();
+    projectId = DataSnap.getProjectId();
     return START_STICKY;
   }
 

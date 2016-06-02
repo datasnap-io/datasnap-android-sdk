@@ -106,43 +106,4 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                 }
         });
     }
-
-    public void getOrganization(final OrganizationRequestCallback callback) {
-        Handler handler = handler();
-
-        final DsConfig ds = DsConfig.getInstance();
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                String url = ds.getOrganizationsHost();
-                HttpGet get = new HttpGet(url);
-                HttpResponse response = null;
-                get.setHeader("Content-Type", "application/json");
-                get.setHeader("Accept", "application/json");
-                get.setHeader("Authorization",
-                    "Basic " + ds.getApiKey());
-                response = HTTPRequester.getOrganizations(get);
-
-                long duration = System.currentTimeMillis() - start;
-                AnalyticsStatistics.getInstance().updateRequestTime(duration);
-
-
-                if (response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 201  ) {
-                    HttpEntity entity = response.getEntity();
-                    try {
-                        String content = EntityUtils.toString(entity);
-                        callback.onRequestCompleted(content);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                } else {
-                    callback.onRequestCompleted(null);
-                }
-            }
-        });
-    }
-
 }

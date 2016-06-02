@@ -11,12 +11,12 @@ public class GeoFenceEvent extends Event {
     private Place place;
     private Geofence geofence;
 
-    public GeoFenceEvent(String eventType, String[] organizationIds,
-                         String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, Geofence geofence, User user, Map<String, Object> additionalProperties) {
+    public GeoFenceEvent(String eventType, String organizationId,
+                         String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, Geofence geofence, User user, Map<String, Object> additionalProperties) {
         super();
         this.eventType = eventType;
-        this.organizationIds = organizationIds;
-        this.projectIds = projectIds;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
         this.place = place;
         this.geofence = geofence;
         this.user = user;

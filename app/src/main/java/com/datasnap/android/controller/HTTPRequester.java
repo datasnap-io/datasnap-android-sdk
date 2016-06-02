@@ -26,18 +26,4 @@ public class HTTPRequester {
             return null;
         }
     }
-
-    public static HttpResponse getOrganizations(HttpGet httpGet) {
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpResponse response = httpclient.execute(httpGet);
-
-            return response;
-        } catch (Exception e) {
-            Logger.w(e, "Failed to send request.");
-            Log.d("BasicRequester", "Falied ot Send Request" + e);
-            return null;
-        }
-    }
-
 }

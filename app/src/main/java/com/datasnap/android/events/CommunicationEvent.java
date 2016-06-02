@@ -11,13 +11,13 @@ public class CommunicationEvent extends Event {
     private Communication communication;
     private Campaign campaign;
 
-    public CommunicationEvent(String eventType, String[] organizationIds,
-                              String[] projectIds, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, Communication communication,
+    public CommunicationEvent(String eventType, String organizationId,
+                              String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, Communication communication,
                               Campaign campaign, Map<String, Object> additionalProperties) {
         super();
         this.eventType = eventType;
-        this.organizationIds = organizationIds;
-        this.projectIds = projectIds;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
         this.user = user;
         this.communication = communication;
         this.campaign = campaign;
