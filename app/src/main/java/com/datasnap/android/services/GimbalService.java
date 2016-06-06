@@ -27,11 +27,13 @@ import com.gimbal.android.Communication;
 import com.gimbal.android.CommunicationListener;
 import com.gimbal.android.CommunicationManager;
 import com.gimbal.android.Gimbal;
+import com.gimbal.android.GimbalDebugger;
 import com.gimbal.android.PlaceEventListener;
 import com.gimbal.android.PlaceManager;
 import com.gimbal.android.Push;
 import com.gimbal.android.Visit;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.analytics.Logger;
 
 import java.util.Collection;
 import java.util.List;
@@ -70,6 +72,7 @@ public class GimbalService extends BaseService {
       @Override
       public void onBeaconSighting(BeaconSighting sighting) {
         super.onBeaconSighting(sighting);
+        com.datasnap.android.utils.Logger.d("Received sighting with RSSI %s", sighting.getRSSI());
         String eventType = "beacon_sighting";
         Beacon beacon = new Beacon();
         beacon.setIdentifier(sighting.getBeacon().getIdentifier());
@@ -169,6 +172,7 @@ public class GimbalService extends BaseService {
   public int onStartCommand(Intent intent, int flags, int startId) {
     super.onStartCommand(intent, flags, startId);
     String apiKey = intent.getStringExtra("gimbalApiKey");
+    GimbalDebugger.enableBeaconSightingsLogging();
     Gimbal.setApiKey(this.getApplication(), apiKey);
     gimbalBeaconManager = new com.gimbal.android.BeaconManager();
     return START_STICKY;
