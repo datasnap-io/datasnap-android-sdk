@@ -14,11 +14,29 @@ import org.apache.http.util.EntityUtils;
 
 public class HTTPRequester {
 
+    private static HTTPRequester instance = new HTTPRequester();
+    private static int requestCounter;
+    private static boolean requestCounterEnabled;
+
+    public static void startRequestCount(){
+        requestCounter = 0;
+        requestCounterEnabled = true;
+    }
+
+    public static void stopRequestCount(){
+        requestCounterEnabled = false;
+    }
+
+    public static int getRequestCount(){
+        return requestCounter;
+    }
+
     public static HttpResponse send(HttpPost httpPost) {
         try {
             HttpClient httpclient = new DefaultHttpClient();
             HttpResponse response = httpclient.execute(httpPost);
-
+            if(requestCounterEnabled)
+                ++requestCounter;
             return response;
         } catch (Exception e) {
             Logger.w(e, "Failed to send request.");

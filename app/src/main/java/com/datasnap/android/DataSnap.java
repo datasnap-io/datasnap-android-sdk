@@ -437,7 +437,7 @@ public final class DataSnap {
         });
     }
 
-    private static boolean isInitialized() {
+    public static boolean isInitialized() {
         return initialized && User.getInstance() != null && DeviceInfo.getInstance() != null && DsConfig.getInstance() != null;
     }
 }
