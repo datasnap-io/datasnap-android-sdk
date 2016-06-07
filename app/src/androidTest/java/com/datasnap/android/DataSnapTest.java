@@ -6,6 +6,7 @@ package com.datasnap.android;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.provider.ContactsContract;
 import android.support.test.runner.AndroidJUnit4;
@@ -58,7 +59,14 @@ public class DataSnapTest {
   @Before
   public void setUp() throws Exception {
     wifiManager = (WifiManager) getTargetContext().getSystemService(Context.WIFI_SERVICE);
+    //network requests are going to be mocked but in the case of lack of connectivity they won't be even attempted
     wifiManager.setWifiEnabled(true);
+    ConnectivityManager connectivityManager
+        = (ConnectivityManager) getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+    if(activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+      throw new IllegalStateException("Datasnap tests need to be run on a phone that is connected to the internet.");
+    }
     database = EventDatabase.getInstance(getTargetContext());
     database.removeEvents();
     String apiKeyId = "3F34FXD78PCINFR99IYW950W4";
@@ -104,6 +112,13 @@ public class DataSnapTest {
   @Test
   public void shouldHandleLackOfConnectivity() throws InterruptedException {
     wifiManager.setWifiEnabled(false);
+    ConnectivityManager connectivityManager
+        = (ConnectivityManager) getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+    if(activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+      throw new IllegalStateException("This test needs to check Datasnap's behavior with lack of connectivity." +
+          "Please make sure to use a device that won't be connected to the internet without using wifi.");
+    }
     HTTPRequester.startRequestCount();
     User user = new User();
     Id id = new Id();
