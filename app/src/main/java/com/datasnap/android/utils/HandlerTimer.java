@@ -51,6 +51,14 @@ public class HandlerTimer extends LooperThreadWithHandler {
         }
     };
 
+    public void setFrequencyMs(int frequency){
+        this.frequencyMs = frequency;
+    }
+
+    public int getFrequencyMs(){
+        return frequencyMs;
+    }
+
     @Override
     public void quit() {
 

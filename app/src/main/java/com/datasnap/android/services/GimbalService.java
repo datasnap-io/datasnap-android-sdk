@@ -172,8 +172,8 @@ public class GimbalService extends BaseService {
   public int onStartCommand(Intent intent, int flags, int startId) {
     super.onStartCommand(intent, flags, startId);
     String apiKey = intent.getStringExtra("gimbalApiKey");
-    GimbalDebugger.enableBeaconSightingsLogging();
     Gimbal.setApiKey(this.getApplication(), apiKey);
+    GimbalDebugger.enableBeaconSightingsLogging();
     gimbalBeaconManager = new com.gimbal.android.BeaconManager();
     return START_STICKY;
   }

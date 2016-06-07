@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.util.Pair;
 
 import com.datasnap.android.Defaults;
+import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.LooperThreadWithHandler;
 
 import java.util.LinkedList;
@@ -41,7 +42,7 @@ public class EventDatabaseThread extends LooperThreadWithHandler
         handler.post(new Runnable() {
             @Override
             public void run() {
-                List<Pair<Long, EventWrapper>> pairs = database.getEvents(Defaults.FLUSH_AT);
+                List<Pair<Long, EventWrapper>> pairs = database.getEvents(DsConfig.getInstance().getFlushAt());
                 long minId = 0;
                 long maxId = 0;
 

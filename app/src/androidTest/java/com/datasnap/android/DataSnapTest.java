@@ -19,7 +19,15 @@ import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.InteractionEvent;
 import com.datasnap.android.utils.DsConfig;
+import com.datasnap.android.utils.HandlerTimer;
 
+import org.apache.http.Header;
+import org.apache.http.HeaderIterator;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
+import org.apache.http.params.HttpParams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -136,4 +144,201 @@ public class DataSnapTest {
     HTTPRequester.stopRequestCount();
     assertTrue(HTTPRequester.getRequestCount() == 1);
   }
+
+  @Test
+  public void shouldFlushPeriodically() throws InterruptedException {
+    //setting the max number of elements to a large number will make the flushing be driven by time
+    //and not by the queue getting filled up
+    int currentFlushTime = DsConfig.getInstance().getFlushAfter();
+    DataSnap.setFlushParams(2000, 500);
+    //make sure the new frequency kicked in:
+    Thread.sleep(currentFlushTime);
+    setMockedResponse(200);
+    HandlerTimer timer = new HandlerTimer(300, eventClock);
+    timer.start();
+    HTTPRequester.startRequestCount();
+    //the runnable will yield 3 events per second:
+    Thread.sleep(10000);
+    assertTrue(HTTPRequester.getRequestCount() >= 4 && HTTPRequester.getRequestCount() <= 6);
+    //if we set also the flushing time to a large number we should see no more requests going out
+    DataSnap.setFlushParams(30000, 500);
+    //make sure the new frequency kicked in and there are no pending requests before resetting the requests count:
+    Thread.sleep(3000);
+    HTTPRequester.stopRequestCount();
+    HTTPRequester.startRequestCount();
+    //verify that stop counts flushes the requests
+    assertTrue(HTTPRequester.getRequestCount() == 0);
+    Thread.sleep(20000);
+    assertTrue(HTTPRequester.getRequestCount() == 0);
+    HTTPRequester.stopRequestCount();
+  }
+
+  private void setMockedResponse(final int statusCode){
+    HTTPRequester.setMockedResponse(new HttpResponse() {
+      @Override
+      public StatusLine getStatusLine() {
+        return new StatusLine() {
+          @Override
+          public ProtocolVersion getProtocolVersion() {
+            return null;
+          }
+
+          @Override
+          public int getStatusCode() {
+            return statusCode;
+          }
+
+          @Override
+          public String getReasonPhrase() {
+            return null;
+          }
+        };
+      }
+
+      @Override
+      public void setStatusLine(StatusLine statusLine) {
+
+      }
+
+      @Override
+      public void setStatusLine(ProtocolVersion protocolVersion, int i) {
+
+      }
+
+      @Override
+      public void setStatusLine(ProtocolVersion protocolVersion, int i, String s) {
+
+      }
+
+      @Override
+      public void setStatusCode(int i) throws IllegalStateException {
+
+      }
+
+      @Override
+      public void setReasonPhrase(String s) throws IllegalStateException {
+
+      }
+
+      @Override
+      public HttpEntity getEntity() {
+        return null;
+      }
+
+      @Override
+      public void setEntity(HttpEntity httpEntity) {
+
+      }
+
+      @Override
+      public Locale getLocale() {
+        return null;
+      }
+
+      @Override
+      public void setLocale(Locale locale) {
+
+      }
+
+      @Override
+      public ProtocolVersion getProtocolVersion() {
+        return null;
+      }
+
+      @Override
+      public boolean containsHeader(String s) {
+        return false;
+      }
+
+      @Override
+      public Header[] getHeaders(String s) {
+        return new Header[0];
+      }
+
+      @Override
+      public Header getFirstHeader(String s) {
+        return null;
+      }
+
+      @Override
+      public Header getLastHeader(String s) {
+        return null;
+      }
+
+      @Override
+      public Header[] getAllHeaders() {
+        return new Header[0];
+      }
+
+      @Override
+      public void addHeader(Header header) {
+
+      }
+
+      @Override
+      public void addHeader(String s, String s1) {
+
+      }
+
+      @Override
+      public void setHeader(Header header) {
+
+      }
+
+      @Override
+      public void setHeader(String s, String s1) {
+
+      }
+
+      @Override
+      public void setHeaders(Header[] headers) {
+
+      }
+
+      @Override
+      public void removeHeader(Header header) {
+
+      }
+
+      @Override
+      public void removeHeaders(String s) {
+
+      }
+
+      @Override
+      public HeaderIterator headerIterator() {
+        return null;
+      }
+
+      @Override
+      public HeaderIterator headerIterator(String s) {
+        return null;
+      }
+
+      @Override
+      public HttpParams getParams() {
+        return null;
+      }
+
+      @Override
+      public void setParams(HttpParams httpParams) {
+
+      }
+    });
+  }
+
+  private static Runnable eventClock = new Runnable() {
+    @Override
+    public void run() {
+      User user = new User();
+      Id id = new Id();
+      id.setMobileDeviceGoogleAdvertisingId("sample id");
+      id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
+      user.setId(id);
+      String eventType = "app_installed";
+      Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
+      DataSnap.trackEvent(event);
+    }
+  };
+
 }

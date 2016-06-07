@@ -85,6 +85,7 @@ public final class DataSnap {
     private static EstimoteService estimoteService;
     private static SharedPreferences sharedPreferences;
     private static VendorProperties vendorProperties;
+    private static boolean syncingLocked;
 
     public static void initialize(android.content.Context context, String apiKeyId, String apiKeySecret, String organizationId, String projectId, VendorProperties properties) {
         String errorPrefix = "DataSnap client must be initialized with a valid ";
@@ -200,13 +201,14 @@ public final class DataSnap {
         }
     }
 
-    public static void setFlushParams(int duration, int maxElements){
-        sharedPreferences.edit().putInt(INITIAL_FLUSH_PERIOD, duration).commit();
-        sharedPreferences.edit().putInt(FLUSH_PERIOD, duration).commit();
-        dsConfig.setFlushAfter(duration);
+    public static void setFlushParams(int durationInMillis, int maxElements){
+        sharedPreferences.edit().putInt(INITIAL_FLUSH_PERIOD, durationInMillis).commit();
+        sharedPreferences.edit().putInt(FLUSH_PERIOD, durationInMillis).commit();
+        dsConfig.setFlushAfter(durationInMillis);
         sharedPreferences.edit().putInt(INITIAL_FLUSH_QUEUE, maxElements).commit();
         sharedPreferences.edit().putInt(FLUSH_QUEUE, maxElements).commit();
         dsConfig.setFlushAt(maxElements);
+        DataSnap.flushTimer.setFrequencyMs(durationInMillis);
     }
 
     /**
@@ -376,8 +378,9 @@ public final class DataSnap {
      * @param async True to block until the data is flushed
      */
     private static void flush(boolean async) {
-        if(!isInitialized())
+        if(!isInitialized() || syncingLocked)
             return;
+        syncingLocked = true;
         final CountDownLatch latch = new CountDownLatch(1);
         ConnectivityManager connectivityManager
             = (ConnectivityManager) dataSnapContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -390,6 +393,7 @@ public final class DataSnap {
             @Override
             public void onFlushCompleted(boolean success, List<EventWrapper>batch, int statusCode) {
                 latch.countDown();
+                syncingLocked = false;
                 if (success) {
                     long duration = System.currentTimeMillis() - start;
                     statistics.updateFlushTime(duration);
@@ -430,7 +434,7 @@ public final class DataSnap {
                     Logger.w("Item %s failed to be enqueued.", "description string");
                 }
                 //   flushes depending on rowcount
-                if (rowCount >= dsConfig.getFlushAt()) {
+                if (rowCount >= DsConfig.getInstance().getFlushAt()) {
                     DataSnap.flush(true);
                 }
             }

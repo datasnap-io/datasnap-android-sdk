@@ -10,11 +10,14 @@ import com.datasnap.android.utils.LooperThreadWithHandler;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -70,6 +73,7 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                         se = new StringEntity(finalStr, HTTP.UTF_8);
                         se.setContentType("application/json");
                         post.setHeader("Content-Type", "application/json");
+                        post.setHeader("Content-Encoding", "gzip");
                         post.setHeader("Accept", "application/json");
                         post.setHeader("Authorization",
                                 "Basic " + ds.getApiKey());

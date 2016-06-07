@@ -58,7 +58,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                 flushNextEvent(new FlushCallback() {
                     @Override
                     public void onFlushCompleted(boolean success, List<EventWrapper> batch, int statusCode) {
-                        if (success && batch.size() > 0) {
+                        if  ((success || statusCode == 400) && batch.size() > DsConfig.getInstance().getFlushAt()) {
                             // we successfully sent a eventListContainer to the server, and we might
                             // have more to send, so lets trigger another flush
                           if(!DataSnap.networkAvailable)
@@ -154,9 +154,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                                       }
                                     }
                                   });
-                                }
-                                // if we failed at flushing (connectivity issues), return
-                                if (callback != null)
+                                } else if (callback != null)
                                     callback.onFlushCompleted(false, batch, statusCode);
                             } else {
                                 Logger.d("Successfully sent eventListContainer to the server. %s", range);
