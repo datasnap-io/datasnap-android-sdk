@@ -36,6 +36,10 @@ public class EventDatabase extends SQLiteOpenHelper {
         return instance;
     }
 
+    public static EventDatabase getInstance() {
+      return instance;
+    }
+
     private EventDatabase(Context context) {
         super(context, Defaults.Database.NAME, null, Defaults.Database.VERSION);
         externalFilesDir = context.getExternalFilesDir(null).getAbsolutePath();

@@ -58,13 +58,13 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                 flushNextEvent(new FlushCallback() {
                     @Override
                     public void onFlushCompleted(boolean success, List<EventWrapper> batch, int statusCode) {
-                        if  ((success || statusCode == 400) && batch.size() > DsConfig.getInstance().getFlushAt()) {
-                            // we successfully sent a eventListContainer to the server, and we might
-                            // have more to send, so lets trigger another flush
-                          if(!DataSnap.networkAvailable)
-                           return;
-                            else {
-                               flush(null);
+                        if  ((success || statusCode == 400) && EventDatabase.getInstance().getRowCount() > DsConfig.getInstance().getFlushAt()) {
+                          // we successfully sent a eventListContainer to the server, and we might
+                          // have more to send, so lets trigger another flush
+                          if (!DataSnap.networkAvailable) {
+                            return;
+                          } else {
+                            flush(null);
                           }
                         }
                         // we're done with this flush operation
@@ -160,7 +160,6 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                                 Logger.d("Successfully sent eventListContainer to the server. %s", range);
                                 Logger.d("Removing flushed items from the db  .. %s", range);
                                 // TODO: remove BF test
-                                callback.onFlushCompleted(true, batch, statusCode);
                                 // if we were successful, we need to first delete the old items from the
                                 // database, and then continue flushing
                                 databaseLayer.removePayloads(minId, maxId, new RemoveCallback() {

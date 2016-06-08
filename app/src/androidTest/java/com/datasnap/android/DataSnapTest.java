@@ -17,10 +17,14 @@ import com.datasnap.android.controller.EventWrapper;
 import com.datasnap.android.controller.HTTPRequester;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
+import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.InteractionEvent;
 import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.HandlerTimer;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
@@ -64,7 +68,7 @@ public class DataSnapTest {
     ConnectivityManager connectivityManager
         = (ConnectivityManager) getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-    if(activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+    if(activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
       throw new IllegalStateException("Datasnap tests need to be run on a phone that is connected to the internet.");
     }
     database = EventDatabase.getInstance(getTargetContext());
@@ -79,7 +83,6 @@ public class DataSnapTest {
 
   @After
   public void tearDown() throws Exception {
-    database.close();
   }
 
   @Test
@@ -186,6 +189,33 @@ public class DataSnapTest {
     Thread.sleep(20000);
     assertTrue(HTTPRequester.getRequestCount() == 0);
     HTTPRequester.stopRequestCount();
+  }
+
+  @Test
+  public void shouldFlushAutomaticallyIfDataAccumulated() throws InterruptedException {
+    DataSnap.setFlushParams(300000, 50);
+    User user = new User();
+    Id id = new Id();
+    id.setMobileDeviceGoogleAdvertisingId("sample id");
+    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
+    user.setId(id);
+    String eventType = "app_installed";
+    Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+    Gson gson = gsonBuilder.create();
+    String json = gson.toJson(event);
+    EventWrapper eventWrapper = new EventWrapper(json);
+    for(int i = 0; i < 400; i++){
+      database.addEvent(eventWrapper);
+    }
+    setMockedResponse(200);
+    HTTPRequester.startRequestCount();
+    DataSnap.trackEvent(event);
+    Thread.sleep(10000);
+    HTTPRequester.stopRequestCount();
+    assertTrue(HTTPRequester.getRequestCount() == 9);
+    assertTrue(database.getEvents(10).size() == 0);
   }
 
   private void setMockedResponse(final int statusCode){
