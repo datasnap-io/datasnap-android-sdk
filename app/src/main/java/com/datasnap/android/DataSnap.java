@@ -25,6 +25,8 @@ import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.Event;
+import com.datasnap.android.events.EventListener;
+import com.datasnap.android.events.EventType;
 import com.datasnap.android.events.InteractionEvent;
 import com.datasnap.android.services.EstimoteService;
 import com.datasnap.android.services.GimbalService;
@@ -71,9 +73,6 @@ public final class DataSnap {
     public static boolean networkAvailable;
     private static Context dataSnapContext;
     private static final String PREFERENCE_FIRST_RUN = "first_run";
-    private static final String BEACON_SIGHTING_SWITCH = "beacon_sighting";
-    private static final String COMMUNICATION_SIGHTING_SWITCH = "communication_sighting";
-    private static final String GEOFENCE_DEPART_SWITCH = "geofence_depart";
     private static final String FLUSH_PERIOD = "flush_period";
     private static final String FLUSH_QUEUE = "flush_queue";
     private static final String INITIAL_FLUSH_PERIOD = "initial_flush_period";
@@ -180,22 +179,22 @@ public final class DataSnap {
      */
     public static void setEventEnabled(String event, boolean value) {
         switch (event){
-            case BEACON_SIGHTING_SWITCH:
+            case EventListener.GIMBAL_BEACON_SIGHTING:
                 if(value){
                     gimbalService.addGimbalBeaconSightingListener();
-                    sharedPreferences.edit().putBoolean(BEACON_SIGHTING_SWITCH, true).commit();
+                    sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, true).commit();
                 } else {
                     gimbalService.releaseGimbalBeaconSightingListener();
-                    sharedPreferences.edit().putBoolean(BEACON_SIGHTING_SWITCH, false).commit();
+                    sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, false).commit();
                 }
                 break;
-            case COMMUNICATION_SIGHTING_SWITCH:
+            case EventListener.GIMBAL_COMMUNICATION:
                 if(value){
                     gimbalService.addGimbalCommunicationListener();
-                    sharedPreferences.edit().putBoolean(COMMUNICATION_SIGHTING_SWITCH, true).commit();
+                    sharedPreferences.edit().putBoolean(EventListener.GIMBAL_COMMUNICATION, true).commit();
                 } else {
                     gimbalService.releaseGimbalCommunicationListener();
-                    sharedPreferences.edit().putBoolean(COMMUNICATION_SIGHTING_SWITCH, false).commit();
+                    sharedPreferences.edit().putBoolean(EventListener.GIMBAL_COMMUNICATION, false).commit();
                 }
                 break;
         }
@@ -318,13 +317,13 @@ public final class DataSnap {
             gimbalService = gimbalBinder.getService();
             if(gimbalService == null)
                 return;
-            if(sharedPreferences.getBoolean(BEACON_SIGHTING_SWITCH, true)) {
+            if(sharedPreferences.getBoolean(EventListener.GIMBAL_BEACON_SIGHTING, true)) {
                 if(gimbalService != null)
                     gimbalService.addGimbalBeaconSightingListener();
             } else {
                 gimbalService.releaseGimbalBeaconSightingListener();
             }
-            if(sharedPreferences.getBoolean(COMMUNICATION_SIGHTING_SWITCH, true)) {
+            if(sharedPreferences.getBoolean(EventListener.GIMBAL_COMMUNICATION, true)) {
                 if(gimbalService != null)
                     gimbalService.addGimbalCommunicationListener();
             } else {
@@ -441,7 +440,7 @@ public final class DataSnap {
         });
     }
 
-    public static boolean isInitialized() {
+    private static boolean isInitialized() {
         return initialized && User.getInstance() != null && DeviceInfo.getInstance() != null && DsConfig.getInstance() != null;
     }
 }
