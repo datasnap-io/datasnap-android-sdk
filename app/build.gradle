@@ -38,4 +38,8 @@ dependencies {
     compile 'com.google.android.gms:play-services:6.1.+'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'org.slf4j:slf4j-api:1.7.2'
+    compile group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
+    compile('org.apache.httpcomponents:httpmime:4.3') {
+        exclude module: "httpclient"
+    }
 }
