@@ -36,6 +36,7 @@ public class BaseService extends Service {
   protected DeviceInfo deviceInfo;
   protected String organizationId;
   protected String projectId;
+  protected boolean classesLoadingFailed;
 
   @Override
   public IBinder onBind(Intent intent) {

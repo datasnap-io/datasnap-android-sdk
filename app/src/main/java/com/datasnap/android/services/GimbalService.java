@@ -33,7 +33,7 @@ import com.gimbal.android.PlaceManager;
 import com.gimbal.android.Push;
 import com.gimbal.android.Visit;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.analytics.Logger;
+import com.datasnap.android.utils.Logger;
 
 import java.util.Collection;
 import java.util.List;
@@ -172,9 +172,14 @@ public class GimbalService extends BaseService {
   public int onStartCommand(Intent intent, int flags, int startId) {
     super.onStartCommand(intent, flags, startId);
     String apiKey = intent.getStringExtra("gimbalApiKey");
-    Gimbal.setApiKey(this.getApplication(), apiKey);
-    GimbalDebugger.enableBeaconSightingsLogging();
-    gimbalBeaconManager = new com.gimbal.android.BeaconManager();
+    try {
+      Gimbal.setApiKey(this.getApplication(), apiKey);
+      GimbalDebugger.enableBeaconSightingsLogging();
+      gimbalBeaconManager = new com.gimbal.android.BeaconManager();
+    } catch (NoClassDefFoundError e) {
+      Logger.e("Gimbal sdk can't be found, please add it to your project's dependencies");
+      classesLoadingFailed = true;
+    }
     return START_STICKY;
   }
 
@@ -185,6 +190,8 @@ public class GimbalService extends BaseService {
 
   public class DataSnapBinder extends Binder {
     public GimbalService getService() {
+      if(classesLoadingFailed)
+        return null;
       return GimbalService.this;
     }
   }
