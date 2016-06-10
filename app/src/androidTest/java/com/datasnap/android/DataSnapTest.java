@@ -42,6 +42,9 @@ import org.mockito.Mockito;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -59,6 +62,7 @@ public class DataSnapTest {
   private EventDatabase database;
   private String sampleEventJson = "{\"data_snap_version\":\"1.0.2\",\"event_type\":\"app_installed\",\"organization_ids\":[\"19CYxNMSQvfnnMf1QS4b3Z\"],\"project_ids\":[\"21213f8b-8341-4ef3-a6b8-ed0f84945186\"],\"user\":{\"id\":{\"mobile_device_google_advertising_id\":\"sample id\",\"mobile_device_google_advertising_id_opt_in\":\"true\"}}}";
   private WifiManager wifiManager;
+  private Event sampleEvent;
 
   @Before
   public void setUp() throws Exception {
@@ -68,7 +72,7 @@ public class DataSnapTest {
     ConnectivityManager connectivityManager
         = (ConnectivityManager) getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-    if(activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
+    if (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
       throw new IllegalStateException("Datasnap tests need to be run on a phone that is connected to the internet.");
     }
     database = EventDatabase.getInstance(getTargetContext());
@@ -77,8 +81,9 @@ public class DataSnapTest {
     String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";
     VendorProperties vendorProperties = new VendorProperties();
     vendorProperties.setGimbalApiKey("044e761a-0b9f-4472-b2bb-714625e83574");
-    vendorProperties.setVendor(VendorProperties.Vendor.GIMBAL);
+    vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
     DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186", vendorProperties);
+    sampleEvent = getSampleEvent();
   }
 
   @After
@@ -118,19 +123,12 @@ public class DataSnapTest {
     ConnectivityManager connectivityManager
         = (ConnectivityManager) getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-    if(activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+    if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
       throw new IllegalStateException("This test needs to check Datasnap's behavior with lack of connectivity." +
           "Please make sure to use a device that won't be connected to the internet without using wifi.");
     }
     HTTPRequester.startRequestCount();
-    User user = new User();
-    Id id = new Id();
-    id.setMobileDeviceGoogleAdvertisingId("sample id");
-    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
-    user.setId(id);
-    String eventType = "app_installed";
-    Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
-    DataSnap.trackEvent(event);
+    DataSnap.trackEvent(sampleEvent);
     Thread.sleep(DsConfig.getInstance().getFlushAfter() + 3000);
     assertTrue(HTTPRequester.getRequestCount() == 0);
     wifiManager.setWifiEnabled(true);
@@ -141,22 +139,15 @@ public class DataSnapTest {
   @Test
   public void shouldBatchEvents() throws InterruptedException {
     HTTPRequester.startRequestCount();
-    User user = new User();
-    Id id = new Id();
-    id.setMobileDeviceGoogleAdvertisingId("sample id");
-    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
-    user.setId(id);
-    String eventType = "app_installed";
-    Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
-    for(int i = 0; i < 2 * DsConfig.getInstance().getFlushAt(); i++){
-      DataSnap.trackEvent(event);
+    for (int i = 0; i < 2 * DsConfig.getInstance().getFlushAt(); i++) {
+      DataSnap.trackEvent(sampleEvent);
     }
     Thread.sleep(3000);
     HTTPRequester.stopRequestCount();
     assertTrue(HTTPRequester.getRequestCount() == 2);
     HTTPRequester.startRequestCount();
-    for(int i = 0; i < DsConfig.getInstance().getFlushAt()/2; i++){
-      DataSnap.trackEvent(event);
+    for (int i = 0; i < DsConfig.getInstance().getFlushAt() / 2; i++) {
+      DataSnap.trackEvent(sampleEvent);
     }
     Thread.sleep(DsConfig.getInstance().getFlushAfter() + 3000);
     HTTPRequester.stopRequestCount();
@@ -194,28 +185,71 @@ public class DataSnapTest {
   @Test
   public void shouldFlushAutomaticallyIfDataAccumulated() throws InterruptedException {
     DataSnap.setFlushParams(300000, 50);
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+    Gson gson = gsonBuilder.create();
+    String json = gson.toJson(sampleEvent);
+    EventWrapper eventWrapper = new EventWrapper(json);
+    for (int i = 0; i < 400; i++) {
+      database.addEvent(eventWrapper);
+    }
+    setMockedResponse(200);
+    HTTPRequester.startRequestCount();
+    DataSnap.trackEvent(sampleEvent);
+    Thread.sleep(10000);
+    HTTPRequester.stopRequestCount();
+    assertTrue(HTTPRequester.getRequestCount() == 9);
+    assertTrue(database.getEvents(10).size() == 0);
+  }
+
+  @Test
+  public void shouldNotRetryToSend400Requests() throws InterruptedException {
+    DataSnap.setFlushParams(300000, 50);
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+    Gson gson = gsonBuilder.create();
+    String json = gson.toJson(sampleEvent);
+    EventWrapper eventWrapper = new EventWrapper(json);
+    for (int i = 0; i < 30; i++) {
+      database.addEvent(eventWrapper);
+    }
+    setMockedResponse(400);
+    HTTPRequester.startRequestCount();
+    DataSnap.trackEvent(sampleEvent);
+    Thread.sleep(10000);
+    HTTPRequester.stopRequestCount();
+    assertTrue(HTTPRequester.getRequestCount() == 1);
+    assertTrue(database.getEvents(10).size() == 0);
+  }
+
+  @Test
+  public void shouldRetryToSendDifferentErrorRequests() throws InterruptedException {
+    DataSnap.setFlushParams(300000, 50);
+
+    GsonBuilder gsonBuilder = new GsonBuilder();
+    gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+    Gson gson = gsonBuilder.create();
+    String json = gson.toJson(sampleEvent);
+    EventWrapper eventWrapper = new EventWrapper(json);
+    for (int i = 0; i < 30; i++) {
+      database.addEvent(eventWrapper);
+    }
+    setMockedResponse(404);
+    HTTPRequester.startRequestCount();
+    DataSnap.trackEvent(sampleEvent);
+    Thread.sleep(10000);
+    HTTPRequester.stopRequestCount();
+    assertTrue(database.getEvents(10).size() == 31);
+  }
+
+  private Event getSampleEvent(){
     User user = new User();
     Id id = new Id();
     id.setMobileDeviceGoogleAdvertisingId("sample id");
     id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
     user.setId(id);
     String eventType = "app_installed";
-    Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
-    GsonBuilder gsonBuilder = new GsonBuilder();
-    gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-    Gson gson = gsonBuilder.create();
-    String json = gson.toJson(event);
-    EventWrapper eventWrapper = new EventWrapper(json);
-    for(int i = 0; i < 400; i++){
-      database.addEvent(eventWrapper);
-    }
-    setMockedResponse(200);
-    HTTPRequester.startRequestCount();
-    DataSnap.trackEvent(event);
-    Thread.sleep(10000);
-    HTTPRequester.stopRequestCount();
-    assertTrue(HTTPRequester.getRequestCount() == 9);
-    assertTrue(database.getEvents(10).size() == 0);
+    return new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
   }
 
   private void setMockedResponse(final int statusCode){
@@ -267,7 +301,52 @@ public class DataSnapTest {
 
       @Override
       public HttpEntity getEntity() {
-        return null;
+        return new HttpEntity() {
+          @Override
+          public boolean isRepeatable() {
+            return false;
+          }
+
+          @Override
+          public boolean isChunked() {
+            return false;
+          }
+
+          @Override
+          public long getContentLength() {
+            return 0;
+          }
+
+          @Override
+          public Header getContentType() {
+            return null;
+          }
+
+          @Override
+          public Header getContentEncoding() {
+            return null;
+          }
+
+          @Override
+          public InputStream getContent() throws IOException, IllegalStateException {
+            return null;
+          }
+
+          @Override
+          public void writeTo(OutputStream outputStream) throws IOException {
+
+          }
+
+          @Override
+          public boolean isStreaming() {
+            return false;
+          }
+
+          @Override
+          public void consumeContent() throws IOException {
+
+          }
+        };
       }
 
       @Override
@@ -372,7 +451,7 @@ public class DataSnapTest {
     });
   }
 
-  private static Runnable eventClock = new Runnable() {
+  protected static Runnable eventClock = new Runnable() {
     @Override
     public void run() {
       User user = new User();
@@ -387,3 +466,4 @@ public class DataSnapTest {
   };
 
 }
+

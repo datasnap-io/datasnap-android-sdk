@@ -13,7 +13,7 @@ public class VendorProperties {
   }
 
   private String gimbalApiKey;
-  private ArrayList<Vendor> vendor;
+  private ArrayList<Vendor> vendor = new ArrayList<>();
 
   public ArrayList<Vendor> getVendor() {
     return vendor;
