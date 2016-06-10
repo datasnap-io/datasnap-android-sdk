@@ -37,9 +37,9 @@ public class DataSnapGimbalActivity extends Activity {
         String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";
         VendorProperties vendorProperties = new VendorProperties();
         vendorProperties.setGimbalApiKey("044e761a-0b9f-4472-b2bb-714625e83574");
-        vendorProperties.setVendor(VendorProperties.Vendor.GIMBAL);
+        vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
         DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186",  vendorProperties);
-        DataSnap.setFlushParams(100000, 100);
+        DataSnap.setFlushParams(100000, 50);
         Gimbal.setApiKey(this.getApplication(), "044e761a-0b9f-4472-b2bb-714625e83574");
         BeaconManager gimbalBeaconManager = new com.gimbal.android.BeaconManager();
         BeaconEventListener gimbalBeaconEventListener = new BeaconEventListener() {

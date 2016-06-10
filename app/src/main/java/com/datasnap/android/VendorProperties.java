@@ -1,5 +1,7 @@
 package com.datasnap.android;
 
+import java.util.ArrayList;
+
 /**
  * Created by paolopelagatti on 5/24/16.
  */
@@ -11,14 +13,14 @@ public class VendorProperties {
   }
 
   private String gimbalApiKey;
-  private Vendor vendor;
+  private ArrayList<Vendor> vendor;
 
-  public Vendor getVendor() {
+  public ArrayList<Vendor> getVendor() {
     return vendor;
   }
 
-  public void setVendor(Vendor vendor) {
-    this.vendor = vendor;
+  public void addVendor(Vendor vendor) {
+    this.vendor.add(vendor);
   }
 
   public String getGimbalApiKey() {

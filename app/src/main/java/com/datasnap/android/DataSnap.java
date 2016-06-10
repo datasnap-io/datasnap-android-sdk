@@ -178,25 +178,22 @@ public final class DataSnap {
      *
      */
     public static void setEventEnabled(String event, boolean value) {
-        switch (event){
-            case EventListener.GIMBAL_BEACON_SIGHTING:
-                if(value){
-                    gimbalService.addGimbalBeaconSightingListener();
-                    sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, true).commit();
-                } else {
-                    gimbalService.releaseGimbalBeaconSightingListener();
-                    sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, false).commit();
-                }
-                break;
-            case EventListener.GIMBAL_COMMUNICATION:
-                if(value){
-                    gimbalService.addGimbalCommunicationListener();
-                    sharedPreferences.edit().putBoolean(EventListener.GIMBAL_COMMUNICATION, true).commit();
-                } else {
-                    gimbalService.releaseGimbalCommunicationListener();
-                    sharedPreferences.edit().putBoolean(EventListener.GIMBAL_COMMUNICATION, false).commit();
-                }
-                break;
+        if(event.equals(EventListener.GIMBAL_BEACON_SIGHTING) || event.equals(EventListener.ALL_EVENTS)) {
+            if (value) {
+                gimbalService.addGimbalBeaconSightingListener();
+                sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, true).commit();
+            } else {
+                gimbalService.releaseGimbalBeaconSightingListener();
+                sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, false).commit();
+            }
+        } else if(event.equals(EventListener.GIMBAL_COMMUNICATION) || event.equals(EventListener.ALL_EVENTS)) {
+            if(value){
+                gimbalService.addGimbalCommunicationListener();
+                sharedPreferences.edit().putBoolean(EventListener.GIMBAL_COMMUNICATION, true).commit();
+            } else {
+                gimbalService.releaseGimbalCommunicationListener();
+                sharedPreferences.edit().putBoolean(EventListener.GIMBAL_COMMUNICATION, false).commit();
+            }
         }
     }
 
@@ -272,19 +269,21 @@ public final class DataSnap {
         Intent intent;
         if(vendorProperties == null)
             return;
-        switch (vendorProperties.getVendor()) {
-            case GIMBAL:
-                intent = new Intent(dataSnapContext, GimbalService.class);
-                intent.putExtra("gimbalApiKey", vendorProperties.getGimbalApiKey());
-                dataSnapContext.startService(intent);
-                dataSnapContext.bindService(intent, gimbalServiceConnection, Context.BIND_AUTO_CREATE);
-                break;
-            case ESTIMOTE:
-                intent = new Intent(dataSnapContext, EstimoteService.class);
-                intent.putExtra(Context.class.toString(), (Serializable) dataSnapContext);
-                dataSnapContext.startService(intent);
-                dataSnapContext.bindService(intent, estimoteServiceConnection, Context.BIND_AUTO_CREATE);
-                break;
+        for(VendorProperties.Vendor vendor : vendorProperties.getVendor()) {
+            switch (vendor) {
+                case GIMBAL:
+                    intent = new Intent(dataSnapContext, GimbalService.class);
+                    intent.putExtra("gimbalApiKey", vendorProperties.getGimbalApiKey());
+                    dataSnapContext.startService(intent);
+                    dataSnapContext.bindService(intent, gimbalServiceConnection, Context.BIND_AUTO_CREATE);
+                    break;
+                case ESTIMOTE:
+                    intent = new Intent(dataSnapContext, EstimoteService.class);
+                    intent.putExtra(Context.class.toString(), (Serializable) dataSnapContext);
+                    dataSnapContext.startService(intent);
+                    dataSnapContext.bindService(intent, estimoteServiceConnection, Context.BIND_AUTO_CREATE);
+                    break;
+            }
         }
         if(sharedPreferences.getBoolean(PREFERENCE_FIRST_RUN, true)){
             String eventType = "app_installed";
