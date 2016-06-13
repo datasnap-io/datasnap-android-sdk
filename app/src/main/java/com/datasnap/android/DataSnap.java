@@ -179,6 +179,8 @@ public final class DataSnap {
      */
     public static void setEventEnabled(String event, boolean value) {
         if(event.equals(EventListener.GIMBAL_BEACON_SIGHTING) || event.equals(EventListener.ALL_EVENTS)) {
+            if(gimbalService == null)
+                return;
             if (value) {
                 gimbalService.addGimbalBeaconSightingListener();
                 sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, true).commit();
@@ -187,6 +189,8 @@ public final class DataSnap {
                 sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, false).commit();
             }
         } else if(event.equals(EventListener.GIMBAL_COMMUNICATION) || event.equals(EventListener.ALL_EVENTS)) {
+            if(gimbalService == null)
+                return;
             if(value){
                 gimbalService.addGimbalCommunicationListener();
                 sharedPreferences.edit().putBoolean(EventListener.GIMBAL_COMMUNICATION, true).commit();
@@ -272,10 +276,7 @@ public final class DataSnap {
         for(VendorProperties.Vendor vendor : vendorProperties.getVendor()) {
             switch (vendor) {
                 case GIMBAL:
-                    intent = new Intent(dataSnapContext, GimbalService.class);
-                    intent.putExtra("gimbalApiKey", vendorProperties.getGimbalApiKey());
-                    dataSnapContext.startService(intent);
-                    dataSnapContext.bindService(intent, gimbalServiceConnection, Context.BIND_AUTO_CREATE);
+                    attemptGimbalServiceConnection();
                     break;
                 case ESTIMOTE:
                     intent = new Intent(dataSnapContext, EstimoteService.class);
@@ -290,6 +291,28 @@ public final class DataSnap {
             Event event = new InteractionEvent(eventType, getOrgId(), getProjectId(), null, null, null, user, null);
             trackEvent(event);
             sharedPreferences.edit().putBoolean(PREFERENCE_FIRST_RUN, false).commit();
+        }
+    }
+
+    private static void attemptGimbalServiceConnection(){
+        ConnectivityManager connectivityManager
+            = (ConnectivityManager) dataSnapContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        if(activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+            Intent intent = new Intent(dataSnapContext, GimbalService.class);
+            intent.putExtra("gimbalApiKey", vendorProperties.getGimbalApiKey());
+            dataSnapContext.startService(intent);
+            dataSnapContext.bindService(intent, gimbalServiceConnection, Context.BIND_AUTO_CREATE);
+        } else {
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if(activeNetworkInfo == null || !activeNetworkInfo.isConnected()){
+                        attemptGimbalServiceConnection();
+                    }
+                }
+            }, 10000);
         }
     }
 
