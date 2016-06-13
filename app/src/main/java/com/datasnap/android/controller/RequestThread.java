@@ -103,6 +103,7 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                 long duration = System.currentTimeMillis() - start;
                 AnalyticsStatistics.getInstance().updateRequestTime(duration);
                 boolean success = false;
+                int statusCode = response != null ? response.getStatusLine().getStatusCode() : 404;
                 if (response == null) {
                     // there's been an error
                     Logger.w("Failed to make request to the server.");
@@ -124,7 +125,7 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                     }
                 }
                 //its all success for now. Any http error will be discarded to not impact device.
-                callback.onRequestCompleted(success, response.getStatusLine().getStatusCode());
+                callback.onRequestCompleted(success, statusCode);
             }
         });
     }
