@@ -253,7 +253,7 @@ public final class DataSnap {
             public void run() {
                 try {
                     AdvertisingIdClient.Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(dataSnapContext);
-                    id.setMobileDeviceGoogleAdvertisingId(adInfo.getId());
+                    id.setMobileDeviceGoogleAdvertisingId(adInfo.isLimitAdTrackingEnabled() ? adInfo.getId() : "");
                     id.setMobileDeviceGoogleAdvertisingIdOptIn("" + adInfo.isLimitAdTrackingEnabled());
                     user.setId(id);
                     User.initialize(user);
