@@ -26,6 +26,7 @@ public class InitializationTest {
   private EventDatabase database;
   private WifiManager wifiManager;
 
+  //verifies that initialization goes through fine without connectivity
   @Test
   public void shouldNotCrashIfNotConnected() {
     wifiManager = (WifiManager) getTargetContext().getSystemService(Context.WIFI_SERVICE);

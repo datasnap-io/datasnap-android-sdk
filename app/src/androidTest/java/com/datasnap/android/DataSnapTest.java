@@ -69,6 +69,7 @@ public class DataSnapTest {
     wifiManager = (WifiManager) getTargetContext().getSystemService(Context.WIFI_SERVICE);
     //network requests are going to be mocked but in the case of lack of connectivity they won't be even attempted
     wifiManager.setWifiEnabled(true);
+    Thread.sleep(1000);
     ConnectivityManager connectivityManager
         = (ConnectivityManager) getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -90,26 +91,22 @@ public class DataSnapTest {
   public void tearDown() throws Exception {
   }
 
+  //verifies that tracking an event adds the correct value to the database
   @Test
   public void trackEventShouldAddEventsToTheDatabase() throws Exception {
-    //wait for organization request to complete..
-    Thread.sleep(5000);
-    User user = new User();
-    Id id = new Id();
-    id.setMobileDeviceGoogleAdvertisingId("sample id");
-    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
-    user.setId(id);
-    String eventType = "app_installed";
-    Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
-    DataSnap.trackEvent(event);
-    Thread.sleep(2000);
+    DataSnap.trackEvent(sampleEvent);
+    Thread.sleep(1000);
     List<Pair<Long, EventWrapper>> events = database.getEvents(10);
     assertTrue(events.get(0).second.toString().equals(sampleEventJson));
   }
 
+  //verifies that adding an event to the database will ultimately trigger a network call to the server
   @Test
   public void shouldSendDatabaseEventsToServer() throws InterruptedException {
-    Thread.sleep(DsConfig.getInstance().getFlushAfter() + 3000);
+    //setting the configs to flush at every event so that our event gets sent right away:
+    DataSnap.setFlushParams(20000, 1);
+    //wait for the new settings to be active and start monitoring the communication with the server:
+    Thread.sleep(DsConfig.getInstance().getFlushAfter());
     HTTPRequester.startRequestCount();
     EventWrapper eventWrapper = new EventWrapper(sampleEventJson);
     database.addEvent(eventWrapper);
@@ -117,9 +114,13 @@ public class DataSnapTest {
     assertTrue(HTTPRequester.getRequestCount() == 1);
   }
 
+  //verifies that if an event is tracked and the connectivity is lacking, the event is being sent as
+  //soon as the connectivity gets back
   @Test
   public void shouldHandleLackOfConnectivity() throws InterruptedException {
+    DataSnap.setFlushParams(2000, 10);
     wifiManager.setWifiEnabled(false);
+    Thread.sleep(1000);
     ConnectivityManager connectivityManager
         = (ConnectivityManager) getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -129,31 +130,16 @@ public class DataSnapTest {
     }
     HTTPRequester.startRequestCount();
     DataSnap.trackEvent(sampleEvent);
+    //we need to wait long enough in order to prove that requests weren't attempted at all and it wouldn't
+    //be a matter of waiting
     Thread.sleep(DsConfig.getInstance().getFlushAfter() + 3000);
     assertTrue(HTTPRequester.getRequestCount() == 0);
     wifiManager.setWifiEnabled(true);
     Thread.sleep(DsConfig.getInstance().getFlushAfter() + 3000);
     assertTrue(HTTPRequester.getRequestCount() == 1);
   }
-
-  @Test
-  public void shouldBatchEvents() throws InterruptedException {
-    HTTPRequester.startRequestCount();
-    for (int i = 0; i < 2 * DsConfig.getInstance().getFlushAt(); i++) {
-      DataSnap.trackEvent(sampleEvent);
-    }
-    Thread.sleep(3000);
-    HTTPRequester.stopRequestCount();
-    assertTrue(HTTPRequester.getRequestCount() == 2);
-    HTTPRequester.startRequestCount();
-    for (int i = 0; i < DsConfig.getInstance().getFlushAt() / 2; i++) {
-      DataSnap.trackEvent(sampleEvent);
-    }
-    Thread.sleep(DsConfig.getInstance().getFlushAfter() + 3000);
-    HTTPRequester.stopRequestCount();
-    assertTrue(HTTPRequester.getRequestCount() == 1);
-  }
-
+  
+  //verifies that the time flush parameter works properly
   @Test
   public void shouldFlushPeriodically() throws InterruptedException {
     //setting the max number of elements to a large number will make the flushing be driven by time
@@ -168,6 +154,8 @@ public class DataSnapTest {
     HTTPRequester.startRequestCount();
     //the runnable will yield 3 events per second:
     Thread.sleep(10000);
+    //we can't be exactly sure of the amount of requests being sent as that also depends on the overhead
+    //time to submit them, but we can assert on their approximate number:
     assertTrue(HTTPRequester.getRequestCount() >= 4 && HTTPRequester.getRequestCount() <= 6);
     //if we set also the flushing time to a large number we should see no more requests going out
     DataSnap.setFlushParams(30000, 500);
@@ -182,8 +170,11 @@ public class DataSnapTest {
     HTTPRequester.stopRequestCount();
   }
 
+  //verifies that the queue flush parameter works properly
   @Test
   public void shouldFlushAutomaticallyIfDataAccumulated() throws InterruptedException {
+    //setting the time to a large number will make the flushing be driven by the queue
+    //and not by the queue getting filled up
     DataSnap.setFlushParams(300000, 50);
     GsonBuilder gsonBuilder = new GsonBuilder();
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
@@ -202,6 +193,8 @@ public class DataSnapTest {
     assertTrue(database.getEvents(10).size() == 0);
   }
 
+  //verifies that requests with bad data are not reattempted clogging the stream of data going to the
+  //server
   @Test
   public void shouldNotRetryToSend400Requests() throws InterruptedException {
     DataSnap.setFlushParams(300000, 50);
@@ -222,6 +215,8 @@ public class DataSnapTest {
     assertTrue(database.getEvents(10).size() == 0);
   }
 
+  //verifies that if the server is down or there is an error that is not related to the data the
+  //queue of events is not purged
   @Test
   public void shouldRetryToSendDifferentErrorRequests() throws InterruptedException {
     DataSnap.setFlushParams(300000, 50);
