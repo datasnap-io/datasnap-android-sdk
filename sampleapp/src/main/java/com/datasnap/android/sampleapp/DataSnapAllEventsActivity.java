@@ -2,6 +2,8 @@ package com.datasnap.android.sampleapp;
 
 import android.app.Activity;
 import android.content.Context;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -174,16 +176,40 @@ public class DataSnapAllEventsActivity extends Activity {
         globalPositionSighting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String eventType = "global_position_sighting";
-                GlobalPosition globalPosition = new GlobalPosition();
-                BigDecimal[] coordinates = new BigDecimal[2];
-                coordinates[0] = new BigDecimal("1223123123");
-                coordinates[1] = new BigDecimal("1223123123");
-                Location location = new Location(coordinates);
-                globalPosition.setLocation(location);
-                Event event = new GlobalPositionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user,
-                    globalPosition, deviceInfo, null);
-                DataSnap.trackEvent(event);
+                final String eventType = "global_position_sighting";
+                final GlobalPosition globalPosition = new GlobalPosition();
+                final BigDecimal[] coordinates = new BigDecimal[2];
+                LocationManager locationManager = (LocationManager)
+                    getSystemService(Context.LOCATION_SERVICE);
+                LocationListener locationListener = new LocationListener() {
+                    @Override
+                    public void onLocationChanged(android.location.Location location) {
+                        coordinates[0] = new BigDecimal(location.getLatitude());
+                        coordinates[1] = new BigDecimal(location.getLongitude());
+                        Location loc = new Location(coordinates);
+                        globalPosition.setLocation(loc);
+                        Event event = new GlobalPositionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user,
+                            globalPosition, deviceInfo, null);
+                        DataSnap.trackEvent(event);
+                    }
+
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+                    }
+
+                    @Override
+                    public void onProviderEnabled(String provider) {
+
+                    }
+
+                    @Override
+                    public void onProviderDisabled(String provider) {
+
+                    }
+                };
+                locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
             }
         });
         communicationOpen.setOnClickListener(new View.OnClickListener() {
