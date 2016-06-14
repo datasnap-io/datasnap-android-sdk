@@ -1,6 +1,9 @@
 package com.datasnap.android.controller;
 
 import android.os.Handler;
+import android.util.Pair;
+import android.util.Range;
+
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.Logger;
@@ -10,7 +13,9 @@ import com.datasnap.android.controller.IRequestLayer.EventRequestCallback;
 import com.datasnap.android.stats.AnalyticsStatistics;
 import com.datasnap.android.utils.LooperThreadWithHandler;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -28,6 +33,8 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
     private IRequestLayer requestLayer;
     private EventDatabaseLayerInterface databaseLayer;
     private BatchFactory batchFactory;
+    private static ArrayList<Pair<Integer, Integer>> ranges = new ArrayList<>();
+    private static boolean trackRanges;
 
     public FlushThread(EventDatabaseLayerInterface databaseLayer, BatchFactory batchFactory,
                        IRequestLayer requestLayer) {
@@ -35,6 +42,23 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
         this.requestLayer = requestLayer;
         this.batchFactory = batchFactory;
         this.databaseLayer = databaseLayer;
+    }
+
+    public static void startTrackingRanges(){
+      trackRanges = true;
+      ranges = new ArrayList<>();
+    }
+
+    public static void stopTrackingRanges(){
+      trackRanges = false;
+    }
+
+    public static void addRange(Pair range){
+      ranges.add(range);
+    }
+
+    public static ArrayList<Pair<Integer,Integer>> getRanges(){
+      return ranges;
     }
 
     /**
@@ -103,6 +127,11 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                 // thread so we're still technically locking the
                 // database
                 final String range = "[" + minId + " - " + maxId + "]";
+                if(trackRanges) {
+                  Integer min = (new Long(minId)).intValue();
+                  Integer max = (new Long(maxId)).intValue();
+                  ranges.add(new Pair<Integer, Integer>(min, max));
+                }
                 if (batch.size() == 0) {
                     // there is nothing to flush, we're done
                     if (callback != null)

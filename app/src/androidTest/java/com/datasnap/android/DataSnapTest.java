@@ -14,6 +14,7 @@ import android.util.Pair;
 
 import com.datasnap.android.controller.EventDatabase;
 import com.datasnap.android.controller.EventWrapper;
+import com.datasnap.android.controller.FlushThread;
 import com.datasnap.android.controller.HTTPRequester;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
@@ -170,7 +171,9 @@ public class DataSnapTest {
     HTTPRequester.stopRequestCount();
   }
 
-  //verifies that the queue flush parameter works properly
+  //when data accumulates offline it gets flushed automatically without waiting for the flushing timer
+  //to trigger. This test verifies that requests are enqueued properly, don't send the same items
+  //and do send all items
   @Test
   public void shouldFlushAutomaticallyIfDataAccumulated() throws InterruptedException {
     //setting the time to a large number will make the flushing be driven by the queue
@@ -186,10 +189,22 @@ public class DataSnapTest {
     }
     setMockedResponse(200);
     HTTPRequester.startRequestCount();
+    FlushThread.startTrackingRanges();
     DataSnap.trackEvent(sampleEvent);
     Thread.sleep(10000);
     HTTPRequester.stopRequestCount();
+    FlushThread.stopTrackingRanges();
+    int last = 0;
+    for(Pair<Integer, Integer> range: FlushThread.getRanges()){
+      if(last > 0)
+        assertTrue(range.first == last + 1);
+      if(!FlushThread.getRanges().get(FlushThread.getRanges().size() - 1).equals(range))
+        assertTrue(range.second == range.first + DsConfig.getInstance().getFlushAt() - 1);
+      last = range.second;
+    }
+    //exactly 9 requests were sent:
     assertTrue(HTTPRequester.getRequestCount() == 9);
+    //all items were sent:
     assertTrue(database.getEvents(10).size() == 0);
   }
 
