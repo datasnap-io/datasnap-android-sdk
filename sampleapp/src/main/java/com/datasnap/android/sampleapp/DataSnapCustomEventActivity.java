@@ -22,6 +22,7 @@ import com.datasnap.android.controller.HTTPRequester;
 import com.datasnap.android.eventproperties.Beacon;
 import com.datasnap.android.eventproperties.Device;
 import com.datasnap.android.eventproperties.DeviceInfo;
+import com.datasnap.android.eventproperties.Place;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.Event;
@@ -39,11 +40,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 //this is a sample activity that shows how to create custom events in spite of datasnap's automatic
 //events. A text view is used to track the amount of network requests made. If all the listeners are
 //turned off the communication should stop, by switching them back on the communication should start
-//over.
+//over. A custom beacon event is created to show how to manage custom events.
 public class DataSnapCustomEventActivity extends Activity {
 
     private TextView textView;
@@ -89,15 +91,15 @@ public class DataSnapCustomEventActivity extends Activity {
             @Override
             public void onBeaconSighting(BeaconSighting sighting) {
                 super.onBeaconSighting(sighting);
-                String eventType = "beacon_sighting";
+                String eventType = "my_custom_event_type";
                 Beacon beacon = new Beacon();
                 beacon.setIdentifier(sighting.getBeacon().getIdentifier());
                 beacon.setBatteryLevel(sighting.getBeacon().getBatteryLevel().toString());
                 beacon.setRssi(sighting.getBeacon().getUuid());
                 beacon.setName(sighting.getBeacon().getName());
                 beacon.setBleVendorId("Gimbal");
-                Event event = new BeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, beacon, User.getInstance(),
-                    DeviceInfo.getInstance());
+                Event event = new MyCustomBeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, User.getInstance(),
+                    "custom value", DeviceInfo.getInstance(), beacon, null);
                 DataSnap.trackEvent(event);
             }
         };
@@ -162,21 +164,6 @@ public class DataSnapCustomEventActivity extends Activity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     private String getIpAddress() {
         WifiManager wifiMan = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInf = wifiMan.getConnectionInfo();
@@ -191,4 +178,28 @@ public class DataSnapCustomEventActivity extends Activity {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss ZZ");
         return sdf.format(d);
     }
+
+    public class MyCustomBeaconEvent extends Event {
+
+        private String myCustomField;
+        private Beacon beacon;
+
+        public MyCustomBeaconEvent(String eventType, String organizationId,
+                           String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, String myCustomField,
+                           DeviceInfo deviceInfo, Beacon beacon, Map<String, Object> additionalProperties) {
+            this.eventType = eventType;
+            this.myCustomField = myCustomField;
+            this.user = user;
+            this.beacon = beacon;
+            this.setDeviceInfo(deviceInfo);
+            this.additionalProperties = additionalProperties;
+            this.organizationIds[0] = organizationId;
+            this.projectIds[0] = projectId;
+            this.customerOrgId = customerOrgId;
+            this.customerVenueOrgId = customerVenueOrgId;
+            this.venueOrgId = venueOrgId;
+        }
+
+    }
+
 }
