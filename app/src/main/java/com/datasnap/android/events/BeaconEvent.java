@@ -13,7 +13,6 @@ public class BeaconEvent extends Event {
     private Beacon beacon;
 
     /**
-     * @param eventType
      * @param organizationId
      * @param projectId
      * @param customerOrgId
@@ -28,47 +27,9 @@ public class BeaconEvent extends Event {
     public BeaconEvent(String eventType, String organizationId,
                        String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, User user, Beacon beacon,
                        DeviceInfo deviceInfo, Map<String, Object> additionalProperties) {
-        this.eventType = eventType;
+        super(eventType, organizationId, projectId, customerOrgId, customerVenueOrgId, venueOrgId, user, deviceInfo, additionalProperties);
         this.place = place;
-        this.user = user;
         this.beacon = beacon;
-        this.setDeviceInfo(deviceInfo);
-        this.additionalProperties = additionalProperties;
-        this.organizationIds[0] = organizationId;
-        this.projectIds[0] = projectId;
-        this.customerOrgId = customerOrgId;
-        this.customerVenueOrgId = customerVenueOrgId;
-        this.venueOrgId = venueOrgId;
-    }
-
-    public BeaconEvent(String eventType, String organizationId,
-                       String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, Beacon beacon,
-                       User user, DeviceInfo deviceInfo) {
-        this.eventType = eventType;
-        this.beacon = beacon;
-        this.user = user;
-        this.setDeviceInfo(deviceInfo);
-        this.organizationIds[0] = organizationId;
-        this.projectIds[0] = projectId;
-        this.customerOrgId = customerOrgId;
-        this.customerVenueOrgId = customerVenueOrgId;
-        this.venueOrgId = venueOrgId;
-    }
-
-
-    public BeaconEvent(String eventType, String organizationId,
-                       String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, User user, Beacon beacon,
-                       DeviceInfo deviceInfo) {
-        this.eventType = eventType;
-        this.place = place;
-        this.user = user;
-        this.beacon = beacon;
-        this.setDeviceInfo(deviceInfo);
-        this.organizationIds[0] = organizationId;
-        this.projectIds[0] = projectId;
-        this.customerOrgId = customerOrgId;
-        this.customerVenueOrgId = customerVenueOrgId;
-        this.venueOrgId = venueOrgId;
     }
 
     public Place getPlace() {

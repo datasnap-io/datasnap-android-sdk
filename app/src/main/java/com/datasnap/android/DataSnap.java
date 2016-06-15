@@ -157,7 +157,6 @@ public final class DataSnap {
     public static void trackEvent(Event event) {
         if(!isInitialized())
             return;
-        event.setDataSnapVersion(BuildConfig.VERSION_NAME);
         if(!event.validate())
             throw new IllegalStateException("Mandatory event data missing. Please call DataSnap.initialize before using the library.");
         GsonBuilder gsonBuilder = new GsonBuilder();
@@ -287,8 +286,7 @@ public final class DataSnap {
             }
         }
         if(sharedPreferences.getBoolean(PREFERENCE_FIRST_RUN, true)){
-            String eventType = "app_installed";
-            Event event = new InteractionEvent(eventType, getOrgId(), getProjectId(), null, null, null, user, null);
+            Event event = new InteractionEvent(EventType.APP_INSTALLED, getOrgId(), getProjectId(), null, null, null, user, null, null);
             trackEvent(event);
             sharedPreferences.edit().putBoolean(PREFERENCE_FIRST_RUN, false).commit();
         }

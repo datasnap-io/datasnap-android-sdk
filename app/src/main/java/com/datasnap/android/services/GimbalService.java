@@ -20,6 +20,7 @@ import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.CommunicationEvent;
 import com.datasnap.android.events.Event;
+import com.datasnap.android.events.EventType;
 import com.gimbal.android.BeaconEventListener;
 import com.gimbal.android.BeaconManager;
 import com.gimbal.android.BeaconSighting;
@@ -80,8 +81,8 @@ public class GimbalService extends BaseService {
         beacon.setRssi(sighting.getBeacon().getUuid());
         beacon.setName(sighting.getBeacon().getName());
         beacon.setBleVendorId("Gimbal");
-        Event event = new BeaconEvent(eventType, organizationId, projectId, null, null, null, beacon, user,
-            deviceInfo);
+        Event event = new BeaconEvent(EventType.BEACON_SIGHTING, organizationId, projectId, null, null, null, null, user, beacon,
+            deviceInfo, null);
         DataSnap.trackEvent(event);
       }
     };
@@ -111,7 +112,7 @@ public class GimbalService extends BaseService {
           campaign.setCommunicationIds(communication.getIdentifier());
           String venueId = visit.getVisitID();
           Event event = new CommunicationEvent(eventType, organizationId, projectId, null, venueId, venueId, user,
-              dataSnapCommunication, campaign, null);
+              dataSnapCommunication, campaign, null, deviceInfo);
           DataSnap.trackEvent(event);
         }
         return communications;
@@ -130,7 +131,7 @@ public class GimbalService extends BaseService {
           campaign.setCommunicationIds(communication.getIdentifier());
           push.getPushType();
           Event event = new CommunicationEvent(eventType, organizationId, projectId, null, null, null, user,
-              dataSnapCommunication, campaign, null);
+              dataSnapCommunication, campaign, null, deviceInfo);
           DataSnap.trackEvent(event);
         }
         return communications;
@@ -148,7 +149,7 @@ public class GimbalService extends BaseService {
           campaign.setIdentifier(projectId);
           campaign.setCommunicationIds(communication.getIdentifier());
           Event event = new CommunicationEvent(eventType, organizationId, projectId, null, null, null, user,
-              dataSnapCommunication, campaign, null);
+              dataSnapCommunication, campaign, null, deviceInfo);
           DataSnap.trackEvent(event);
         }
       }

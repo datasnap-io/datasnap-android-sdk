@@ -27,6 +27,7 @@ import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.EventListener;
+import com.datasnap.android.events.EventType;
 import com.datasnap.android.services.BaseService;
 import com.datasnap.android.utils.HandlerTimer;
 import com.gimbal.android.BeaconEventListener;
@@ -185,19 +186,11 @@ public class DataSnapCustomEventActivity extends Activity {
         private Beacon beacon;
 
         public MyCustomBeaconEvent(String eventType, String organizationId,
-                           String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, String myCustomField,
-                           DeviceInfo deviceInfo, Beacon beacon, Map<String, Object> additionalProperties) {
-            this.eventType = eventType;
+                                   String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, String myCustomField,
+                                   DeviceInfo deviceInfo, Beacon beacon, Map<String, Object> additionalProperties) {
+            super(eventType, organizationId, projectId, customerOrgId, customerVenueOrgId, venueOrgId, user, deviceInfo, additionalProperties);
             this.myCustomField = myCustomField;
-            this.user = user;
             this.beacon = beacon;
-            this.setDeviceInfo(deviceInfo);
-            this.additionalProperties = additionalProperties;
-            this.organizationIds[0] = organizationId;
-            this.projectIds[0] = projectId;
-            this.customerOrgId = customerOrgId;
-            this.customerVenueOrgId = customerVenueOrgId;
-            this.venueOrgId = venueOrgId;
         }
 
     }

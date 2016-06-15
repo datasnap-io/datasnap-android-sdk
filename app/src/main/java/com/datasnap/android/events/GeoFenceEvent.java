@@ -1,5 +1,6 @@
 package com.datasnap.android.events;
 
+import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Place;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.eventproperties.Geofence;
@@ -12,19 +13,10 @@ public class GeoFenceEvent extends Event {
     private Geofence geofence;
 
     public GeoFenceEvent(String eventType, String organizationId,
-                         String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, Geofence geofence, User user, Map<String, Object> additionalProperties) {
-        super();
-        this.eventType = eventType;
-        this.organizationIds[0] = organizationId;
-        this.projectIds[0] = projectId;
+                         String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, Place place, Geofence geofence, User user, Map<String, Object> additionalProperties, DeviceInfo deviceInfo) {
+        super(eventType, organizationId, projectId, customerOrgId, customerVenueOrgId, venueOrgId, user, deviceInfo, additionalProperties);
         this.place = place;
         this.geofence = geofence;
-        this.user = user;
-        this.additionalProperties = additionalProperties;
-        this.customerOrgId = customerOrgId;
-        this.customerVenueOrgId = customerVenueOrgId;
-        this.venueOrgId = venueOrgId;
-
     }
 
     public Place getPlace() {

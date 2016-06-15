@@ -1,8 +1,12 @@
 package com.datasnap.android.events;
 
+import com.datasnap.android.BuildConfig;
 import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.User;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 public abstract class Event {
@@ -17,6 +21,7 @@ public abstract class Event {
     protected User user;
     protected DeviceInfo deviceInfo;
     protected Map<String, Object> additionalProperties;
+    protected Datasnap datasnap;
 
     public boolean validate(){
         return this.organizationIds.length > 0 && this.organizationIds[0].length() > 0
@@ -31,12 +36,19 @@ public abstract class Event {
         return additionalProperties;
     }
 
-    public String getDataSnapVersion() {
-        return dataSnapVersion;
-    }
-
-    public void setDataSnapVersion(String dataSnapVersion) {
-        this.dataSnapVersion = dataSnapVersion;
+    public Event(String eventType, String organizationId,
+                 String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user,
+                 DeviceInfo deviceInfo, Map<String, Object> additionalProperties){
+        this.eventType = eventType;
+        this.user = user;
+        this.setDeviceInfo(deviceInfo);
+        this.additionalProperties = additionalProperties;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
+        this.customerOrgId = customerOrgId;
+        this.customerVenueOrgId = customerVenueOrgId;
+        this.venueOrgId = venueOrgId;
+        this.datasnap = new Datasnap(BuildConfig.VERSION_NAME);
     }
 
     public String getEventType() {
@@ -105,6 +117,39 @@ public abstract class Event {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public class Datasnap {
+        String created;
+        String version;
+
+        public Datasnap(String version){
+            this.created = getTime();
+            this.version = version;
+        }
+
+        public String getCreated() {
+            return created;
+        }
+
+        public void setCreated(String created) {
+            this.created = created;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        private String getTime() {
+            Calendar c = Calendar.getInstance();
+            Date d = c.getTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss ZZ");
+            return sdf.format(d);
+        }
     }
 
 }
