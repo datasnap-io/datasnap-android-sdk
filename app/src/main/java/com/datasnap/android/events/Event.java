@@ -1,6 +1,7 @@
 package com.datasnap.android.events;
 
 import com.datasnap.android.BuildConfig;
+import com.datasnap.android.eventproperties.Device;
 import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.User;
 
@@ -19,13 +20,34 @@ public abstract class Event {
     protected String customerVenueOrgId;
     protected String venueOrgId;
     protected User user;
-    protected DeviceInfo deviceInfo;
     protected Map<String, Object> additionalProperties;
     protected Datasnap datasnap;
 
     public boolean validate(){
         return this.organizationIds.length > 0 && this.organizationIds[0].length() > 0
             && this.projectIds.length > 0 && projectIds[0].length() > 0 && this.user != null;
+    }
+
+    public Event(String eventType, String organizationId,
+                 String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user,
+                 DeviceInfo deviceInfo, Map<String, Object> additionalProperties){
+        this.eventType = eventType;
+        this.user = user;
+        this.additionalProperties = additionalProperties;
+        this.organizationIds[0] = organizationId;
+        this.projectIds[0] = projectId;
+        this.customerOrgId = customerOrgId;
+        this.customerVenueOrgId = customerVenueOrgId;
+        this.venueOrgId = venueOrgId;
+        this.datasnap = new Datasnap(BuildConfig.VERSION_NAME, deviceInfo);
+    }
+
+    public Datasnap getDatasnap() {
+        return datasnap;
+    }
+
+    public void setDatasnap(Datasnap datasnap) {
+        this.datasnap = datasnap;
     }
 
     public void setAdditionalProperties(Map<String, Object> additionalProperties) {
@@ -36,20 +58,6 @@ public abstract class Event {
         return additionalProperties;
     }
 
-    public Event(String eventType, String organizationId,
-                 String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user,
-                 DeviceInfo deviceInfo, Map<String, Object> additionalProperties){
-        this.eventType = eventType;
-        this.user = user;
-        this.setDeviceInfo(deviceInfo);
-        this.additionalProperties = additionalProperties;
-        this.organizationIds[0] = organizationId;
-        this.projectIds[0] = projectId;
-        this.customerOrgId = customerOrgId;
-        this.customerVenueOrgId = customerVenueOrgId;
-        this.venueOrgId = venueOrgId;
-        this.datasnap = new Datasnap(BuildConfig.VERSION_NAME);
-    }
 
     public String getEventType() {
         return eventType;
@@ -103,12 +111,12 @@ public abstract class Event {
         this.venueOrgId = venueOrgId;
     }
 
-    public DeviceInfo getDeviceInfo() {
-        return deviceInfo;
+    public Device getDevice() {
+        return datasnap.getDevice();
     }
 
-    public void setDeviceInfo(DeviceInfo deviceInfo) {
-        this.deviceInfo = deviceInfo;
+    public void setDevice(Device device) {
+        this.datasnap.setDevice(device);
     }
 
     public User getUser() {
@@ -122,10 +130,21 @@ public abstract class Event {
     public class Datasnap {
         String created;
         String version;
+        Device device;
 
-        public Datasnap(String version){
+        public Datasnap(String version, DeviceInfo deviceInfo){
             this.created = getTime();
             this.version = version;
+            if(deviceInfo != null)
+                this.device = deviceInfo.getDevice();
+        }
+
+        public Device getDevice() {
+            return device;
+        }
+
+        public void setDevice(Device device) {
+            this.device = device;
         }
 
         public String getCreated() {

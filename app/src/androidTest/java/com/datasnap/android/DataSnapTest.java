@@ -7,15 +7,21 @@ package com.datasnap.android;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.support.test.runner.AndroidJUnit4;
+import android.telephony.TelephonyManager;
 import android.util.Pair;
 
 import com.datasnap.android.controller.EventDatabase;
 import com.datasnap.android.controller.EventWrapper;
 import com.datasnap.android.controller.FlushThread;
 import com.datasnap.android.controller.HTTPRequester;
+import com.datasnap.android.eventproperties.Beacon;
+import com.datasnap.android.eventproperties.Device;
+import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
@@ -49,7 +55,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +71,7 @@ import static org.junit.Assert.assertThat;
 public class DataSnapTest {
 
   private EventDatabase database;
-  private String sampleEventJson = "{\"data_snap_version\":\"1.0.2\",\"event_type\":\"app_installed\",\"organization_ids\":[\"19CYxNMSQvfnnMf1QS4b3Z\"],\"project_ids\":[\"21213f8b-8341-4ef3-a6b8-ed0f84945186\"],\"user\":{\"id\":{\"mobile_device_google_advertising_id\":\"sample id\",\"mobile_device_google_advertising_id_opt_in\":\"true\"}}}";
+  private String sampleEventJson = "{\"beacon\":{\"battery_level\":\"high\",\"ble_vendor_id\":\"Gimbal\",\"identifier\":\"sample-identifier\",\"name\":\"sample identifier\",\"rssi\":\"sample rssi\"},\"datasnap\":{\"created\":\"created date\",\"device\":{\"carrier_name\":\"sample carrier name\",\"ip_address\":\"sample ip\",\"model\":\"model\",\"os_version\":\"os.version\",\"platform\":\"sample platform\"},\"version\":\"sample version\"},\"event_type\":\"beacon_sighting\",\"organization_ids\":[\"ORGANIZATION ID\"],\"project_ids\":[\"PROJECT ID\"],\"user\":{\"id\":{\"global_distinct_id\":\"sample android id\",\"mobile_device_google_advertising_id\":\"sample id\",\"mobile_device_google_advertising_id_opt_in\":\"true\"}}}";
   private WifiManager wifiManager;
   private Event sampleEvent;
 
@@ -80,12 +89,11 @@ public class DataSnapTest {
     }
     database = EventDatabase.getInstance(getTargetContext());
     database.removeEvents();
-    String apiKeyId = "3F34FXD78PCINFR99IYW950W4";
-    String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";
+    String apiKeyId = "API KEY";
+    String apiKeySecret = "API SECRET";
     VendorProperties vendorProperties = new VendorProperties();
-    vendorProperties.setGimbalApiKey("044e761a-0b9f-4472-b2bb-714625e83574");
     vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-    DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186", vendorProperties);
+    DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "ORGANIZATION ID", "PROJECT ID", vendorProperties);
     sampleEvent = getSampleEvent();
   }
 
@@ -96,7 +104,31 @@ public class DataSnapTest {
   //verifies that tracking an event adds the correct value to the database
   @Test
   public void trackEventShouldAddEventsToTheDatabase() throws Exception {
-    DataSnap.trackEvent(sampleEvent);
+    final User user = new User();
+    final Id id = new Id();
+    DeviceInfo deviceInfo = new DeviceInfo();
+    Device device = new Device();
+    id.setGlobalDistinctId("sample android id");
+    device.setIpAddress("sample ip");
+    device.setPlatform("sample platform");
+    device.setOsVersion("os.version");
+    device.setModel("model");
+    device.setCarrierName("sample carrier name");
+    deviceInfo.setDevice(device);
+    id.setMobileDeviceGoogleAdvertisingId("sample id");
+    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
+    user.setId(id);
+    Beacon beacon = new Beacon();
+    beacon.setIdentifier("sample-identifier");
+    beacon.setBatteryLevel("high");
+    beacon.setRssi("sample rssi");
+    beacon.setName("sample identifier");
+    beacon.setBleVendorId("Gimbal");
+    Event event = new BeaconEvent(EventType.BEACON_SIGHTING, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, null, user,
+        beacon, deviceInfo, null);
+    event.getDatasnap().setVersion("sample version");
+    event.getDatasnap().setCreated("created date");
+    DataSnap.trackEvent(event);
     Thread.sleep(1000);
     List<Pair<Long, EventWrapper>> events = database.getEvents(10);
     assertTrue(events.get(0).second.toString().equals(sampleEventJson));
@@ -473,6 +505,5 @@ public class DataSnapTest {
       DataSnap.trackEvent(event);
     }
   };
-
 }
 
