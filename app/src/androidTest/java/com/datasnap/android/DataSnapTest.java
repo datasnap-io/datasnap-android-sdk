@@ -20,6 +20,7 @@ import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.Event;
+import com.datasnap.android.events.EventType;
 import com.datasnap.android.events.InteractionEvent;
 import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.HandlerTimer;
@@ -258,8 +259,7 @@ public class DataSnapTest {
     id.setMobileDeviceGoogleAdvertisingId("sample id");
     id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
     user.setId(id);
-    String eventType = "app_installed";
-    return new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
+    return new InteractionEvent(EventType.BEACON_SIGHTING, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null, null);
   }
 
   private void setMockedResponse(final int statusCode){
@@ -469,8 +469,7 @@ public class DataSnapTest {
       id.setMobileDeviceGoogleAdvertisingId("sample id");
       id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
       user.setId(id);
-      String eventType = "app_installed";
-      Event event = new InteractionEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null);
+      Event event = new InteractionEvent(EventType.OPT_IN_VENDOR, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null, null);
       DataSnap.trackEvent(event);
     }
   };

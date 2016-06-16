@@ -399,7 +399,6 @@ public final class DataSnap {
     private static void flush(boolean async) {
         if(!isInitialized() || syncingLocked)
             return;
-        syncingLocked = true;
         final CountDownLatch latch = new CountDownLatch(1);
         ConnectivityManager connectivityManager
             = (ConnectivityManager) dataSnapContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -408,6 +407,7 @@ public final class DataSnap {
             return;
         statistics.updateFlushAttempts(1);
         final long start = System.currentTimeMillis();
+        syncingLocked = true;
         flushLayer.flush(new FlushCallback() {
             @Override
             public void onFlushCompleted(boolean success, List<EventWrapper>batch, int statusCode) {
