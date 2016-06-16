@@ -1,7 +1,7 @@
 package com.datasnap.android.events;
 
 public class EventType {
-  public static String BEACON_ARRIVED = "beacon_arrived";
+  public static String BEACON_ARRIVED = "beacon_arrive";
   public static String BEACON_SIGHTING = "beacon_sighting";
   public static String BEACON_DEPART = "beacon_depart";
   public static String COMMUNICATION_OPEN = "ds_communication_open";

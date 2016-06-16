@@ -17,6 +17,7 @@ import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.Event;
+import com.datasnap.android.events.EventType;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.Region;
 import com.gimbal.android.BeaconEventListener;
@@ -61,7 +62,6 @@ public class EstimoteService extends BaseService {
       @Override
       public void onBeaconsDiscovered(Region region, final List<Beacon> beacons) {
         for (com.estimote.sdk.Beacon estimoteBeacon : beacons) {
-          String eventType = "beacon_sighting";
           com.datasnap.android.eventproperties.Beacon beacon = new com.datasnap.android.eventproperties.Beacon();
           beacon.setIdentifier(estimoteBeacon.getProximityUUID() + "" + estimoteBeacon.getMajor() + "" + estimoteBeacon.getMinor());
           beacon.setHardware(estimoteBeacon.getMacAddress());
@@ -69,8 +69,8 @@ public class EstimoteService extends BaseService {
           beacon.setRssi("" + estimoteBeacon.getRssi());
           beacon.setName(estimoteBeacon.getName());
           beacon.setBleVendorId("Estimote");
-          Event event = new BeaconEvent(eventType, organizationId, projectId, null, null, null, beacon, user,
-              deviceInfo);
+          Event event = new BeaconEvent(EventType.BEACON_SIGHTING, organizationId, projectId, null, null, null, null, user, beacon,
+              deviceInfo, null);
           DataSnap.trackEvent(event);
         }
       }

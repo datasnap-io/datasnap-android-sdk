@@ -14,7 +14,7 @@ public class UpdateEvent extends Event {
     private com.datasnap.android.eventproperties.Beacon Beacon;
     private Place place;
 
-    public UpdateEvent(EventType eventType, String organizationId,
+    public UpdateEvent(String eventType, String organizationId,
                        String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, com.datasnap.android.eventproperties.Beacon beacon, Map<String, Object> additionalProperties, User user, DeviceInfo deviceInfo) {
         super(eventType, organizationId, projectId, customerOrgId, customerVenueOrgId, venueOrgId, user, deviceInfo, additionalProperties);
     }

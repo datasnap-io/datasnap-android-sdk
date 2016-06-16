@@ -147,7 +147,7 @@ public abstract class Event {
         private String getTime() {
             Calendar c = Calendar.getInstance();
             Date d = c.getTime();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss ZZ");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZ");
             return sdf.format(d);
         }
     }
