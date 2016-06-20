@@ -25,7 +25,6 @@ import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.Event;
-import com.datasnap.android.events.EventListener;
 import com.datasnap.android.events.EventType;
 import com.datasnap.android.events.InteractionEvent;
 import com.datasnap.android.services.EstimoteService;
@@ -177,25 +176,48 @@ public final class DataSnap {
      *
      */
     public static void setEventEnabled(String event, boolean value) {
-        if(event.equals(EventListener.GIMBAL_BEACON_SIGHTING) || event.equals(EventListener.ALL_EVENTS)) {
+        if(event.equals(EventType.BEACON_SIGHTING) || event.equals(EventType.ALL_EVENTS)) {
             if(gimbalService == null)
                 return;
             if (value) {
                 gimbalService.addGimbalBeaconSightingListener();
-                sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, true).commit();
+                sharedPreferences.edit().putBoolean(EventType.BEACON_SIGHTING, true).commit();
             } else {
                 gimbalService.releaseGimbalBeaconSightingListener();
-                sharedPreferences.edit().putBoolean(EventListener.GIMBAL_BEACON_SIGHTING, false).commit();
+                sharedPreferences.edit().putBoolean(EventType.BEACON_SIGHTING, false).commit();
             }
-        } else if(event.equals(EventListener.GIMBAL_COMMUNICATION) || event.equals(EventListener.ALL_EVENTS)) {
+        }
+        if(event.equals(EventType.COMMUNICATION_SENT) || event.equals(EventType.ALL_EVENTS)) {
             if(gimbalService == null)
                 return;
             if(value){
-                gimbalService.addGimbalCommunicationListener();
-                sharedPreferences.edit().putBoolean(EventListener.GIMBAL_COMMUNICATION, true).commit();
+                gimbalService.addGimbalCommunicationSentListener();
+                sharedPreferences.edit().putBoolean(EventType.COMMUNICATION_SENT, true).commit();
             } else {
-                gimbalService.releaseGimbalCommunicationListener();
-                sharedPreferences.edit().putBoolean(EventListener.GIMBAL_COMMUNICATION, false).commit();
+                gimbalService.releaseGimbalCommunicationSentListener();
+                sharedPreferences.edit().putBoolean(EventType.COMMUNICATION_SENT, false).commit();
+            }
+        }
+        if(event.equals(EventType.COMMUNICATION_OPEN) || event.equals(EventType.ALL_EVENTS)) {
+            if(gimbalService == null)
+                return;
+            if(value){
+                gimbalService.addGimbalCommunicationOpenListener();
+                sharedPreferences.edit().putBoolean(EventType.COMMUNICATION_OPEN, true).commit();
+            } else {
+                gimbalService.releaseGimbalCommunicationOpenListener();
+                sharedPreferences.edit().putBoolean(EventType.COMMUNICATION_OPEN, false).commit();
+            }
+        }
+        if(event.equals(EventType.GEOFENCE_DEPART) || event.equals(EventType.ALL_EVENTS)) {
+            if(gimbalService == null)
+                return;
+            if(value){
+                gimbalService.addGimbalGeofenceDepartListener();
+                sharedPreferences.edit().putBoolean(EventType.GEOFENCE_DEPART, true).commit();
+            } else {
+                gimbalService.releaseGimbalGeofenceDepartListener();
+                sharedPreferences.edit().putBoolean(EventType.GEOFENCE_DEPART, false).commit();
             }
         }
     }
@@ -337,17 +359,29 @@ public final class DataSnap {
             gimbalService = gimbalBinder.getService();
             if(gimbalService == null)
                 return;
-            if(sharedPreferences.getBoolean(EventListener.GIMBAL_BEACON_SIGHTING, true)) {
+            if(sharedPreferences.getBoolean(EventType.BEACON_SIGHTING, true)) {
                 if(gimbalService != null)
                     gimbalService.addGimbalBeaconSightingListener();
             } else {
                 gimbalService.releaseGimbalBeaconSightingListener();
             }
-            if(sharedPreferences.getBoolean(EventListener.GIMBAL_COMMUNICATION, true)) {
+            if(sharedPreferences.getBoolean(EventType.COMMUNICATION_SENT, true)) {
                 if(gimbalService != null)
-                    gimbalService.addGimbalCommunicationListener();
+                    gimbalService.addGimbalCommunicationSentListener();
             } else {
-                gimbalService.releaseGimbalCommunicationListener();
+                gimbalService.releaseGimbalCommunicationSentListener();
+            }
+            if(sharedPreferences.getBoolean(EventType.COMMUNICATION_OPEN, true)) {
+                if(gimbalService != null)
+                    gimbalService.addGimbalCommunicationOpenListener();
+            } else {
+                gimbalService.releaseGimbalCommunicationOpenListener();
+            }
+            if(sharedPreferences.getBoolean(EventType.GEOFENCE_DEPART, true)) {
+                if(gimbalService != null)
+                    gimbalService.addGimbalGeofenceDepartListener();
+            } else {
+                gimbalService.releaseGimbalGeofenceDepartListener();
             }
         }
     };

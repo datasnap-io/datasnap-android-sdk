@@ -15,12 +15,15 @@ import com.datasnap.android.eventproperties.Beacon;
 import com.datasnap.android.eventproperties.Campaign;
 import com.datasnap.android.eventproperties.Device;
 import com.datasnap.android.eventproperties.DeviceInfo;
+import com.datasnap.android.eventproperties.Geofence;
 import com.datasnap.android.eventproperties.Id;
+import com.datasnap.android.eventproperties.Place;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.CommunicationEvent;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.EventType;
+import com.datasnap.android.events.GeoFenceEvent;
 import com.gimbal.android.BeaconEventListener;
 import com.gimbal.android.BeaconManager;
 import com.gimbal.android.BeaconSighting;
@@ -45,6 +48,10 @@ public class GimbalService extends BaseService {
   private BeaconManager gimbalBeaconManager;
   private BeaconEventListener gimbalBeaconEventListener;
   private CommunicationListener communicationListener;
+  private PlaceEventListener placeEventListener;
+  private boolean communicationSentListenerActive;
+  private boolean communicationOpenListenerActive;
+  private boolean geofenceDepartListenerActive;
 
   @Override
   public void onCreate() {
@@ -74,7 +81,6 @@ public class GimbalService extends BaseService {
       public void onBeaconSighting(BeaconSighting sighting) {
         super.onBeaconSighting(sighting);
         com.datasnap.android.utils.Logger.d("Received sighting with RSSI %s", sighting.getRSSI());
-        String eventType = "beacon_sighting";
         Beacon beacon = new Beacon();
         beacon.setIdentifier(sighting.getBeacon().getIdentifier());
         beacon.setBatteryLevel(sighting.getBeacon().getBatteryLevel().toString());
@@ -97,66 +103,16 @@ public class GimbalService extends BaseService {
     mainHandler.post(mainRunnable);
   }
 
-  public void addGimbalCommunicationListener(){
-    communicationListener = new CommunicationListener(){
-      @Override
-      public Collection<Communication> presentNotificationForCommunications(Collection<Communication> communications, Visit visit) {
-        String eventType = "ds_communication_sent";
-        for(Communication communication: communications){
-          com.datasnap.android.eventproperties.Communication dataSnapCommunication = new com.datasnap.android.eventproperties.Communication();
-          dataSnapCommunication.setIdentifier(communication.getIdentifier());
-          dataSnapCommunication.setName(communication.getTitle());
-          dataSnapCommunication.setDescription(communication.getDescription());
-          Campaign campaign = new Campaign();
-          campaign.setIdentifier(projectId);
-          campaign.setCommunicationIds(communication.getIdentifier());
-          String venueId = visit.getVisitID();
-          Event event = new CommunicationEvent(eventType, organizationId, projectId, null, venueId, venueId, user,
-              dataSnapCommunication, campaign, null, deviceInfo);
-          DataSnap.trackEvent(event);
-        }
-        return communications;
-      }
+  public void addGimbalCommunicationSentListener(){
+    communicationSentListenerActive = true;
+  }
 
-      @Override
-      public Collection<Communication> presentNotificationForCommunications(Collection<Communication> communications, Push push) {
-        String eventType = "ds_communication_sent";
-        for(Communication communication: communications){
-          com.datasnap.android.eventproperties.Communication dataSnapCommunication = new com.datasnap.android.eventproperties.Communication();
-          dataSnapCommunication.setIdentifier(communication.getIdentifier());
-          dataSnapCommunication.setName(communication.getTitle());
-          dataSnapCommunication.setDescription(communication.getDescription());
-          Campaign campaign = new Campaign();
-          campaign.setIdentifier(projectId);
-          campaign.setCommunicationIds(communication.getIdentifier());
-          push.getPushType();
-          Event event = new CommunicationEvent(eventType, organizationId, projectId, null, null, null, user,
-              dataSnapCommunication, campaign, null, deviceInfo);
-          DataSnap.trackEvent(event);
-        }
-        return communications;
-      }
+  public void addGimbalCommunicationOpenListener(){
+    communicationOpenListenerActive = true;
+  }
 
-      @Override
-      public void onNotificationClicked(List<Communication> communications) {
-        String eventType = "ds_communication_open";
-        for(Communication communication: communications){
-          com.datasnap.android.eventproperties.Communication dataSnapCommunication = new com.datasnap.android.eventproperties.Communication();
-          dataSnapCommunication.setIdentifier(communication.getIdentifier());
-          dataSnapCommunication.setName(communication.getTitle());
-          dataSnapCommunication.setDescription(communication.getDescription());
-          Campaign campaign = new Campaign();
-          campaign.setIdentifier(projectId);
-          campaign.setCommunicationIds(communication.getIdentifier());
-          Event event = new CommunicationEvent(eventType, organizationId, projectId, null, null, null, user,
-              dataSnapCommunication, campaign, null, deviceInfo);
-          DataSnap.trackEvent(event);
-        }
-      }
-    };
-    CommunicationManager.getInstance().addListener(communicationListener);
-    CommunicationManager.getInstance().startReceivingCommunications();
-    PlaceManager.getInstance().startMonitoring();
+  public void addGimbalGeofenceDepartListener(){
+    geofenceDepartListenerActive = true;
   }
 
   public void releaseGimbalBeaconSightingListener(){
@@ -164,9 +120,16 @@ public class GimbalService extends BaseService {
     gimbalBeaconManager.removeListener(gimbalBeaconEventListener);
   }
 
-  public void releaseGimbalCommunicationListener(){
-    CommunicationManager.getInstance().removeListener(communicationListener);
-    CommunicationManager.getInstance().stopReceivingCommunications();
+  public void releaseGimbalCommunicationSentListener(){
+    communicationSentListenerActive = false;
+  }
+
+  public void releaseGimbalCommunicationOpenListener(){
+    communicationOpenListenerActive = false;
+  }
+
+  public void releaseGimbalGeofenceDepartListener(){
+    geofenceDepartListenerActive = false;
   }
 
   @Override
@@ -177,6 +140,8 @@ public class GimbalService extends BaseService {
       Gimbal.setApiKey(this.getApplication(), apiKey);
       GimbalDebugger.enableBeaconSightingsLogging();
       gimbalBeaconManager = new com.gimbal.android.BeaconManager();
+      initGimbalCommunicationListener();
+      initGimbalPlaceListener();
     } catch (NoClassDefFoundError e) {
       Logger.e("Gimbal sdk can't be found, please add it to your project's dependencies");
       classesLoadingFailed = true;
@@ -194,6 +159,115 @@ public class GimbalService extends BaseService {
       if(classesLoadingFailed)
         return null;
       return GimbalService.this;
+    }
+  }
+
+
+  private Collection<Communication> presentNotificationForCommunicationsListener(Collection<Communication> communications, Visit visit) {
+    if (communicationSentListenerActive) {
+      for (Communication communication : communications) {
+        com.datasnap.android.eventproperties.Communication dataSnapCommunication = new com.datasnap.android.eventproperties.Communication();
+        dataSnapCommunication.setIdentifier(communication.getIdentifier());
+        dataSnapCommunication.setName(communication.getTitle());
+        dataSnapCommunication.setDescription(communication.getDescription());
+        Campaign campaign = new Campaign();
+        campaign.setIdentifier(projectId);
+        campaign.setCommunicationIds(communication.getIdentifier());
+        String venueId = visit.getVisitID();
+        Event event = new CommunicationEvent(EventType.COMMUNICATION_SENT, organizationId, projectId, null, venueId, venueId, user,
+            dataSnapCommunication, campaign, null, deviceInfo);
+        DataSnap.trackEvent(event);
+      }
+    }
+    return communications;
+  }
+
+  private Collection<Communication> presentNotificationForCommunicationsListener(Collection<Communication> communications, Push push) {
+    if (communicationSentListenerActive) {
+      for (Communication communication : communications) {
+        com.datasnap.android.eventproperties.Communication dataSnapCommunication = new com.datasnap.android.eventproperties.Communication();
+        dataSnapCommunication.setIdentifier(communication.getIdentifier());
+        dataSnapCommunication.setName(communication.getTitle());
+        dataSnapCommunication.setDescription(communication.getDescription());
+        Campaign campaign = new Campaign();
+        campaign.setIdentifier(projectId);
+        campaign.setCommunicationIds(communication.getIdentifier());
+        push.getPushType();
+        Event event = new CommunicationEvent(EventType.COMMUNICATION_SENT, organizationId, projectId, null, null, null, user,
+            dataSnapCommunication, campaign, null, deviceInfo);
+        DataSnap.trackEvent(event);
+      }
+    }
+    return communications;
+  }
+
+  private void onNotificationClickedListener(List<Communication> communications) {
+    if (communicationOpenListenerActive) {
+      for (Communication communication : communications) {
+        com.datasnap.android.eventproperties.Communication dataSnapCommunication = new com.datasnap.android.eventproperties.Communication();
+        dataSnapCommunication.setIdentifier(communication.getIdentifier());
+        dataSnapCommunication.setName(communication.getTitle());
+        dataSnapCommunication.setDescription(communication.getDescription());
+        Campaign campaign = new Campaign();
+        campaign.setIdentifier(projectId);
+        campaign.setCommunicationIds(communication.getIdentifier());
+        Event event = new CommunicationEvent(EventType.COMMUNICATION_OPEN, organizationId, projectId, null, null, null, user,
+            dataSnapCommunication, campaign, null, deviceInfo);
+        DataSnap.trackEvent(event);
+      }
+    }
+  }
+
+  private void onVisitEndListener(Visit visit) {
+    if(geofenceDepartListenerActive) {
+      com.gimbal.android.Place gimbalPlace = visit.getPlace();
+      Geofence geofence = new Geofence();
+      geofence.setIdentifier(gimbalPlace.getIdentifier());
+      geofence.setName(gimbalPlace.getName());
+      Event event = new GeoFenceEvent(EventType.GEOFENCE_DEPART, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, null,
+          geofence, user, null, deviceInfo);
+      DataSnap.trackEvent(event);
+    }
+  }
+
+  private void initGimbalCommunicationListener(){
+    communicationListener = new CommunicationListener(){
+      @Override
+      public Collection<Communication> presentNotificationForCommunications(Collection<Communication> communications, Visit visit) {
+        return presentNotificationForCommunicationsListener(communications, visit);
+      }
+
+      @Override
+      public Collection<Communication> presentNotificationForCommunications(Collection<Communication> communications, Push push) {
+        return presentNotificationForCommunicationsListener(communications, push);
+      }
+
+      @Override
+      public void onNotificationClicked(List<Communication> communications) {
+        onNotificationClickedListener(communications);
+      }
+    };
+    CommunicationManager.getInstance().addListener(communicationListener);
+    CommunicationManager.getInstance().startReceivingCommunications();
+    PlaceManager.getInstance().startMonitoring();
+  }
+
+  private void initGimbalPlaceListener(){
+    placeEventListener = new PlaceEventListener() {
+      @Override
+      public void onVisitStart(Visit visit) {
+        super.onVisitStart(visit);
+      }
+
+      @Override
+      public void onVisitEnd(Visit visit) {
+        super.onVisitEnd(visit);
+        onVisitEndListener(visit);
+      }
+    };
+    PlaceManager.getInstance().addListener(placeEventListener);
+    if(!PlaceManager.getInstance().isMonitoring()){
+      PlaceManager.getInstance().startMonitoring();
     }
   }
 

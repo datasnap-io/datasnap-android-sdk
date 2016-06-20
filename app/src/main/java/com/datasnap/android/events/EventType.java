@@ -13,4 +13,5 @@ public class EventType {
   public static String OPT_IN_PUSH_NOTIFICATIONS = "opt_in_push_notifications";
   public static String APP_INSTALLED = "app_installed";
   public static String STATUS_PING = "status_ping";
+  public static String ALL_EVENTS = "all_events";
 }

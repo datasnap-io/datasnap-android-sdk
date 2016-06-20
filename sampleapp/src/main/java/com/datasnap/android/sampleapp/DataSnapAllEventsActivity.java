@@ -163,7 +163,6 @@ public class DataSnapAllEventsActivity extends Activity {
         geofenceDepart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String eventType = "geofence_depart";
                 Place place = new Place();
                 Geofence geofence = new Geofence();
                 Event event = new GeoFenceEvent(EventType.GEOFENCE_DEPART, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, place,

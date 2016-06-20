@@ -26,7 +26,6 @@ import com.datasnap.android.eventproperties.Place;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.Event;
-import com.datasnap.android.events.EventListener;
 import com.datasnap.android.events.EventType;
 import com.datasnap.android.services.BaseService;
 import com.datasnap.android.utils.HandlerTimer;
@@ -107,19 +106,19 @@ public class DataSnapCustomEventActivity extends Activity {
         HTTPRequester.startRequestCount();
         datasnapSightings = (Button) findViewById(R.id.datasnap_sightings);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if(!sharedPreferences.getBoolean(EventListener.GIMBAL_BEACON_SIGHTING, true)){
+        if(!sharedPreferences.getBoolean(EventType.BEACON_SIGHTING, true)){
             datasnapSightings.setText("Turn on datasnap sightings");
         }
         //turn on and off datasnap's sent beacon sightings:
         datasnapSightings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean activeListener = sharedPreferences.getBoolean(EventListener.GIMBAL_BEACON_SIGHTING, true);
+                boolean activeListener = sharedPreferences.getBoolean(EventType.BEACON_SIGHTING, true);
                 if(activeListener) {
-                    DataSnap.setEventEnabled(EventListener.GIMBAL_BEACON_SIGHTING, false);
+                    DataSnap.setEventEnabled(EventType.BEACON_SIGHTING, false);
                     datasnapSightings.setText("Turn on datasnap sightings");
                 } else {
-                    DataSnap.setEventEnabled(EventListener.GIMBAL_BEACON_SIGHTING, true);
+                    DataSnap.setEventEnabled(EventType.BEACON_SIGHTING, true);
                     datasnapSightings.setText("Turn off datasnap sightings");
                 }
             }
@@ -137,11 +136,11 @@ public class DataSnapCustomEventActivity extends Activity {
                 customSightingListenerActive = !customSightingListenerActive;
             }
         });
-        HandlerTimer timer = new HandlerTimer(1000, eventClock);
+        HandlerTimer timer = new HandlerTimer(1000, checkRequestsClock);
         timer.start();
     }
 
-    private Runnable eventClock = new Runnable() {
+    private Runnable checkRequestsClock = new Runnable() {
         @Override
         public void run() {
             runOnUiThread(new Runnable() {
