@@ -70,12 +70,7 @@ public class EventDatabaseTest {
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
     gson = gsonBuilder.create();
   }
-
-  @After
-  public void tearDown() throws Exception {
-    database.close();
-  }
-
+  
   @Test
   public void shouldAddEvent() throws Exception {
     Event event = new BeaconEvent(EventType.BEACON_SIGHTING, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, null, user,
