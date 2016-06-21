@@ -1,9 +1,12 @@
 package com.datasnap.android;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.datasnap.android.controller.EventDatabase;
@@ -17,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static android.support.test.InstrumentationRegistry.getTargetContext;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by paolopelagatti on 6/10/16.
@@ -48,6 +52,22 @@ public class InitializationTest {
     vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
     DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186", vendorProperties);
     DataSnap.trackEvent(getSampleEvent());
+  }
+
+  //verifies that initialization sets up the shared preferences correctly
+  @Test
+  public void shouldSetUpSharedPreferencesCorrectly() {
+    String apiKeyId = "3F34FXD78PCINFR99IYW950W4";
+    String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";
+    VendorProperties vendorProperties = new VendorProperties();
+    vendorProperties.setGimbalApiKey("044e761a-0b9f-4472-b2bb-714625e83574");
+    vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
+    DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186", vendorProperties);
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getTargetContext());
+    assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_OPEN, true));
+    assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_SENT, true));
+    assertTrue(sharedPreferences.getBoolean(EventType.BEACON_SIGHTING, true));
+    assertTrue(sharedPreferences.getBoolean(EventType.GEOFENCE_DEPART, true));
   }
 
   private Event getSampleEvent(){
