@@ -33,10 +33,11 @@ public class InitializationTest {
 
   //verifies that initialization goes through fine without connectivity
   @Test
-  public void shouldNotCrashIfNotConnected() {
+  public void shouldNotCrashIfNotConnected() throws InterruptedException {
     wifiManager = (WifiManager) getTargetContext().getSystemService(Context.WIFI_SERVICE);
     //network requests are going to be mocked but in the case of lack of connectivity they won't be even attempted
     wifiManager.setWifiEnabled(false);
+    Thread.sleep(4000);
     ConnectivityManager connectivityManager
         = (ConnectivityManager) getTargetContext().getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
