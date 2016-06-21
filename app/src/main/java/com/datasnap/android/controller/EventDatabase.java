@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class EventDatabase extends SQLiteOpenHelper {
 
     private static EventDatabase instance;
-    public static String externalFilesDir;
  // keeps db count without requiring SQL count to be called
     private AtomicLong count;
     private boolean initialCount;
@@ -42,7 +41,6 @@ public class EventDatabase extends SQLiteOpenHelper {
 
     private EventDatabase(Context context) {
         super(context, Defaults.Database.NAME, null, Defaults.Database.VERSION);
-        externalFilesDir = context.getExternalFilesDir(null).getAbsolutePath();
         this.count = new AtomicLong();
     }
 
