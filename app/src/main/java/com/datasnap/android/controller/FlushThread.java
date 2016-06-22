@@ -85,7 +85,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                         if  ((success || statusCode == 400) && EventDatabase.getInstance().getRowCount() > DsConfig.getInstance().getFlushAt()) {
                           // we successfully sent a eventListContainer to the server, and we might
                           // have more to send, so lets trigger another flush
-                          if (DataSnap.networkAvailable) {
+                          if (DataSnap.isNetworkAvailable()) {
                             flush(null);
                           }
                         }

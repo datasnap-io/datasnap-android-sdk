@@ -69,7 +69,6 @@ public final class DataSnap {
     private static IRequestLayer requestLayer;
     private static IFlushLayer flushLayer;
     private static volatile boolean initialized;
-    public static boolean networkAvailable;
     private static Context dataSnapContext;
     private static final String PREFERENCE_FIRST_RUN = "first_run";
     private static final String FLUSH_PERIOD = "flush_period";
@@ -111,7 +110,6 @@ public final class DataSnap {
         }
         // set logging based on the debug mode
         Logger.setLog(dsConfig.isDebug());
-        networkAvailable = isNetworkAvailable(context);
         database = EventDatabase.getInstance(context);
         // now we need to create our singleton thread-safe database thread
         DataSnap.databaseLayer = new EventDatabaseThread(database);
@@ -418,9 +416,9 @@ public final class DataSnap {
     };
 
 
-    private static boolean isNetworkAvailable(Context context) {
+    public static boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
-            = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            = (ConnectivityManager) dataSnapContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }

@@ -107,7 +107,7 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                 if (response == null) {
                     // there's been an error
                     Logger.w("Failed to make request to the server.");
-                    if(!DataSnap.networkAvailable)
+                    if(!DataSnap.isNetworkAvailable())
                         success = true;
                 } else if (response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 201  ) {
                     Logger.d("Successfully sent events to the server" + list.size());
