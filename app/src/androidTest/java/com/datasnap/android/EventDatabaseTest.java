@@ -19,6 +19,7 @@ import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.EventType;
+import com.datasnap.android.utils.Logger;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -69,6 +70,7 @@ public class EventDatabaseTest {
     GsonBuilder gsonBuilder = new GsonBuilder();
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
     gson = gsonBuilder.create();
+    database.removeEvents();
   }
   
   @Test
@@ -77,8 +79,10 @@ public class EventDatabaseTest {
         beacon1, deviceInfo, null);
     String json = gson.toJson(event);
     EventWrapper eventWrapper = new EventWrapper(json);
-    database.addEvent(eventWrapper);
     List<Pair<Long, EventWrapper>> beaconEvents = database.getEvents(10);
+    assertThat(beaconEvents.size(), is(0));
+    database.addEvent(eventWrapper);
+    beaconEvents = database.getEvents(10);
     assertThat(beaconEvents.size(), is(1));
   }
 
@@ -108,9 +112,9 @@ public class EventDatabaseTest {
     EventWrapper eventWrapper = new EventWrapper(json);
     database.addEvent(eventWrapper);
     List<Pair<Long, EventWrapper>> beaconEvents = database.getEvents(10);
-    assertThat(beaconEvents.size(), is(1));
+    assertTrue(beaconEvents.size() == 1);
     database.removeEvents();
-    beaconEvents = database.getEvents(10);
-    assertThat(beaconEvents.size(), is(0));
+    beaconEvents = EventDatabase.getInstance(getTargetContext()).getEvents(10);
+    assertTrue(beaconEvents.size() == 0);
   }
 }
