@@ -192,7 +192,6 @@ public class DataSnapTest {
   //bases itself on a mock of the connectivity manager. This test is needed in order to be run on Circle CI
   //where the previous test can't be run.
   @Test
-  @Ignore
   public void shouldHandleLackOfConnectivityMockingNetworkInfo() throws InterruptedException {
     DataSnap.setFlushParams(2000, 10);
     Thread.sleep(1000);
@@ -247,7 +246,6 @@ public class DataSnapTest {
   //to trigger. This test verifies that requests are enqueued properly, don't send the same items
   //and do send all items
   @Test
-  @Ignore
   public void shouldFlushAutomaticallyIfDataAccumulated() throws InterruptedException {
     //setting the time to a large number will make the flushing be driven by the queue
     //and not by the queue getting filled up
@@ -306,7 +304,6 @@ public class DataSnapTest {
   //verifies that if the server is down or there is an error that is not related to the data the
   //queue of events is not purged
   @Test
-  @Ignore
   public void shouldRetryToSendDifferentErrorRequests() throws InterruptedException {
     DataSnap.setFlushParams(300000, 50);
 
