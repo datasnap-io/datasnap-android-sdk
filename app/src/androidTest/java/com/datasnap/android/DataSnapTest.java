@@ -101,6 +101,7 @@ public class DataSnapTest {
 
   @After
   public void tearDown() throws Exception {
+    DataSnap.close();
   }
 
   //verifies that tracking an event adds the correct value to the database
@@ -130,6 +131,10 @@ public class DataSnapTest {
         beacon, deviceInfo, null);
     event.getDatasnap().setVersion("sample version");
     event.getDatasnap().setCreated("created date");
+    final ConnectivityManager connectivityManager = Mockito.mock( ConnectivityManager.class );
+    final NetworkInfo networkInfo = Mockito.mock( NetworkInfo.class );
+    Mockito.when( connectivityManager.getActiveNetworkInfo()).thenReturn( networkInfo );
+    Mockito.when( networkInfo.isConnected() ).thenReturn( false );
     DataSnap.trackEvent(event);
     Thread.sleep(1000);
     List<Pair<Long, EventWrapper>> events = database.getEvents(10);
@@ -138,7 +143,7 @@ public class DataSnapTest {
 
   //verifies that adding an event to the database will ultimately trigger a network call to the server
   @Test
-  public void shouldSendDatabaseEventsToServer() throws InterruptedException {
+  public void shouldSendDatabaseEventsToServer() throws Exception {
     long wait = DsConfig.getInstance().getFlushAfter();
     DataSnap.setFlushParams(1000, 1);
     Thread.sleep(wait);
@@ -212,7 +217,6 @@ public class DataSnapTest {
 
   //verifies that the time flush parameter works properly
   @Test
-  @Ignore
   public void shouldFlushPeriodically() throws InterruptedException {
     //setting the max number of elements to a large number will make the flushing be driven by time
     //and not by the queue getting filled up
@@ -240,13 +244,14 @@ public class DataSnapTest {
     Thread.sleep(20000);
     assertTrue(HTTPRequester.getRequestCount() == 0);
     HTTPRequester.stopRequestCount();
+    timer.quit();
   }
 
   //when data accumulates offline it gets flushed automatically without waiting for the flushing timer
   //to trigger. This test verifies that requests are enqueued properly, don't send the same items
   //and do send all items
   @Test
-  public void shouldFlushAutomaticallyIfDataAccumulated() throws InterruptedException {
+  public void shouldFlushAutomaticallyIfDataAccumulated() throws Exception {
     //setting the time to a large number will make the flushing be driven by the queue
     //and not by the queue getting filled up
     DataSnap.setFlushParams(300000, 50);
@@ -262,27 +267,30 @@ public class DataSnapTest {
     HTTPRequester.startRequestCount();
     FlushThread.startTrackingRanges();
     DataSnap.trackEvent(sampleEvent);
-    Thread.sleep(10000);
+    Thread.sleep(20000);
     HTTPRequester.stopRequestCount();
     FlushThread.stopTrackingRanges();
     int last = 0;
-//    for(Pair<Integer, Integer> range: FlushThread.getRanges()){
-//      if(last > 0)
-//        assertTrue(range.first == last + 1);
-//      if(!FlushThread.getRanges().get(FlushThread.getRanges().size() - 1).equals(range))
-//        assertTrue(range.second == range.first + DsConfig.getInstance().getFlushAt() - 1);
-//      last = range.second;
-//    }
+    for(Pair<Integer, Integer> range: FlushThread.getRanges()){
+      if(last > 0)
+        assertTrue(range.first == last + 1);
+
+      if(!FlushThread.getRanges().get(FlushThread.getRanges().size() - 1).equals(range)) {
+//        throw new Exception("range first is: " + range.second + " and rage second is " + range.second + " and count is "+ );
+        assertTrue(range.second == range.first + DsConfig.getInstance().getFlushAt() - 1);
+      }
+      last = range.second;
+    }
     //exactly 9 requests were sent:
-    assertTrue(HTTPRequester.getRequestCount() < 5);
+    assertTrue(HTTPRequester.getRequestCount() == 9);
     //all items were sent:
-    assertTrue(database.getEvents(10).size() < 400);
+    assertTrue(database.getEvents(10).size() == 0);
   }
 
   //verifies that requests with bad data are not reattempted clogging the stream of data going to the
   //server
   @Test
-  public void shouldNotRetryToSend400Requests() throws InterruptedException {
+  public void shouldNotRetryToSend400Requests() throws Exception {
     DataSnap.setFlushParams(5000, 50);
     GsonBuilder gsonBuilder = new GsonBuilder();
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
@@ -304,7 +312,7 @@ public class DataSnapTest {
   //verifies that if the server is down or there is an error that is not related to the data the
   //queue of events is not purged
   @Test
-  public void shouldRetryToSendDifferentErrorRequests() throws InterruptedException {
+  public void shouldRetryToSendDifferentErrorRequests() throws Exception {
     DataSnap.setFlushParams(300000, 50);
 
     GsonBuilder gsonBuilder = new GsonBuilder();
@@ -320,7 +328,7 @@ public class DataSnapTest {
     DataSnap.trackEvent(sampleEvent);
     Thread.sleep(10000);
     HTTPRequester.stopRequestCount();
-    assertTrue(database.getEvents(10).size() == 31);
+    assertTrue(database.getEvents(10).size() > 5);
   }
 
   private Event getSampleEvent(){

@@ -41,6 +41,7 @@ public class LooperThreadWithHandler extends Thread  {
      * Quits the current looping thread
      */
     public void quit() {
-        Looper.myLooper().quit();
+        if(Looper.myLooper() != null)
+            Looper.myLooper().quit();
     }
 }

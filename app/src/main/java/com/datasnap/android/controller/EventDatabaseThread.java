@@ -29,7 +29,12 @@ public class EventDatabaseThread extends LooperThreadWithHandler
         handler.post(new Runnable() {
             @Override
             public void run() {
-                boolean success = database.addEvent(payload);
+                boolean success = false;
+                try {
+                    success = database.addEvent(payload);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 long rowCount = database.getRowCount();
 
                 if (callback != null) callback.onEnqueue(success, rowCount);

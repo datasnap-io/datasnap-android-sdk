@@ -61,7 +61,6 @@ public class InitializationTest {
 
   //verifies that initialization sets up the shared preferences correctly
   @Test
-  @Ignore
   public void shouldSetUpSharedPreferencesCorrectly() {
     String apiKeyId = "3F34FXD78PCINFR99IYW950W4";
     String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";

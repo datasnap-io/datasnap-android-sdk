@@ -236,10 +236,14 @@ public final class DataSnap {
     public static void close() {
 
         // stop the looper on the timer, & the flush, request, and database threads
-        flushTimer.quit();
-        flushLayer.quit();
-        databaseLayer.quit();
-        requestLayer.quit();
+        if(flushTimer != null)
+            flushTimer.quit();
+        if(flushLayer != null)
+            flushLayer.quit();
+        if(databaseLayer != null)
+            databaseLayer.quit();
+        if(requestLayer != null)
+            requestLayer.quit();
 
         // close database and set intialized parameters to null
         database.close();

@@ -26,6 +26,7 @@ import com.google.gson.GsonBuilder;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -71,6 +72,11 @@ public class EventDatabaseTest {
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
     gson = gsonBuilder.create();
     database.removeEvents();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    database.close();
   }
   
   @Test

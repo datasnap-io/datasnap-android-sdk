@@ -12,6 +12,7 @@ test:
         parallel: true
     # wait for it to have booted
     - circle-android wait-for-boot
+    - adb uninstall com.datasnap.android.test
     # run tests  against the emulator.
     - ./gradlew connectedAndroidTest
     # copy the build outputs to artifacts
