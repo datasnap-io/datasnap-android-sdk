@@ -50,24 +50,24 @@ public class InitializationTest {
     }
     database = EventDatabase.getInstance(getTargetContext());
     database.removeEvents();
-    String apiKeyId = "3F34FXD78PCINFR99IYW950W4";
-    String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";
+    String apiKeyId = "MY_API_KEY";
+    String apiKeySecret = "MY_API_SECRET";
     VendorProperties vendorProperties = new VendorProperties();
-    vendorProperties.setGimbalApiKey("044e761a-0b9f-4472-b2bb-714625e83574");
+    vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
     vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-    DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186", vendorProperties);
+    DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "MY_ORGANIZATION", "MY_PROJECT", vendorProperties);
     DataSnap.trackEvent(getSampleEvent());
   }
 
   //verifies that initialization sets up the shared preferences correctly
   @Test
   public void shouldSetUpSharedPreferencesCorrectly() {
-    String apiKeyId = "3F34FXD78PCINFR99IYW950W4";
-    String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";
+    String apiKeyId = "MY_API_KEY";
+    String apiKeySecret = "MY_API_SECRET";
     VendorProperties vendorProperties = new VendorProperties();
-    vendorProperties.setGimbalApiKey("044e761a-0b9f-4472-b2bb-714625e83574");
+    vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
     vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-    DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186", vendorProperties);
+    DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "MY_ORGANIZATION", "MY_PROJECT", vendorProperties);
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getTargetContext());
     assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_OPEN, true));
     assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_SENT, true));

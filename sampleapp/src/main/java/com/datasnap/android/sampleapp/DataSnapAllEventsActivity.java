@@ -71,9 +71,9 @@ public class DataSnapAllEventsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_events);
-        String apiKeyId = "3F34FXD78PCINFR99IYW950W4";
-        String apiKeySecret = "KA0HdzrZzNjvUq8OnKQoxaReyUayZY0ckNYoMZURxK8";
-        DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, "19CYxNMSQvfnnMf1QS4b3Z", "21213f8b-8341-4ef3-a6b8-ed0f84945186", null);
+        String apiKeyId = "MY_API_KEY";
+        String apiKeySecret = "MY_API_SECRET";
+        DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, "MY_ORGANIZATION", "MY_PROJECT", null);
         beaconSighting = (Button) findViewById(R.id.beacon_sighting);
         beaconDepart = (Button) findViewById(R.id.beacon_depart);
         beaconArrive = (Button) findViewById(R.id.beacon_arrive);
