@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.datasnap.android.Config;
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.VendorProperties;
 import com.datasnap.android.controller.HTTPRequester;
@@ -68,7 +69,14 @@ public class DataSnapCustomEventActivity extends Activity {
         VendorProperties vendorProperties = new VendorProperties();
         vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
         vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-        DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, "MY_ORGANIZATION", "MY_PROJECT",  vendorProperties);
+        Config config = new Config();
+        config.context = getApplicationContext();
+        config.apiKeyId = apiKeyId;
+        config.apiKeySecret = apiKeySecret;
+        config.organizationId = "MY_ORGANIZATION";
+        config.projectId = "MY_PROJECT";
+        config.vendorProperties = vendorProperties;
+        DataSnap.initialize(config);
         DataSnap.setFlushParams(100000, 20);
         Gimbal.setApiKey(this.getApplication(), "MY_GIMBAL_API_KEY");
 

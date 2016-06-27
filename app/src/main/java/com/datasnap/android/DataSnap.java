@@ -84,13 +84,13 @@ public final class DataSnap {
     private static VendorProperties vendorProperties;
     private static boolean syncingLocked;
 
-    public static void initialize(android.content.Context context, String apiKeyId, String apiKeySecret, String organizationId, String projectId, VendorProperties properties) {
+    public static void initialize(Config config) {
         String errorPrefix = "DataSnap client must be initialized with a valid ";
-        if (context == null) throw new IllegalArgumentException(errorPrefix + "android context.");
+        if (config.context == null) throw new IllegalArgumentException(errorPrefix + "android context.");
         if (initialized) return;
-        DsConfig.initialize(apiKeyId+":"+apiKeySecret);
-        dataSnapContext = context;
-        vendorProperties = properties;
+        DsConfig.initialize(config.apiKeyId+":"+config.apiKeySecret);
+        dataSnapContext = config.context;
+        vendorProperties = config.vendorProperties;
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(dataSnapContext);
         DataSnap.statistics = AnalyticsStatistics.getInstance();
         dsConfig = DsConfig.getInstance();
@@ -110,7 +110,7 @@ public final class DataSnap {
         }
         // set logging based on the debug mode
         Logger.setLog(dsConfig.isDebug());
-        database = EventDatabase.getInstance(context);
+        database = EventDatabase.getInstance(config.context);
         // now we need to create our singleton thread-safe database thread
         DataSnap.databaseLayer = new EventDatabaseThread(database);
         DataSnap.databaseLayer.start();
@@ -130,8 +130,8 @@ public final class DataSnap {
         // intitialise json builder
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
-        dsConfig.setOrgId(organizationId);
-        dsConfig.setProjectId(projectId);
+        dsConfig.setOrgId(config.organizationId);
+        dsConfig.setProjectId(config.projectId);
         initializeData();
     }
 
@@ -148,7 +148,6 @@ public final class DataSnap {
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
         Gson gson = gsonBuilder.create();
         String json = gson.toJson(event);
-        json = json.replace("\"global_position\"", "\"global-position\"");
         if (isNullOrEmpty(json)) {
             throw new IllegalArgumentException(
                     "analytics-android #trackEvent must be initialized with a valid event name.");

@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.datasnap.android.Config;
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.VendorProperties;
 import com.datasnap.android.eventproperties.Beacon;
@@ -74,7 +75,13 @@ public class DataSnapAllEventsActivity extends Activity {
         setContentView(R.layout.activity_all_events);
         String apiKeyId = "MY_API_KEY";
         String apiKeySecret = "MY_API_SECRET";
-        DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, "MY_ORGANIZATION", "MY_PROJECT", null);
+        Config config = new Config();
+        config.context = getApplicationContext();
+        config.apiKeyId = apiKeyId;
+        config.apiKeySecret = apiKeySecret;
+        config.organizationId = "MY_ORGANIZATION";
+        config.projectId = "MY_PROJECT";
+        DataSnap.initialize(config);
         beaconSighting = (Button) findViewById(R.id.beacon_sighting);
         beaconDepart = (Button) findViewById(R.id.beacon_depart);
         beaconArrive = (Button) findViewById(R.id.beacon_arrive);

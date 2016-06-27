@@ -3,11 +3,13 @@ package com.datasnap.android.events;
 import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.eventproperties.GlobalPosition;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Map;
 
 public class GlobalPositionEvent extends Event {
 
+    @SerializedName("global-position")
     private GlobalPosition globalPosition;
 
     public GlobalPositionEvent(String eventType, String organizationId,

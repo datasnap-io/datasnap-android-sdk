@@ -56,7 +56,14 @@ public class InitializationTest {
     VendorProperties vendorProperties = new VendorProperties();
     vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
     vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-    DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "MY_ORGANIZATION", "MY_PROJECT", vendorProperties);
+    Config config = new Config();
+    config.context = getTargetContext();
+    config.apiKeyId = apiKeyId;
+    config.apiKeySecret = apiKeySecret;
+    config.organizationId = "MY_ORGANIZATION";
+    config.projectId = "MY_PROJECT";
+    config.vendorProperties = vendorProperties;
+    DataSnap.initialize(config);
     DataSnap.trackEvent(getSampleEvent());
   }
 
@@ -68,7 +75,14 @@ public class InitializationTest {
     VendorProperties vendorProperties = new VendorProperties();
     vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
     vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-    DataSnap.initialize(getTargetContext(), apiKeyId, apiKeySecret, "MY_ORGANIZATION", "MY_PROJECT", vendorProperties);
+    Config config = new Config();
+    config.context = getTargetContext();
+    config.apiKeyId = apiKeyId;
+    config.apiKeySecret = apiKeySecret;
+    config.organizationId = "MY_ORGANIZATION";
+    config.projectId = "MY_PROJECT";
+    config.vendorProperties = vendorProperties;
+    DataSnap.initialize(config);
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getTargetContext());
     assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_OPEN, true));
     assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_SENT, true));

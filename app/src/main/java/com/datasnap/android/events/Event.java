@@ -4,6 +4,7 @@ import com.datasnap.android.BuildConfig;
 import com.datasnap.android.eventproperties.Device;
 import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.User;
+import com.google.gson.annotations.SerializedName;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -12,7 +13,6 @@ import java.util.Map;
 
 public abstract class Event {
 
-    protected String dataSnapVersion;
     protected String eventType;
     protected String[] organizationIds = new String[1];
     protected String[] projectIds = new String[1];

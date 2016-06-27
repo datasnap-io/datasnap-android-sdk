@@ -68,7 +68,15 @@ public class EventDatabaseTest {
     id.setMobileDeviceGoogleAdvertisingId("sample ad id");
     id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
     user.setId(id);
-    DataSnap.initialize(InstrumentationRegistry.getContext(), "", "", "", "", null);
+    String apiKeyId = "API KEY";
+    String apiKeySecret = "API SECRET";
+    Config config = new Config();
+    config.context = getTargetContext();
+    config.apiKeyId = apiKeyId;
+    config.apiKeySecret = apiKeySecret;
+    config.organizationId = "MY_ORGANIZATION";
+    config.projectId = "MY_PROJECT";
+    DataSnap.initialize(config);
     GsonBuilder gsonBuilder = new GsonBuilder();
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
     gson = gsonBuilder.create();

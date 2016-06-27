@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.datasnap.android.Config;
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.VendorProperties;
 import com.gimbal.android.BeaconEventListener;
@@ -38,7 +39,14 @@ public class DataSnapGimbalActivity extends Activity {
         VendorProperties vendorProperties = new VendorProperties();
         vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
         vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-        DataSnap.initialize(getApplicationContext(), apiKeyId, apiKeySecret, "MY_ORGANIZATION", "MY_PROJECT",  vendorProperties);
+        Config config = new Config();
+        config.context = getApplicationContext();
+        config.apiKeyId = apiKeyId;
+        config.apiKeySecret = apiKeySecret;
+        config.organizationId = "MY_ORGANIZATION";
+        config.projectId = "MY_PROJECT";
+        config.vendorProperties = vendorProperties;
+        DataSnap.initialize(config);
         DataSnap.setFlushParams(100000, 50);
         Gimbal.setApiKey(this.getApplication(), "MY_GIMBAL_API_KEY");
         BeaconManager gimbalBeaconManager = new com.gimbal.android.BeaconManager();
