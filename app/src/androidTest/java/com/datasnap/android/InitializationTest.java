@@ -15,6 +15,7 @@ import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.EventType;
 import com.datasnap.android.events.InteractionEvent;
+import com.datasnap.android.utils.DsConfig;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -81,6 +82,6 @@ public class InitializationTest {
     id.setMobileDeviceGoogleAdvertisingId("sample id");
     id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
     user.setId(id);
-    return new InteractionEvent(EventType.BEACON_SIGHTING, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null, null);
+    return new InteractionEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, user, null, null);
   }
 }

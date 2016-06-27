@@ -24,6 +24,7 @@ import com.datasnap.android.events.CommunicationEvent;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.EventType;
 import com.datasnap.android.events.GeoFenceEvent;
+import com.datasnap.android.utils.DsConfig;
 import com.gimbal.android.BeaconEventListener;
 import com.gimbal.android.BeaconManager;
 import com.gimbal.android.BeaconSighting;
@@ -143,6 +144,7 @@ public class GimbalService extends BaseService {
       initGimbalCommunicationListener();
       initGimbalPlaceListener();
     } catch (NoClassDefFoundError e) {
+      //TODO add gimbal url
       Logger.e("Gimbal sdk can't be found, please add it to your project's dependencies");
       classesLoadingFailed = true;
     }
@@ -224,7 +226,7 @@ public class GimbalService extends BaseService {
       Geofence geofence = new Geofence();
       geofence.setIdentifier(gimbalPlace.getIdentifier());
       geofence.setName(gimbalPlace.getName());
-      Event event = new GeoFenceEvent(EventType.GEOFENCE_DEPART, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, null,
+      Event event = new GeoFenceEvent(EventType.GEOFENCE_DEPART, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, null,
           geofence, user, null, deviceInfo);
       DataSnap.trackEvent(event);
     }

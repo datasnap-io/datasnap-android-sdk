@@ -117,10 +117,10 @@ public final class DataSnap {
 
         HTTPRequester requester = new HTTPRequester();
         // and a single request thread
-        DataSnap.requestLayer = new RequestThread(requester);
+        DataSnap.requestLayer = new RequestThread(requester,  dataSnapContext);
         DataSnap.requestLayer.start();
         // start the flush thread
-        DataSnap.flushLayer = new FlushThread(DataSnap.databaseLayer, batchFactory, DataSnap.requestLayer);
+        DataSnap.flushLayer = new FlushThread(DataSnap.databaseLayer, batchFactory, DataSnap.requestLayer, dataSnapContext);
         DataSnap.flushTimer = new HandlerTimer(dsConfig.getFlushAfter(), flushClock);
         initialized = true;
         // start the other threads
@@ -133,18 +133,6 @@ public final class DataSnap {
         dsConfig.setOrgId(organizationId);
         dsConfig.setProjectId(projectId);
         initializeData();
-    }
-
-    public static String getOrgId() {
-        if (dsConfig == null)
-            isInitialized();
-        return dsConfig.getOrgId();
-    }
-
-    public static String  getProjectId() {
-        if (dsConfig == null)
-            isInitialized();
-        return dsConfig.getProjectId();
     }
 
     /**
@@ -220,6 +208,8 @@ public final class DataSnap {
         }
     }
 
+    // this method changes the parameters to determine when to sync with the server. Duration triggers
+    // synchronization every period of time, while maxElements is the size of the queue before sync is triggered.
     public static void setFlushParams(int durationInMillis, int maxElements){
         sharedPreferences.edit().putInt(INITIAL_FLUSH_PERIOD, durationInMillis).commit();
         sharedPreferences.edit().putInt(FLUSH_PERIOD, durationInMillis).commit();
@@ -299,6 +289,9 @@ public final class DataSnap {
         for(VendorProperties.Vendor vendor : vendorProperties.getVendor()) {
             switch (vendor) {
                 case GIMBAL:
+                    // Gimbal requires to pull some data from the network in order to start correctly otherwise
+                    // it just fails to start. Accordingly we need to make sure there is connectivity before
+                    // attempting a connection to the service.
                     attemptGimbalServiceConnection();
                     break;
                 case ESTIMOTE:
@@ -310,7 +303,7 @@ public final class DataSnap {
             }
         }
         if(sharedPreferences.getBoolean(PREFERENCE_FIRST_RUN, true)){
-            Event event = new InteractionEvent(EventType.APP_INSTALLED, getOrgId(), getProjectId(), null, null, null, user, null, null);
+            Event event = new InteractionEvent(EventType.APP_INSTALLED, dsConfig.getOrgId(), dsConfig.getProjectId(), null, null, null, user, null, null);
             trackEvent(event);
             sharedPreferences.edit().putBoolean(PREFERENCE_FIRST_RUN, false).commit();
         }
@@ -418,14 +411,6 @@ public final class DataSnap {
             DataSnap.flush(true);
         }
     };
-
-
-    public static boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-            = (ConnectivityManager) dataSnapContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
 
     /**
      * Flush data to the server.

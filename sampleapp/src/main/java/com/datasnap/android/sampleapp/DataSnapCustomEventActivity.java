@@ -28,6 +28,7 @@ import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.EventType;
 import com.datasnap.android.services.BaseService;
+import com.datasnap.android.utils.DsConfig;
 import com.datasnap.android.utils.HandlerTimer;
 import com.gimbal.android.BeaconEventListener;
 import com.gimbal.android.BeaconManager;
@@ -98,7 +99,7 @@ public class DataSnapCustomEventActivity extends Activity {
                 beacon.setRssi(sighting.getBeacon().getUuid());
                 beacon.setName(sighting.getBeacon().getName());
                 beacon.setBleVendorId("Gimbal");
-                Event event = new MyCustomBeaconEvent(eventType, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, User.getInstance(),
+                Event event = new MyCustomBeaconEvent(eventType, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, User.getInstance(),
                     "custom value", DeviceInfo.getInstance(), beacon, null);
                 DataSnap.trackEvent(event);
             }

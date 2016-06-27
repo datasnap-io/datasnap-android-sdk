@@ -127,7 +127,7 @@ public class DataSnapTest {
     beacon.setRssi("sample rssi");
     beacon.setName("sample identifier");
     beacon.setBleVendorId("Gimbal");
-    Event event = new BeaconEvent(EventType.BEACON_SIGHTING, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, null, user,
+    Event event = new BeaconEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, null, user,
         beacon, deviceInfo, null);
     event.getDatasnap().setVersion("sample version");
     event.getDatasnap().setCreated("created date");
@@ -337,7 +337,7 @@ public class DataSnapTest {
     id.setMobileDeviceGoogleAdvertisingId("sample id");
     id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
     user.setId(id);
-    return new InteractionEvent(EventType.BEACON_SIGHTING, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null, null);
+    return new InteractionEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, user, null, null);
   }
 
   private void setMockedResponse(final int statusCode){
@@ -547,7 +547,7 @@ public class DataSnapTest {
       id.setMobileDeviceGoogleAdvertisingId("sample id");
       id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
       user.setId(id);
-      Event event = new InteractionEvent(EventType.OPT_IN_VENDOR, DataSnap.getOrgId(), DataSnap.getProjectId(), null, null, null, user, null, null);
+      Event event = new InteractionEvent(EventType.OPT_IN_VENDOR, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, user, null, null);
       DataSnap.trackEvent(event);
     }
   };

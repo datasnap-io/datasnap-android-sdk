@@ -1,6 +1,9 @@
 package com.datasnap.android.controller;
 
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
 import android.os.Handler;
@@ -44,9 +47,11 @@ import org.json.JSONObject;
 public class RequestThread extends LooperThreadWithHandler implements IRequestLayer {
 
     private HTTPRequester requester;
+    private Context context;
 
-    public RequestThread(HTTPRequester requester) {
+    public RequestThread(HTTPRequester requester, Context context) {
         this.requester = requester;
+        this.context = context;
     }
     /**
      * Performs the request to the server.
@@ -107,7 +112,7 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                 if (response == null) {
                     // there's been an error
                     Logger.w("Failed to make request to the server.");
-                    if(!DataSnap.isNetworkAvailable())
+                    if(!isNetworkAvailable())
                         success = true;
                 } else if (response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 201  ) {
                     Logger.d("Successfully sent events to the server" + list.size());
@@ -128,5 +133,12 @@ public class RequestThread extends LooperThreadWithHandler implements IRequestLa
                 callback.onRequestCompleted(success, statusCode);
             }
         });
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+            = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
