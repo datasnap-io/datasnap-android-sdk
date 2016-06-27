@@ -1,5 +1,8 @@
 package com.datasnap.android.controller;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.util.Pair;
 import android.util.Range;
@@ -35,13 +38,14 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
     private BatchFactory batchFactory;
     private static ArrayList<Pair<Integer, Integer>> ranges = new ArrayList<>();
     private static boolean trackRanges;
+    private Context context;
 
     public FlushThread(EventDatabaseLayerInterface databaseLayer, BatchFactory batchFactory,
-                       IRequestLayer requestLayer) {
-
+                       IRequestLayer requestLayer, Context context) {
         this.requestLayer = requestLayer;
         this.batchFactory = batchFactory;
         this.databaseLayer = databaseLayer;
+        this.context = context;
     }
 
     public static void startTrackingRanges(){
@@ -85,7 +89,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                         if  ((success || statusCode == 400) && EventDatabase.getInstance().getRowCount() > DsConfig.getInstance().getFlushAt()) {
                           // we successfully sent a eventListContainer to the server, and we might
                           // have more to send, so lets trigger another flush
-                          if (DataSnap.isNetworkAvailable()) {
+                          if (isNetworkAvailable()) {
                             flush(null);
                           }
                         }
@@ -120,11 +124,12 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
         databaseLayer.nextEvent(new PayloadCallback() {
             @Override
             public void onPayload(final long minId, final long maxId, final List<EventWrapper> batch) {
-
                 // we are currently executing on the database
                 // thread so we're still technically locking the
                 // database
                 final String range = "[" + minId + " - " + maxId + "]";
+                // this is added for testing purposes in order to make sure that under different circumstances
+                // we are processing the correct event sequences.
                 if(trackRanges) {
                   Integer min = (new Long(minId)).intValue();
                   Integer max = (new Long(maxId)).intValue();
@@ -135,102 +140,67 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                     if (callback != null)
                         callback.onFlushCompleted(true,  batch, 0);
                 } else {
-                    Logger.d("Sending events to the servers .. %s", range);
-                    // now let's make a request on the flushing thread
-                    requestLayer.send(batch, new IRequestLayer.EventRequestCallback() {
+                  Logger.d("Sending events to the servers .. %s", range);
+                  // now let's make a request on the flushing thread
+                  requestLayer.send(batch, new IRequestLayer.EventRequestCallback() {
+                    @Override
+                    public void onRequestCompleted(boolean success, final int statusCode) {
+                      if (!success) {
+                        Logger.w("Failed to send events to the servers .. %s", range);
+                      } else {
+                        Logger.d("Successfully sent eventListContainer to the server. %s", range);
+                        Logger.d("Removing flushed items from the db  .. %s", range);
+                      }
+                      // we are now executing in the context of the request thread
+                      if (success || statusCode == 400) {
+                        databaseLayer.removePayloads(minId, maxId, new RemoveCallback() {
+                          @Override
+                          public void onRemoved(int removed) {
+                            // we are again executing in the context of the database thread
+                            AnalyticsStatistics statistics = AnalyticsStatistics.getInstance();
+                            if (removed == -1) {
 
-                        @Override
-                        public void onRequestCompleted(boolean success, final int statusCode) {
-                            // we are now executing in the context of the request thread
-                            if (!success) {
-                                Logger.w("Failed to send events to the servers .. %s", range);
-                                if(statusCode == 400) {
-                                  databaseLayer.removePayloads(minId, maxId, new RemoveCallback() {
-                                    @Override
-                                    public void onRemoved(int removed) {
-                                      // we are again executing in the context of the database thread
-                                      AnalyticsStatistics statistics = AnalyticsStatistics.getInstance();
+                              for (int i = 0; i < removed; i += 1)
+                                statistics.updateFailed(1);
 
-                                      if (removed == -1) {
+                              Logger.e("We failed to remove payload from the database. %s", range);
 
-                                        for (int i = 0; i < removed; i += 1)
-                                          statistics.updateFailed(1);
+                              if (callback != null)
+                                callback.onFlushCompleted(false, batch, statusCode);
+                            } else if (removed == 0) {
 
-                                        Logger.e("We failed to remove payload from the database. %s", range);
+                              for (int i = 0; i < removed; i += 1)
+                                statistics.updateFailed(1);
 
-                                        if (callback != null)
-                                          callback.onFlushCompleted(false, batch, statusCode);
-                                      } else if (removed == 0) {
+                              Logger.e("We didn't end up removing anything from the database. %s", range);
 
-                                        for (int i = 0; i < removed; i += 1)
-                                          statistics.updateFailed(1);
-
-                                        Logger.e("We didn't end up removing anything from the database. %s", range);
-
-                                        if (callback != null)
-                                          callback.onFlushCompleted(false, batch, statusCode);
-                                      } else {
-
-                                        for (int i = 0; i < removed; i += 1)
-                                          statistics.updateSuccessful(1);
-
-                                        Logger.d("Successfully removed items from the flush db. %s", range);
-
-                                        if (callback != null)
-                                          callback.onFlushCompleted(true, batch, statusCode);
-                                      }
-                                    }
-                                  });
-                                } else if (callback != null)
-                                    callback.onFlushCompleted(false, batch, statusCode);
+                              if (callback != null)
+                                callback.onFlushCompleted(false, batch, statusCode);
                             } else {
-                                Logger.d("Successfully sent eventListContainer to the server. %s", range);
-                                Logger.d("Removing flushed items from the db  .. %s", range);
-                                // TODO: remove BF test
-                                // if we were successful, we need to first delete the old items from the
-                                // database, and then continue flushing
-                                databaseLayer.removePayloads(minId, maxId, new RemoveCallback() {
 
-                                    @Override
-                                    public void onRemoved(int removed) {
-                                        // we are again executing in the context of the database thread
-                                        AnalyticsStatistics statistics = AnalyticsStatistics.getInstance();
+                              for (int i = 0; i < removed; i += 1)
+                                statistics.updateSuccessful(1);
 
-                                        if (removed == -1) {
+                              Logger.d("Successfully removed items from the flush db. %s", range);
 
-                                            for (int i = 0; i < removed; i += 1)
-                                                statistics.updateFailed(1);
-
-                                            Logger.e("We failed to remove payload from the database. %s", range);
-
-                                            if (callback != null)
-                                                callback.onFlushCompleted(false, batch, statusCode);
-                                        } else if (removed == 0) {
-
-                                            for (int i = 0; i < removed; i += 1)
-                                                statistics.updateFailed(1);
-
-                                            Logger.e("We didn't end up removing anything from the database. %s", range);
-
-                                            if (callback != null)
-                                                callback.onFlushCompleted(false, batch, statusCode);
-                                        } else {
-
-                                            for (int i = 0; i < removed; i += 1)
-                                                statistics.updateSuccessful(1);
-
-                                            Logger.d("Successfully removed items from the flush db. %s", range);
-
-                                            if (callback != null)
-                                                callback.onFlushCompleted(true, batch, statusCode);
-                                        }
-                                    }
-                                });
+                              if (callback != null)
+                                callback.onFlushCompleted(true, batch, statusCode);
                             }
-                        }
-                    });
+                          }
+                        });
+                      } else if (callback != null)
+                        callback.onFlushCompleted(false, batch, statusCode);
+                    }
+                  });
                 }
             }
         });
     }
+
+  private boolean isNetworkAvailable() {
+    ConnectivityManager connectivityManager
+        = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+  }
 }
