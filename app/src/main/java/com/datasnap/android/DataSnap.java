@@ -69,11 +69,11 @@ public final class DataSnap {
     private static IFlushLayer flushLayer;
     private static volatile boolean initialized;
     private static Context dataSnapContext;
-    private static final String PREFERENCE_FIRST_RUN = "first_run";
-    private static final String FLUSH_PERIOD = "flush_period";
-    private static final String FLUSH_QUEUE = "flush_queue";
-    private static final String INITIAL_FLUSH_PERIOD = "initial_flush_period";
-    private static final String INITIAL_FLUSH_QUEUE = "initial_flush_queue";
+    private static final String PREFERENCE_FIRST_RUN = "com.datasnap.android.first_run";
+    private static final String FLUSH_PERIOD = "com.datasnap.android.flush_period";
+    private static final String FLUSH_QUEUE = "com.datasnap.android.flush_queue";
+    private static final String INITIAL_FLUSH_PERIOD = "com.datasnap.android.initial_flush_period";
+    private static final String INITIAL_FLUSH_QUEUE = "com.datasnap.android.initial_flush_queue";
     private static GimbalService gimbalService;
     private static EstimoteService estimoteService;
     private static SharedPreferences sharedPreferences;
@@ -81,6 +81,7 @@ public final class DataSnap {
     private static boolean syncingLocked;
 
     public static void initialize(Config config) {
+        close();
         String errorPrefix = "DataSnap client must be initialized with a valid ";
         if (config.context == null) throw new IllegalArgumentException(errorPrefix + "android context.");
         if (initialized) return;
@@ -236,7 +237,8 @@ public final class DataSnap {
             requestLayer.quit();
 
         // close database and set intialized parameters to null
-        database.close();
+        if(database != null)
+            database.close();
         dsConfig = null;
         initialized = false;
     }

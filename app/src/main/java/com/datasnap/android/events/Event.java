@@ -29,6 +29,7 @@ public abstract class Event {
     }
 
     public Event(String eventType){
+        this.eventType = eventType;
         this.user = User.getInstance();
         this.datasnap = new Datasnap(BuildConfig.VERSION_NAME, Device.getInstance());
         this.organizationIds[0] = DsConfig.getInstance().getOrgId();

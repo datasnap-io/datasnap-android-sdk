@@ -24,6 +24,7 @@ public class User {
     private User(final Handler handler, final Runnable runnable, final Context context) {
         String android_id = Settings.Secure.getString(context.getContentResolver(),
             Settings.Secure.ANDROID_ID);
+        id = new Id();
         id.setGlobalDistinctId(android_id);
         new Thread(new Runnable() {
             public void run() {

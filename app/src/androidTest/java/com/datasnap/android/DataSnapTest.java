@@ -72,7 +72,7 @@ import static org.junit.Assert.assertThat;
 public class DataSnapTest {
 
   private EventDatabase database;
-  private String sampleEventJson = "{\"beacon\":{\"battery_level\":\"high\",\"ble_vendor_id\":\"Gimbal\",\"identifier\":\"sample-identifier\",\"name\":\"sample identifier\",\"rssi\":\"sample rssi\"},\"datasnap\":{\"created\":\"created date\",\"device\":{\"carrier_name\":\"sample carrier name\",\"ip_address\":\"sample ip\",\"model\":\"model\",\"os_version\":\"os.version\",\"platform\":\"sample platform\"},\"version\":\"sample version\"},\"event_type\":\"beacon_sighting\",\"organization_ids\":[\"ORGANIZATION ID\"],\"project_ids\":[\"PROJECT ID\"],\"user\":{\"id\":{\"global_distinct_id\":\"sample android id\",\"mobile_device_google_advertising_id\":\"sample id\",\"mobile_device_google_advertising_id_opt_in\":\"true\"}}}";
+  private String sampleEventJson = "{\"beacon\":{\"battery_level\":\"high\",\"ble_vendor_id\":\"Gimbal\",\"identifier\":\"sample-identifier\",\"name\":\"sample identifier\",\"rssi\":\"sample rssi\"},\"datasnap\":{\"created\":\"created date\",\"device\":{\"carrier_name\":\"sample carrier name\",\"ip_address\":\"sample ip\",\"manufacturer\":\"Genymotion\",\"model\":\"model\",\"name\":\"vbox86tp\",\"os_version\":\"os.version\",\"platform\":\"sample platform\",\"vendor_id\":\"generic\"},\"version\":\"sample version\"},\"event_type\":\"beacon_sighting\",\"organization_ids\":[\"MY_ORGANIZATION\"],\"project_ids\":[\"MY_PROJECT\"],\"user\":{\"id\":{\"global_distinct_id\":\"sample android id\",\"mobile_device_google_advertising_id\":\"sample id\",\"mobile_device_google_advertising_id_opt_in\":\"true\"}}}";
   private WifiManager wifiManager;
   private Event sampleEvent;
 
@@ -107,7 +107,6 @@ public class DataSnapTest {
 
   @After
   public void tearDown() throws Exception {
-    DataSnap.close();
   }
 
   //verifies that tracking an event adds the correct value to the database
