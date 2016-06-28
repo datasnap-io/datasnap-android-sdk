@@ -13,7 +13,6 @@ import android.telephony.TelephonyManager;
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.eventproperties.Beacon;
 import com.datasnap.android.eventproperties.Device;
-import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
@@ -34,7 +33,6 @@ import java.util.Date;
 public class BaseService extends Service {
 
   protected User user;
-  protected DeviceInfo deviceInfo;
   protected String organizationId;
   protected String projectId;
   protected boolean classesLoadingFailed;
@@ -58,7 +56,6 @@ public class BaseService extends Service {
   public int onStartCommand(Intent intent, int flags, int startId) {
     super.onStartCommand(intent, flags, startId);
     user = User.getInstance();
-    deviceInfo = DeviceInfo.getInstance();
     organizationId = DsConfig.getInstance().getOrgId();
     projectId = DsConfig.getInstance().getProjectId();
     return START_STICKY;

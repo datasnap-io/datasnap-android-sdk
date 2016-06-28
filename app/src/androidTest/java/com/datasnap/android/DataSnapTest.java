@@ -21,7 +21,6 @@ import com.datasnap.android.controller.FlushThread;
 import com.datasnap.android.controller.HTTPRequester;
 import com.datasnap.android.eventproperties.Beacon;
 import com.datasnap.android.eventproperties.Device;
-import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
@@ -114,17 +113,15 @@ public class DataSnapTest {
   //verifies that tracking an event adds the correct value to the database
   @Test
   public void trackEventShouldAddEventsToTheDatabase() throws Exception {
-    final User user = new User();
+    User user = User.getInstance();
     final Id id = new Id();
-    DeviceInfo deviceInfo = new DeviceInfo();
-    Device device = new Device();
+    Device device = Device.getInstance();
     id.setGlobalDistinctId("sample android id");
     device.setIpAddress("sample ip");
     device.setPlatform("sample platform");
     device.setOsVersion("os.version");
     device.setModel("model");
     device.setCarrierName("sample carrier name");
-    deviceInfo.setDevice(device);
     id.setMobileDeviceGoogleAdvertisingId("sample id");
     id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
     user.setId(id);
@@ -134,10 +131,11 @@ public class DataSnapTest {
     beacon.setRssi("sample rssi");
     beacon.setName("sample identifier");
     beacon.setBleVendorId("Gimbal");
-    Event event = new BeaconEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, null, user,
-        beacon, deviceInfo, null);
+    Event event = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon);
+    event.getDatasnap().setDevice(device);
     event.getDatasnap().setVersion("sample version");
     event.getDatasnap().setCreated("created date");
+    event.setUser(user);
     final ConnectivityManager connectivityManager = Mockito.mock( ConnectivityManager.class );
     final NetworkInfo networkInfo = Mockito.mock( NetworkInfo.class );
     Mockito.when( connectivityManager.getActiveNetworkInfo()).thenReturn( networkInfo );
@@ -339,12 +337,7 @@ public class DataSnapTest {
   }
 
   private Event getSampleEvent(){
-    User user = new User();
-    Id id = new Id();
-    id.setMobileDeviceGoogleAdvertisingId("sample id");
-    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
-    user.setId(id);
-    return new InteractionEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, user, null, null);
+    return new InteractionEvent(EventType.BEACON_SIGHTING);
   }
 
   private void setMockedResponse(final int statusCode){
@@ -549,12 +542,7 @@ public class DataSnapTest {
   protected static Runnable eventClock = new Runnable() {
     @Override
     public void run() {
-      User user = new User();
-      Id id = new Id();
-      id.setMobileDeviceGoogleAdvertisingId("sample id");
-      id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
-      user.setId(id);
-      Event event = new InteractionEvent(EventType.OPT_IN_VENDOR, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, user, null, null);
+      Event event = new InteractionEvent(EventType.BEACON_SIGHTING);
       DataSnap.trackEvent(event);
     }
   };

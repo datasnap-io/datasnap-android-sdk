@@ -2,20 +2,14 @@ package com.datasnap.android.events;
 
 import com.datasnap.android.eventproperties.Campaign;
 import com.datasnap.android.eventproperties.Communication;
-import com.datasnap.android.eventproperties.DeviceInfo;
-import com.datasnap.android.eventproperties.User;
-
-import java.util.Map;
 
 public class CommunicationEvent extends Event {
 
     private Communication communication;
     private Campaign campaign;
 
-    public CommunicationEvent(String eventType, String organizationId,
-                              String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, Communication communication,
-                              Campaign campaign, Map<String, Object> additionalProperties, DeviceInfo deviceInfo) {
-        super(eventType, organizationId, projectId, customerOrgId, customerVenueOrgId, venueOrgId, user, deviceInfo, additionalProperties);
+    public CommunicationEvent(String eventType, Communication communication, Campaign campaign) {
+        super(eventType);
         this.communication = communication;
         this.campaign = campaign;
     }

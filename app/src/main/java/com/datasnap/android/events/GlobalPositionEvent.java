@@ -1,7 +1,5 @@
 package com.datasnap.android.events;
 
-import com.datasnap.android.eventproperties.DeviceInfo;
-import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.eventproperties.GlobalPosition;
 import com.google.gson.annotations.SerializedName;
 
@@ -12,10 +10,8 @@ public class GlobalPositionEvent extends Event {
     @SerializedName("global-position")
     private GlobalPosition globalPosition;
 
-    public GlobalPositionEvent(String eventType, String organizationId,
-                               String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, GlobalPosition globalPosition,
-                               DeviceInfo deviceInfo, Map<String, Object> additionalProperties) {
-        super(eventType, organizationId, projectId, customerOrgId, customerVenueOrgId, venueOrgId, user, deviceInfo, additionalProperties);
+    public GlobalPositionEvent(String eventType, GlobalPosition globalPosition) {
+        super(eventType);
         this.globalPosition = globalPosition;
     }
 

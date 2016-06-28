@@ -35,15 +35,13 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
 
     private IRequestLayer requestLayer;
     private EventDatabaseLayerInterface databaseLayer;
-    private BatchFactory batchFactory;
     private static ArrayList<Pair<Integer, Integer>> ranges = new ArrayList<>();
     private static boolean trackRanges;
     private Context context;
 
-    public FlushThread(EventDatabaseLayerInterface databaseLayer, BatchFactory batchFactory,
+    public FlushThread(EventDatabaseLayerInterface databaseLayer,
                        IRequestLayer requestLayer, Context context) {
         this.requestLayer = requestLayer;
-        this.batchFactory = batchFactory;
         this.databaseLayer = databaseLayer;
         this.context = context;
     }

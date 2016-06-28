@@ -91,11 +91,6 @@ public class InitializationTest {
   }
 
   private Event getSampleEvent(){
-    User user = new User();
-    Id id = new Id();
-    id.setMobileDeviceGoogleAdvertisingId("sample id");
-    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
-    user.setId(id);
-    return new InteractionEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, user, null, null);
+    return new InteractionEvent(EventType.BEACON_SIGHTING);
   }
 }

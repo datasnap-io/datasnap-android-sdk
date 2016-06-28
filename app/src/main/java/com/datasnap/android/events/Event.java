@@ -2,8 +2,8 @@ package com.datasnap.android.events;
 
 import com.datasnap.android.BuildConfig;
 import com.datasnap.android.eventproperties.Device;
-import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.User;
+import com.datasnap.android.utils.DsConfig;
 import com.google.gson.annotations.SerializedName;
 
 import java.text.SimpleDateFormat;
@@ -28,9 +28,16 @@ public abstract class Event {
             && this.projectIds.length > 0 && projectIds[0].length() > 0 && this.user != null;
     }
 
+    public Event(String eventType){
+        this.user = User.getInstance();
+        this.datasnap = new Datasnap(BuildConfig.VERSION_NAME, Device.getInstance());
+        this.organizationIds[0] = DsConfig.getInstance().getOrgId();
+        this.projectIds[0] = DsConfig.getInstance().getProjectId();
+    }
+
     public Event(String eventType, String organizationId,
                  String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user,
-                 DeviceInfo deviceInfo, Map<String, Object> additionalProperties){
+                 Device device, Map<String, Object> additionalProperties){
         this.eventType = eventType;
         this.user = user;
         this.additionalProperties = additionalProperties;
@@ -39,7 +46,7 @@ public abstract class Event {
         this.customerOrgId = customerOrgId;
         this.customerVenueOrgId = customerVenueOrgId;
         this.venueOrgId = venueOrgId;
-        this.datasnap = new Datasnap(BuildConfig.VERSION_NAME, deviceInfo);
+        this.datasnap = new Datasnap(BuildConfig.VERSION_NAME, device);
     }
 
     public Datasnap getDatasnap() {
@@ -132,11 +139,10 @@ public abstract class Event {
         String version;
         Device device;
 
-        public Datasnap(String version, DeviceInfo deviceInfo){
+        public Datasnap(String version, Device device){
             this.created = getTime();
             this.version = version;
-            if(deviceInfo != null)
-                this.device = deviceInfo.getDevice();
+            this.device = device;
         }
 
         public Device getDevice() {

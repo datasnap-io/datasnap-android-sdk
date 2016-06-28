@@ -22,7 +22,6 @@ import com.datasnap.android.VendorProperties;
 import com.datasnap.android.controller.HTTPRequester;
 import com.datasnap.android.eventproperties.Beacon;
 import com.datasnap.android.eventproperties.Device;
-import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Place;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
@@ -80,9 +79,7 @@ public class DataSnapCustomEventActivity extends Activity {
         DataSnap.setFlushParams(100000, 20);
         Gimbal.setApiKey(this.getApplication(), "MY_GIMBAL_API_KEY");
 
-        DeviceInfo deviceInfo = new DeviceInfo();
-        Device device = new Device();
-        deviceInfo.setCreated(getTime());
+        Device device = Device.getInstance();
         device.setIpAddress(getIpAddress());
         device.setPlatform(android.os.Build.VERSION.SDK);
         device.setOsVersion(System.getProperty("os.version"));
@@ -92,8 +89,6 @@ public class DataSnapCustomEventActivity extends Activity {
         device.setVendorId(android.os.Build.BRAND);
         TelephonyManager manager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         device.setCarrierName(manager.getNetworkOperatorName());
-        deviceInfo.setDevice(device);
-        DeviceInfo.initialize(deviceInfo);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         gimbalBeaconManager = new BeaconManager();
         gimbalBeaconEventListener = new BeaconEventListener() {
@@ -107,8 +102,7 @@ public class DataSnapCustomEventActivity extends Activity {
                 beacon.setRssi(sighting.getBeacon().getUuid());
                 beacon.setName(sighting.getBeacon().getName());
                 beacon.setBleVendorId("Gimbal");
-                Event event = new MyCustomBeaconEvent(eventType, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, User.getInstance(),
-                    "custom value", DeviceInfo.getInstance(), beacon, null);
+                Event event = new MyCustomBeaconEvent(eventType, "custom value", beacon);
                 DataSnap.trackEvent(event);
             }
         };
@@ -193,10 +187,8 @@ public class DataSnapCustomEventActivity extends Activity {
         private String myCustomField;
         private Beacon beacon;
 
-        public MyCustomBeaconEvent(String eventType, String organizationId,
-                                   String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user, String myCustomField,
-                                   DeviceInfo deviceInfo, Beacon beacon, Map<String, Object> additionalProperties) {
-            super(eventType, organizationId, projectId, customerOrgId, customerVenueOrgId, venueOrgId, user, deviceInfo, additionalProperties);
+        public MyCustomBeaconEvent(String eventType, String myCustomField, Beacon beacon) {
+            super(eventType);
             this.myCustomField = myCustomField;
             this.beacon = beacon;
         }

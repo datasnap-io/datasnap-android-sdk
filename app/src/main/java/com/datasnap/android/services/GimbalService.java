@@ -1,24 +1,14 @@
 package com.datasnap.android.services;
 
-import android.app.Notification;
-import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.widget.Toast;
 
 import com.datasnap.android.DataSnap;
 import com.datasnap.android.eventproperties.Beacon;
 import com.datasnap.android.eventproperties.Campaign;
-import com.datasnap.android.eventproperties.Device;
-import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Geofence;
-import com.datasnap.android.eventproperties.Id;
-import com.datasnap.android.eventproperties.Place;
-import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.CommunicationEvent;
 import com.datasnap.android.events.Event;
@@ -88,8 +78,7 @@ public class GimbalService extends BaseService {
         beacon.setRssi(sighting.getBeacon().getUuid());
         beacon.setName(sighting.getBeacon().getName());
         beacon.setBleVendorId("Gimbal");
-        Event event = new BeaconEvent(EventType.BEACON_SIGHTING, organizationId, projectId, null, null, null, null, user, beacon,
-            deviceInfo, null);
+        Event event = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon);
         DataSnap.trackEvent(event);
       }
     };
@@ -176,8 +165,8 @@ public class GimbalService extends BaseService {
         campaign.setIdentifier(projectId);
         campaign.setCommunicationIds(communication.getIdentifier());
         String venueId = visit.getVisitID();
-        Event event = new CommunicationEvent(EventType.COMMUNICATION_SENT, organizationId, projectId, null, venueId, venueId, user,
-            dataSnapCommunication, campaign, null, deviceInfo);
+        Event event = new CommunicationEvent(EventType.COMMUNICATION_SENT, dataSnapCommunication, campaign);
+        event.setVenueOrgId(venueId);
         DataSnap.trackEvent(event);
       }
     }
@@ -195,8 +184,7 @@ public class GimbalService extends BaseService {
         campaign.setIdentifier(projectId);
         campaign.setCommunicationIds(communication.getIdentifier());
         push.getPushType();
-        Event event = new CommunicationEvent(EventType.COMMUNICATION_SENT, organizationId, projectId, null, null, null, user,
-            dataSnapCommunication, campaign, null, deviceInfo);
+        Event event = new CommunicationEvent(EventType.COMMUNICATION_SENT, dataSnapCommunication, campaign);
         DataSnap.trackEvent(event);
       }
     }
@@ -213,8 +201,7 @@ public class GimbalService extends BaseService {
         Campaign campaign = new Campaign();
         campaign.setIdentifier(projectId);
         campaign.setCommunicationIds(communication.getIdentifier());
-        Event event = new CommunicationEvent(EventType.COMMUNICATION_OPEN, organizationId, projectId, null, null, null, user,
-            dataSnapCommunication, campaign, null, deviceInfo);
+        Event event = new CommunicationEvent(EventType.COMMUNICATION_SENT, dataSnapCommunication, campaign);
         DataSnap.trackEvent(event);
       }
     }
@@ -226,8 +213,7 @@ public class GimbalService extends BaseService {
       Geofence geofence = new Geofence();
       geofence.setIdentifier(gimbalPlace.getIdentifier());
       geofence.setName(gimbalPlace.getName());
-      Event event = new GeoFenceEvent(EventType.GEOFENCE_DEPART, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, null,
-          geofence, user, null, deviceInfo);
+      Event event = new GeoFenceEvent(EventType.GEOFENCE_DEPART, null, geofence);
       DataSnap.trackEvent(event);
     }
   }

@@ -21,7 +21,6 @@ import com.datasnap.android.controller.EventDatabaseThread;
 import com.datasnap.android.controller.HTTPRequester;
 import com.datasnap.android.controller.EventWrapper;
 import com.datasnap.android.eventproperties.Device;
-import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.Event;
@@ -75,9 +74,6 @@ public final class DataSnap {
     private static final String FLUSH_QUEUE = "flush_queue";
     private static final String INITIAL_FLUSH_PERIOD = "initial_flush_period";
     private static final String INITIAL_FLUSH_QUEUE = "initial_flush_queue";
-    private static final User user = new User();
-    private static final Id id = new Id();
-    private static DeviceInfo deviceInfo = new DeviceInfo();
     private static GimbalService gimbalService;
     private static EstimoteService estimoteService;
     private static SharedPreferences sharedPreferences;
@@ -120,7 +116,7 @@ public final class DataSnap {
         DataSnap.requestLayer = new RequestThread(requester,  dataSnapContext);
         DataSnap.requestLayer.start();
         // start the flush thread
-        DataSnap.flushLayer = new FlushThread(DataSnap.databaseLayer, batchFactory, DataSnap.requestLayer, dataSnapContext);
+        DataSnap.flushLayer = new FlushThread(DataSnap.databaseLayer, DataSnap.requestLayer, dataSnapContext);
         DataSnap.flushTimer = new HandlerTimer(dsConfig.getFlushAfter(), flushClock);
         initialized = true;
         // start the other threads
@@ -158,7 +154,9 @@ public final class DataSnap {
     }
 
     /**
-     *
+     *  this method turns on and off automatic events sending from Datasnap.
+     *  @param event: the event type, e.g. BEACON_SIGHTING
+     *  @param value: true/false to turn on and off
      */
     public static void setEventEnabled(String event, boolean value) {
         if(event.equals(EventType.BEACON_SIGHTING) || event.equals(EventType.ALL_EVENTS)) {
@@ -207,8 +205,11 @@ public final class DataSnap {
         }
     }
 
-    // this method changes the parameters to determine when to sync with the server. Duration triggers
-    // synchronization every period of time, while maxElements is the size of the queue before sync is triggered.
+    /**
+     *  this method changes the parameters to determine when to sync with the server.
+     *  @param durationInMillis: time to be waited for periodic sync
+     *  @param maxElements: queue size for queue driven sync. e.g. 30 --> sync is triggered after 30 elements are added
+     */
     public static void setFlushParams(int durationInMillis, int maxElements){
         sharedPreferences.edit().putInt(INITIAL_FLUSH_PERIOD, durationInMillis).commit();
         sharedPreferences.edit().putInt(FLUSH_PERIOD, durationInMillis).commit();
@@ -241,47 +242,18 @@ public final class DataSnap {
     }
 
     private static void initializeData() {
-        String android_id = Settings.Secure.getString(dataSnapContext.getContentResolver(),
-            Settings.Secure.ANDROID_ID);
-        id.setGlobalDistinctId(android_id);
-        Device device = new Device();
-        deviceInfo.setCreated(getTime());
-        device.setIpAddress(getIpAddress());
-        device.setPlatform(android.os.Build.VERSION.SDK);
-        device.setOsVersion(System.getProperty("os.version"));
-        device.setModel(android.os.Build.MODEL);
-        device.setManufacturer(android.os.Build.MANUFACTURER);
-        device.setName(android.os.Build.DEVICE);
-        device.setVendorId(android.os.Build.BRAND);
-        TelephonyManager manager = (TelephonyManager) dataSnapContext.getSystemService(Context.TELEPHONY_SERVICE);
-        device.setCarrierName(manager.getNetworkOperatorName());
-        deviceInfo.setDevice(device);
-        DeviceInfo.initialize(deviceInfo);
-        User.initialize(user);
+        Device.initialize(dataSnapContext);
         final Handler mainHandler = new Handler(dataSnapContext.getMainLooper());
         final Runnable mainRunnable = new Runnable() {
             @Override
             public void run() {
-                onDataInitialized();
+                initializeVendorServices();
             }
         };
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    AdvertisingIdClient.Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(dataSnapContext);
-                    id.setMobileDeviceGoogleAdvertisingId(adInfo.isLimitAdTrackingEnabled() ? adInfo.getId() : "");
-                    id.setMobileDeviceGoogleAdvertisingIdOptIn("" + adInfo.isLimitAdTrackingEnabled());
-                    user.setId(id);
-                    User.initialize(user);
-                    mainHandler.post(mainRunnable);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        User.initialize(mainHandler, mainRunnable, dataSnapContext);
     }
 
-    private static void onDataInitialized(){
+    private static void initializeVendorServices(){
         Intent intent;
         if(vendorProperties == null)
             return;
@@ -302,7 +274,7 @@ public final class DataSnap {
             }
         }
         if(sharedPreferences.getBoolean(PREFERENCE_FIRST_RUN, true)){
-            Event event = new InteractionEvent(EventType.APP_INSTALLED, dsConfig.getOrgId(), dsConfig.getProjectId(), null, null, null, user, null, null);
+            Event event = new InteractionEvent(EventType.APP_INSTALLED);
             trackEvent(event);
             sharedPreferences.edit().putBoolean(PREFERENCE_FIRST_RUN, false).commit();
         }
@@ -377,29 +349,6 @@ public final class DataSnap {
             } else {
                 gimbalService.releaseGimbalGeofenceDepartListener();
             }
-        }
-    };
-
-    private static String getIpAddress() {
-        WifiManager wifiMan = (WifiManager) dataSnapContext.getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInf = wifiMan.getConnectionInfo();
-        int ipAddress = wifiInf.getIpAddress();
-        String ip = String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff), (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
-        return ip;
-    }
-
-    private static String getTime() {
-        Calendar c = Calendar.getInstance();
-        Date d = c.getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss ZZ");
-        return sdf.format(d);
-    }
-
-    // Factory that creates batches from event payloads.
-    private static BatchFactory batchFactory = new BatchFactory() {
-        @Override
-        public List<EventWrapper>  create(List<EventWrapper> payloads) {
-            return new ArrayList<EventWrapper> (payloads);
         }
     };
 
@@ -481,6 +430,6 @@ public final class DataSnap {
     }
 
     private static boolean isInitialized() {
-        return initialized && User.getInstance() != null && DeviceInfo.getInstance() != null && DsConfig.getInstance() != null;
+        return initialized && User.getInstance() != null && DsConfig.getInstance() != null;
     }
 }

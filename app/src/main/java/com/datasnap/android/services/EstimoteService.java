@@ -11,10 +11,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.datasnap.android.DataSnap;
-import com.datasnap.android.eventproperties.Device;
-import com.datasnap.android.eventproperties.DeviceInfo;
-import com.datasnap.android.eventproperties.Id;
-import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
 import com.datasnap.android.events.Event;
 import com.datasnap.android.events.EventType;
@@ -69,8 +65,7 @@ public class EstimoteService extends BaseService {
           beacon.setRssi("" + estimoteBeacon.getRssi());
           beacon.setName(estimoteBeacon.getName());
           beacon.setBleVendorId("Estimote");
-          Event event = new BeaconEvent(EventType.BEACON_SIGHTING, organizationId, projectId, null, null, null, null, user, beacon,
-              deviceInfo, null);
+          Event event = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon);
           DataSnap.trackEvent(event);
         }
       }

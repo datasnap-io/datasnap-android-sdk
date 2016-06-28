@@ -13,7 +13,6 @@ import com.datasnap.android.controller.EventDatabase;
 import com.datasnap.android.controller.EventWrapper;
 import com.datasnap.android.eventproperties.Beacon;
 import com.datasnap.android.eventproperties.Device;
-import com.datasnap.android.eventproperties.DeviceInfo;
 import com.datasnap.android.eventproperties.Id;
 import com.datasnap.android.eventproperties.User;
 import com.datasnap.android.events.BeaconEvent;
@@ -44,7 +43,6 @@ public class EventDatabaseTest {
   private EventDatabase database;
   private Beacon beacon1;
   private Beacon beacon2;
-  DeviceInfo deviceInfo;
   User user;
   Gson gson;
 
@@ -58,16 +56,7 @@ public class EventDatabaseTest {
     beacon2 = new Beacon();
     beacon2.setIdentifier("sample identifier 2");
     beacon2.setName("sample name 2");
-    deviceInfo = new DeviceInfo();
-    deviceInfo.setDevice(new Device());
 
-    user = new User();
-    Id id = new Id();
-    String android_id = "sample id";
-    id.setGlobalDistinctId(android_id);
-    id.setMobileDeviceGoogleAdvertisingId("sample ad id");
-    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
-    user.setId(id);
     String apiKeyId = "API KEY";
     String apiKeySecret = "API SECRET";
     Config config = new Config();
@@ -90,8 +79,7 @@ public class EventDatabaseTest {
   
   @Test
   public void shouldAddEvent() throws Exception {
-    Event event = new BeaconEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, null, user,
-        beacon1, deviceInfo, null);
+    Event event = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon1);
     String json = gson.toJson(event);
     EventWrapper eventWrapper = new EventWrapper(json);
     List<Pair<Long, EventWrapper>> beaconEvents = database.getEvents(10);
@@ -103,13 +91,11 @@ public class EventDatabaseTest {
 
   @Test
   public void shouldGetEvents() throws Exception {
-    Event event1 = new BeaconEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, null, user,
-        beacon1, deviceInfo, null);
+    Event event1 = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon1);
     String json = gson.toJson(event1);
     EventWrapper eventWrapper1 = new EventWrapper(json);
     database.addEvent(eventWrapper1);
-    Event event2 = new BeaconEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, null, user,
-        beacon2, deviceInfo, null);
+    Event event2 = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon2);
     json = gson.toJson(event2);
     EventWrapper eventWrapper2 = new EventWrapper(json);
     database.addEvent(eventWrapper2);
@@ -121,8 +107,7 @@ public class EventDatabaseTest {
 
   @Test
   public void shouldRemoveEvents() throws Exception {
-    Event event = new BeaconEvent(EventType.BEACON_SIGHTING, DsConfig.getInstance().getOrgId(), DsConfig.getInstance().getProjectId(), null, null, null, null, user,
-        beacon1, deviceInfo, null);
+    Event event = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon1);
     String json = gson.toJson(event);
     EventWrapper eventWrapper = new EventWrapper(json);
     database.addEvent(eventWrapper);
