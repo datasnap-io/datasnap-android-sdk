@@ -26,6 +26,19 @@ public interface IFlushLayer extends IThreadedLayer {
     void onFlushCompleted(boolean success, List<EventWrapper> batch, int statusCode);
   }
 
+  /**
+   * Callback for the
+   * {@link IFlushLayer#flush(IFlushLayer.FlushCallback)} method
+   */
+  public interface FlushInternalCallback {
+    /**
+     * Called when all messages have been flushed from the queue
+     *
+     * @param success True for successful flush, false for not.
+     */
+    void onInternalFlushCompleted(boolean success, List<EventWrapper> batch, int statusCode);
+  }
+
   //
   // Methods
   //

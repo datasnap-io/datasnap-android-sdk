@@ -73,7 +73,7 @@ import static org.junit.Assert.assertThat;
 public class DataSnapTest {
 
   private EventDatabase database;
-  private String sampleEventJson = "{\"beacon\":{\"battery_level\":\"high\",\"ble_vendor_id\":\"Gimbal\",\"identifier\":\"sample-identifier\",\"name\":\"sample identifier\",\"rssi\":\"sample rssi\"},\"datasnap\":{\"created\":\"created date\",\"device\":{\"carrier_name\":\"sample carrier name\",\"ip_address\":\"sample ip\",\"manufacturer\":\"Genymotion\",\"model\":\"model\",\"name\":\"vbox86tp\",\"os_version\":\"os.version\",\"platform\":\"sample platform\",\"vendor_id\":\"generic\"},\"version\":\"sample version\"},\"event_type\":\"beacon_sighting\",\"organization_ids\":[\"MY_ORGANIZATION\"],\"project_ids\":[\"MY_PROJECT\"],\"user\":{\"id\":{\"global_distinct_id\":\"sample android id\",\"mobile_device_google_advertising_id\":\"sample id\",\"mobile_device_google_advertising_id_opt_in\":\"true\"}}}";
+  private String sampleEventJson = "{\"beacon\":{\"battery_level\":\"high\",\"ble_vendor_id\":\"Gimbal\",\"identifier\":\"sample-identifier\",\"name\":\"sample identifier\",\"rssi\":\"sample rssi\"},\"datasnap\":{\"created\":\"created date\",\"device\":{\"carrier_name\":\"sample carrier name\",\"ip_address\":\"sample ip\",\"manufacturer\":\"sample manufacturer\",\"model\":\"model\",\"name\":\"sample name\",\"os_version\":\"os.version\",\"platform\":\"sample platform\",\"vendor_id\":\"generic\"},\"version\":\"sample version\"},\"event_type\":\"beacon_sighting\",\"organization_ids\":[\"MY_ORGANIZATION\"],\"project_ids\":[\"MY_PROJECT\"],\"user\":{\"id\":{\"global_distinct_id\":\"sample android id\",\"mobile_device_google_advertising_id\":\"sample id\",\"mobile_device_google_advertising_id_opt_in\":\"true\"}}}";
   private WifiManager wifiManager;
   private Event sampleEvent;
 
@@ -122,6 +122,8 @@ public class DataSnapTest {
     device.setOsVersion("os.version");
     device.setModel("model");
     device.setCarrierName("sample carrier name");
+    device.setManufacturer("sample manufacturer");
+    device.setName("sample name");
     id.setMobileDeviceGoogleAdvertisingId("sample id");
     id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
     user.setId(id);
@@ -259,20 +261,22 @@ public class DataSnapTest {
   public void shouldFlushAutomaticallyIfDataAccumulated() throws Exception {
     //setting the time to a large number will make the flushing be driven by the queue
     //and not by the queue getting filled up
+    long waitTime = DsConfig.getInstance().getFlushAfter();
     DataSnap.setFlushParams(300000, 50);
+    Thread.sleep(waitTime);
     GsonBuilder gsonBuilder = new GsonBuilder();
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
     Gson gson = gsonBuilder.create();
     String json = gson.toJson(sampleEvent);
     EventWrapper eventWrapper = new EventWrapper(json);
-    for (int i = 0; i < 400; i++) {
+    HTTPRequester.startRequestCount();
+    FlushThread.startTrackingRanges();
+    for (int i = 0; i < 395; i++) {
       database.addEvent(eventWrapper);
     }
     setMockedResponse(200);
-    HTTPRequester.startRequestCount();
-    FlushThread.startTrackingRanges();
     DataSnap.trackEvent(sampleEvent);
-    Thread.sleep(20000);
+    Thread.sleep(10000);
     HTTPRequester.stopRequestCount();
     FlushThread.stopTrackingRanges();
     int last = 0;
@@ -281,15 +285,14 @@ public class DataSnapTest {
         assertTrue(range.first == last + 1);
 
       if (!FlushThread.getRanges().get(FlushThread.getRanges().size() - 1).equals(range)) {
-//        throw new Exception("range first is: " + range.second + " and rage second is " + range.second + " and count is "+ );
         assertTrue(range.second == range.first + DsConfig.getInstance().getFlushAt() - 1);
       }
       last = range.second;
     }
-    //exactly 9 requests were sent:
-    assertTrue(HTTPRequester.getRequestCount() == 9);
-    //all items were sent:
-    assertTrue(database.getEvents(10).size() == 0);
+    //exactly 7 requests were sent:
+    assertTrue(HTTPRequester.getRequestCount() == 7);
+    //46 items are remaining(the remainder of (395+1)%50):
+    assertTrue(database.getEvents(100).size() == 46);
   }
 
   //verifies that requests with bad data are not reattempted clogging the stream of data going to the

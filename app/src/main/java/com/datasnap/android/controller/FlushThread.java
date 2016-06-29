@@ -81,9 +81,9 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
         // we want to wait until the flush completes
         final CountDownLatch latch = new CountDownLatch(1);
         Logger.d("Starting flush operation ..");
-        flushNextEvent(new FlushCallback() {
+        flushNextEvent(new FlushInternalCallback() {
           @Override
-          public void onFlushCompleted(boolean success, List<EventWrapper> batch, int statusCode) {
+          public void onInternalFlushCompleted(boolean success, List<EventWrapper> batch, int statusCode) {
             if ((success || statusCode == 400) && EventDatabase.getInstance().getRowCount() > DsConfig.getInstance().getFlushAt()) {
               // we successfully sent a eventListContainer to the server, and we might
               // have more to send, so lets trigger another flush
@@ -117,7 +117,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
   /**
    * Flushes the next payload asynchronously.
    */
-  private void flushNextEvent(final FlushCallback callback) {
+  private void flushNextEvent(final FlushInternalCallback callback) {
     // ask the database for the next payload batch
     databaseLayer.nextEvent(new PayloadCallback() {
       @Override
@@ -136,7 +136,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
         if (batch.size() == 0) {
           // there is nothing to flush, we're done
           if (callback != null)
-            callback.onFlushCompleted(true, batch, 0);
+            callback.onInternalFlushCompleted(true, batch, 0);
         } else {
           Logger.d("Sending events to the servers .. %s", range);
           // now let's make a request on the flushing thread
@@ -164,7 +164,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                       Logger.e("We failed to remove payload from the database. %s", range);
 
                       if (callback != null)
-                        callback.onFlushCompleted(false, batch, statusCode);
+                        callback.onInternalFlushCompleted(false, batch, statusCode);
                     } else if (removed == 0) {
 
                       for (int i = 0; i < removed; i += 1)
@@ -173,7 +173,7 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                       Logger.e("We didn't end up removing anything from the database. %s", range);
 
                       if (callback != null)
-                        callback.onFlushCompleted(false, batch, statusCode);
+                        callback.onInternalFlushCompleted(false, batch, statusCode);
                     } else {
 
                       for (int i = 0; i < removed; i += 1)
@@ -182,12 +182,12 @@ public class FlushThread extends LooperThreadWithHandler implements IFlushLayer 
                       Logger.d("Successfully removed items from the flush db. %s", range);
 
                       if (callback != null)
-                        callback.onFlushCompleted(true, batch, statusCode);
+                        callback.onInternalFlushCompleted(true, batch, statusCode);
                     }
                   }
                 });
               } else if (callback != null)
-                callback.onFlushCompleted(false, batch, statusCode);
+                callback.onInternalFlushCompleted(false, batch, statusCode);
             }
           });
         }
