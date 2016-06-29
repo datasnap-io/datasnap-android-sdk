@@ -40,7 +40,8 @@ public class Config {
     public Builder() {
 
     }
-    public Config build(){
+
+    public Config build() {
       //TODO check that data is initialized
       return new Config(this);
     }

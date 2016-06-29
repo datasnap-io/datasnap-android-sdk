@@ -48,6 +48,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -135,10 +136,10 @@ public class DataSnapTest {
     event.getDatasnap().setVersion("sample version");
     event.getDatasnap().setCreated("created date");
     event.setUser(user);
-    final ConnectivityManager connectivityManager = Mockito.mock( ConnectivityManager.class );
-    final NetworkInfo networkInfo = Mockito.mock( NetworkInfo.class );
-    Mockito.when( connectivityManager.getActiveNetworkInfo()).thenReturn( networkInfo );
-    Mockito.when( networkInfo.isConnected() ).thenReturn( false );
+    final ConnectivityManager connectivityManager = Mockito.mock(ConnectivityManager.class);
+    final NetworkInfo networkInfo = Mockito.mock(NetworkInfo.class);
+    Mockito.when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
+    Mockito.when(networkInfo.isConnected()).thenReturn(false);
     DataSnap.trackEvent(event);
     Thread.sleep(1000);
     List<Pair<Long, EventWrapper>> events = database.getEvents(10);
@@ -186,7 +187,7 @@ public class DataSnapTest {
     wifiManager.setWifiEnabled(true);
     int timeSlots = 0;
     while (activeNetworkInfo == null || !activeNetworkInfo.isConnected()) {
-      if(timeSlots > 10)
+      if (timeSlots > 10)
         throw new IllegalStateException("Datasnap tests need to be run on a phone that is connected to the internet.");
       Thread.sleep(3000);
       activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -204,17 +205,17 @@ public class DataSnapTest {
   public void shouldHandleLackOfConnectivityMockingNetworkInfo() throws InterruptedException {
     DataSnap.setFlushParams(2000, 10);
     Thread.sleep(1000);
-    final ConnectivityManager connectivityManager = Mockito.mock( ConnectivityManager.class );
-    final NetworkInfo networkInfo = Mockito.mock( NetworkInfo.class );
-    Mockito.when( connectivityManager.getActiveNetworkInfo()).thenReturn( networkInfo );
-    Mockito.when( networkInfo.isConnected() ).thenReturn( false );
+    final ConnectivityManager connectivityManager = Mockito.mock(ConnectivityManager.class);
+    final NetworkInfo networkInfo = Mockito.mock(NetworkInfo.class);
+    Mockito.when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
+    Mockito.when(networkInfo.isConnected()).thenReturn(false);
     HTTPRequester.startRequestCount();
     DataSnap.trackEvent(sampleEvent);
     //we need to wait long enough in order to prove that requests weren't attempted at all and it wouldn't
     //be a matter of waiting
     Thread.sleep(DsConfig.getInstance().getFlushAfter() + 3000);
     assertTrue(HTTPRequester.getRequestCount() == 0);
-    Mockito.when( networkInfo.isConnected() ).thenReturn( true );
+    Mockito.when(networkInfo.isConnected()).thenReturn(true);
     Thread.sleep(DsConfig.getInstance().getFlushAfter() + 10000);
     assertTrue(HTTPRequester.getRequestCount() == 1);
   }
@@ -275,11 +276,11 @@ public class DataSnapTest {
     HTTPRequester.stopRequestCount();
     FlushThread.stopTrackingRanges();
     int last = 0;
-    for(Pair<Integer, Integer> range: FlushThread.getRanges()){
-      if(last > 0)
+    for (Pair<Integer, Integer> range : FlushThread.getRanges()) {
+      if (last > 0)
         assertTrue(range.first == last + 1);
 
-      if(!FlushThread.getRanges().get(FlushThread.getRanges().size() - 1).equals(range)) {
+      if (!FlushThread.getRanges().get(FlushThread.getRanges().size() - 1).equals(range)) {
 //        throw new Exception("range first is: " + range.second + " and rage second is " + range.second + " and count is "+ );
         assertTrue(range.second == range.first + DsConfig.getInstance().getFlushAt() - 1);
       }
@@ -335,11 +336,11 @@ public class DataSnapTest {
     assertTrue(database.getEvents(10).size() > 5);
   }
 
-  private Event getSampleEvent(){
+  private Event getSampleEvent() {
     return new InteractionEvent(EventType.BEACON_SIGHTING);
   }
 
-  private void setMockedResponse(final int statusCode){
+  private void setMockedResponse(final int statusCode) {
     HTTPRequester.setMockedResponse(new HttpResponse() {
       @Override
       public StatusLine getStatusLine() {

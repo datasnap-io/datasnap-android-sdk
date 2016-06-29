@@ -10,29 +10,29 @@ import java.util.List;
  */
 public interface IRequestLayer extends IThreadedLayer {
 
-    //
-    // Callbacks
-    //
+  //
+  // Callbacks
+  //
 
+  /**
+   * Callback for the #flush method
+   */
+  public interface EventRequestCallback {
     /**
-     * Callback for the #flush method
+     * Called when a send request to the server is completed.
+     *
+     * @param success True for a successful request, false for not.
      */
-    public interface EventRequestCallback {
-        /**
-         * Called when a send request to the server is completed.
-         *
-         * @param success True for a successful request, false for not.
-         */
-        void onRequestCompleted(boolean success, int statusCode);
-    }
+    void onRequestCompleted(boolean success, int statusCode);
+  }
 
-    //
-    // Methods
-    //
+  //
+  // Methods
+  //
 
-    /**
-     * Send events to the server.
-     */
-    void send(List<EventWrapper> batch, EventRequestCallback callback);
+  /**
+   * Send events to the server.
+   */
+  void send(List<EventWrapper> batch, EventRequestCallback callback);
 
 }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
  */
 public class VendorProperties {
 
-  public enum Vendor{
+  public enum Vendor {
     GIMBAL,
     ESTIMOTE
   }

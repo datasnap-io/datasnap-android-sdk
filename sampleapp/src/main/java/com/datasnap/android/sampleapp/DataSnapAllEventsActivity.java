@@ -50,261 +50,261 @@ import java.util.List;
 public class DataSnapAllEventsActivity extends Activity {
 
 
-    protected User user;
-    protected final Id id = new Id();
-    protected Device device;
+  protected User user;
+  protected final Id id = new Id();
+  protected Device device;
 
-    private Button beaconSighting;
-    private Button beaconDepart;
-    private Button beaconArrive;
-    private Button geofenceDepart;
-    private Button globalPositionSighting;
-    private Button communicationOpen;
-    private Button communicationSent;
-    private Button appInstalled;
-    private Button optInVendor;
-    private Button optIntPushNotification;
-    private Button optInLocation;
-    private Button statusPing;
+  private Button beaconSighting;
+  private Button beaconDepart;
+  private Button beaconArrive;
+  private Button geofenceDepart;
+  private Button globalPositionSighting;
+  private Button communicationOpen;
+  private Button communicationSent;
+  private Button appInstalled;
+  private Button optInVendor;
+  private Button optIntPushNotification;
+  private Button optInLocation;
+  private Button statusPing;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_all_events);
-        String apiKeyId = "MY_API_KEY";
-        String apiKeySecret = "MY_API_SECRET";
-        Config config = new Config.Builder()
-            .setApiKeyId(apiKeyId)
-            .setApiKeySecret(apiKeySecret)
-            .setOrganizationId("MY_ORGANIZATION")
-            .setProjectId("MY_PROJECT")
-            .build();
-        DataSnap.initialize(getApplicationContext(), config);
-        user = User.getInstance();
-        device = Device.getInstance();
-        beaconSighting = (Button) findViewById(R.id.beacon_sighting);
-        beaconDepart = (Button) findViewById(R.id.beacon_depart);
-        beaconArrive = (Button) findViewById(R.id.beacon_arrive);
-        geofenceDepart = (Button) findViewById(R.id.geofence_depart);
-        globalPositionSighting = (Button) findViewById(R.id.global_position_sighting);
-        communicationOpen = (Button) findViewById(R.id.ds_communication_open);
-        communicationSent = (Button) findViewById(R.id.ds_communication_sent);
-        appInstalled = (Button) findViewById(R.id.app_installed);
-        optInVendor = (Button) findViewById(R.id.opt_in_vendor);
-        optIntPushNotification = (Button) findViewById(R.id.opt_in_push_notifications);
-        optInLocation = (Button) findViewById(R.id.opt_in_location);
-        statusPing = (Button) findViewById(R.id.status_ping);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_all_events);
+    String apiKeyId = "MY_API_KEY";
+    String apiKeySecret = "MY_API_SECRET";
+    Config config = new Config.Builder()
+        .setApiKeyId(apiKeyId)
+        .setApiKeySecret(apiKeySecret)
+        .setOrganizationId("MY_ORGANIZATION")
+        .setProjectId("MY_PROJECT")
+        .build();
+    DataSnap.initialize(getApplicationContext(), config);
+    user = User.getInstance();
+    device = Device.getInstance();
+    beaconSighting = (Button) findViewById(R.id.beacon_sighting);
+    beaconDepart = (Button) findViewById(R.id.beacon_depart);
+    beaconArrive = (Button) findViewById(R.id.beacon_arrive);
+    geofenceDepart = (Button) findViewById(R.id.geofence_depart);
+    globalPositionSighting = (Button) findViewById(R.id.global_position_sighting);
+    communicationOpen = (Button) findViewById(R.id.ds_communication_open);
+    communicationSent = (Button) findViewById(R.id.ds_communication_sent);
+    appInstalled = (Button) findViewById(R.id.app_installed);
+    optInVendor = (Button) findViewById(R.id.opt_in_vendor);
+    optIntPushNotification = (Button) findViewById(R.id.opt_in_push_notifications);
+    optInLocation = (Button) findViewById(R.id.opt_in_location);
+    statusPing = (Button) findViewById(R.id.status_ping);
 
 
-        String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
-            Settings.Secure.ANDROID_ID);
-        id.setGlobalDistinctId(android_id);
-        device.setIpAddress(getIpAddress());
-        device.setPlatform(android.os.Build.VERSION.SDK);
-        device.setOsVersion(System.getProperty("os.version"));
-        device.setModel(android.os.Build.MODEL);
-        device.setManufacturer(android.os.Build.MANUFACTURER);
-        device.setName(android.os.Build.DEVICE);
-        device.setVendorId(android.os.Build.BRAND);
-        TelephonyManager manager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-        device.setCarrierName(manager.getNetworkOperatorName());
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    com.google.android.gms.ads.identifier.AdvertisingIdClient.Info adInfo = com.google.android.gms.ads.identifier.AdvertisingIdClient.getAdvertisingIdInfo(getApplicationContext());
-                    id.setMobileDeviceGoogleAdvertisingId(adInfo.getId());
-                    id.setMobileDeviceGoogleAdvertisingIdOptIn("" + adInfo.isLimitAdTrackingEnabled());
-                    user.setId(id);
-                } catch (Exception e) {
-                    id.setMobileDeviceGoogleAdvertisingId("sample id");
-                    id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
-                    user.setId(id);
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-        beaconSighting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Beacon beacon = new Beacon();
-                beacon.setIdentifier("sample-identifier");
-                beacon.setBatteryLevel("high");
-                beacon.setRssi("sample rssi");
-                beacon.setName("sample identifier");
-                beacon.setBleVendorId("Gimbal");
-                Event event = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon);
-                DataSnap.trackEvent(event);
-            }
-        });
-        beaconDepart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String eventType = "beacon_depart";
-                Beacon beacon = new Beacon();
-                beacon.setIdentifier("sample-identifier");
-                beacon.setBatteryLevel("high");
-                beacon.setRssi("sample rssi");
-                beacon.setName("sample identifier");
-                beacon.setBleVendorId("Gimbal");
-                Event event = new BeaconEvent(EventType.BEACON_DEPART, null, beacon);
-                DataSnap.trackEvent(event);
-            }
-        });
-        beaconArrive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Beacon beacon = new Beacon();
-                beacon.setIdentifier("sample-identifier");
-                beacon.setBatteryLevel("high");
-                beacon.setRssi("sample rssi");
-                beacon.setName("sample identifier");
-                beacon.setBleVendorId("Gimbal");
-                Event event = new BeaconEvent(EventType.BEACON_ARRIVED, null, beacon);
-                DataSnap.trackEvent(event);
-            }
-        });
-        geofenceDepart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Place place = new Place();
-                Geofence geofence = new Geofence();
-                Event event = new GeoFenceEvent(EventType.GEOFENCE_DEPART, place, geofence);
-                DataSnap.trackEvent(event);
-            }
-        });
-        final Context self = this;
-        globalPositionSighting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String eventType = "global_position_sighting";
-                final GlobalPosition globalPosition = new GlobalPosition();
-                final BigDecimal[] coordinates = new BigDecimal[2];
-                LocationManager locationManager = (LocationManager)
-                    getSystemService(Context.LOCATION_SERVICE);
-                LocationListener locationListener = new LocationListener() {
-                    @Override
-                    public void onLocationChanged(android.location.Location location) {
-                        coordinates[0] = new BigDecimal(location.getLatitude());
-                        coordinates[1] = new BigDecimal(location.getLongitude());
-                        Location loc = new Location(coordinates);
-                        globalPosition.setLocation(loc);
-                        Event event = new GlobalPositionEvent(EventType.GLOBAL_POSITION_SIGHTING, globalPosition);
-                        DataSnap.trackEvent(event);
-                    }
-
-                    @Override
-                    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-                    }
-
-                    @Override
-                    public void onProviderEnabled(String provider) {
-
-                    }
-
-                    @Override
-                    public void onProviderDisabled(String provider) {
-
-                    }
-                };
-                locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
-            }
-        });
-        communicationOpen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Communication communication = new Communication();
-                communication.setIdentifier("sample communication identifier");
-                communication.setCommunicationVendorId(DsConfig.getInstance().getOrgId());
-                Campaign campaign = new Campaign();
-                campaign.setCommunicationIds(communication.getIdentifier());
-                campaign.setIdentifier("sample campaign identifier");
-                campaign.setName("sample campaign name");
-                communication.setName("sample communication name");
-                Event event = new CommunicationEvent(EventType.COMMUNICATION_OPEN, communication, campaign);
-                DataSnap.trackEvent(event);
-            }
-        });
-        communicationSent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Communication communication = new Communication();
-                communication.setIdentifier("sample communication identifier");
-                communication.setCommunicationVendorId(DsConfig.getInstance().getOrgId());
-                Campaign campaign = new Campaign();
-                campaign.setCommunicationIds(communication.getIdentifier());
-                campaign.setIdentifier("sample campaign identifier");
-                campaign.setName("sample campaign name");
-                communication.setName("sample communication name");
-                Event event = new CommunicationEvent(EventType.COMMUNICATION_SENT, communication, campaign);
-                DataSnap.trackEvent(event);
-            }
-        });
-        appInstalled.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Event event = new InteractionEvent(EventType.APP_INSTALLED);
-                DataSnap.trackEvent(event);
-            }
-        });
-        optInVendor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Event event = new InteractionEvent(EventType.OPT_IN_VENDOR);
-                DataSnap.trackEvent(event);
-            }
-        });
-        optIntPushNotification.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Event event = new InteractionEvent(EventType.OPT_IN_PUSH_NOTIFICATIONS);
-                DataSnap.trackEvent(event);
-            }
-        });
-        optInLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Event event = new InteractionEvent(EventType.OPT_IN_LOCATION);
-                DataSnap.trackEvent(event);
-            }
-        });
-        statusPing.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String eventType = "status_ping";
-                Toast.makeText(self, "Not implemented yet", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
+    String android_id = Settings.Secure.getString(getApplicationContext().getContentResolver(),
+        Settings.Secure.ANDROID_ID);
+    id.setGlobalDistinctId(android_id);
+    device.setIpAddress(getIpAddress());
+    device.setPlatform(android.os.Build.VERSION.SDK);
+    device.setOsVersion(System.getProperty("os.version"));
+    device.setModel(android.os.Build.MODEL);
+    device.setManufacturer(android.os.Build.MANUFACTURER);
+    device.setName(android.os.Build.DEVICE);
+    device.setVendorId(android.os.Build.BRAND);
+    TelephonyManager manager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+    device.setCarrierName(manager.getNetworkOperatorName());
+    new Thread(new Runnable() {
+      public void run() {
+        try {
+          com.google.android.gms.ads.identifier.AdvertisingIdClient.Info adInfo = com.google.android.gms.ads.identifier.AdvertisingIdClient.getAdvertisingIdInfo(getApplicationContext());
+          id.setMobileDeviceGoogleAdvertisingId(adInfo.getId());
+          id.setMobileDeviceGoogleAdvertisingIdOptIn("" + adInfo.isLimitAdTrackingEnabled());
+          user.setId(id);
+        } catch (Exception e) {
+          id.setMobileDeviceGoogleAdvertisingId("sample id");
+          id.setMobileDeviceGoogleAdvertisingIdOptIn("true");
+          user.setId(id);
+          e.printStackTrace();
         }
-        return super.onOptionsItemSelected(item);
-    }
+      }
+    }).start();
+    beaconSighting.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Beacon beacon = new Beacon();
+        beacon.setIdentifier("sample-identifier");
+        beacon.setBatteryLevel("high");
+        beacon.setRssi("sample rssi");
+        beacon.setName("sample identifier");
+        beacon.setBleVendorId("Gimbal");
+        Event event = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon);
+        DataSnap.trackEvent(event);
+      }
+    });
+    beaconDepart.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        String eventType = "beacon_depart";
+        Beacon beacon = new Beacon();
+        beacon.setIdentifier("sample-identifier");
+        beacon.setBatteryLevel("high");
+        beacon.setRssi("sample rssi");
+        beacon.setName("sample identifier");
+        beacon.setBleVendorId("Gimbal");
+        Event event = new BeaconEvent(EventType.BEACON_DEPART, null, beacon);
+        DataSnap.trackEvent(event);
+      }
+    });
+    beaconArrive.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Beacon beacon = new Beacon();
+        beacon.setIdentifier("sample-identifier");
+        beacon.setBatteryLevel("high");
+        beacon.setRssi("sample rssi");
+        beacon.setName("sample identifier");
+        beacon.setBleVendorId("Gimbal");
+        Event event = new BeaconEvent(EventType.BEACON_ARRIVED, null, beacon);
+        DataSnap.trackEvent(event);
+      }
+    });
+    geofenceDepart.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Place place = new Place();
+        Geofence geofence = new Geofence();
+        Event event = new GeoFenceEvent(EventType.GEOFENCE_DEPART, place, geofence);
+        DataSnap.trackEvent(event);
+      }
+    });
+    final Context self = this;
+    globalPositionSighting.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        final String eventType = "global_position_sighting";
+        final GlobalPosition globalPosition = new GlobalPosition();
+        final BigDecimal[] coordinates = new BigDecimal[2];
+        LocationManager locationManager = (LocationManager)
+            getSystemService(Context.LOCATION_SERVICE);
+        LocationListener locationListener = new LocationListener() {
+          @Override
+          public void onLocationChanged(android.location.Location location) {
+            coordinates[0] = new BigDecimal(location.getLatitude());
+            coordinates[1] = new BigDecimal(location.getLongitude());
+            Location loc = new Location(coordinates);
+            globalPosition.setLocation(loc);
+            Event event = new GlobalPositionEvent(EventType.GLOBAL_POSITION_SIGHTING, globalPosition);
+            DataSnap.trackEvent(event);
+          }
 
-    public String getIpAddress() {
-        WifiManager wifiMan = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInf = wifiMan.getConnectionInfo();
-        int ipAddress = wifiInf.getIpAddress();
-        String ip = String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff), (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
-        return ip;
-    }
+          @Override
+          public void onStatusChanged(String provider, int status, Bundle extras) {
 
-    public String getTime() {
-        Calendar c = Calendar.getInstance();
-        Date d = c.getTime();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss ZZ");
-        return sdf.format(d);
+          }
+
+          @Override
+          public void onProviderEnabled(String provider) {
+
+          }
+
+          @Override
+          public void onProviderDisabled(String provider) {
+
+          }
+        };
+        locationManager.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
+      }
+    });
+    communicationOpen.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Communication communication = new Communication();
+        communication.setIdentifier("sample communication identifier");
+        communication.setCommunicationVendorId(DsConfig.getInstance().getOrgId());
+        Campaign campaign = new Campaign();
+        campaign.setCommunicationIds(communication.getIdentifier());
+        campaign.setIdentifier("sample campaign identifier");
+        campaign.setName("sample campaign name");
+        communication.setName("sample communication name");
+        Event event = new CommunicationEvent(EventType.COMMUNICATION_OPEN, communication, campaign);
+        DataSnap.trackEvent(event);
+      }
+    });
+    communicationSent.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Communication communication = new Communication();
+        communication.setIdentifier("sample communication identifier");
+        communication.setCommunicationVendorId(DsConfig.getInstance().getOrgId());
+        Campaign campaign = new Campaign();
+        campaign.setCommunicationIds(communication.getIdentifier());
+        campaign.setIdentifier("sample campaign identifier");
+        campaign.setName("sample campaign name");
+        communication.setName("sample communication name");
+        Event event = new CommunicationEvent(EventType.COMMUNICATION_SENT, communication, campaign);
+        DataSnap.trackEvent(event);
+      }
+    });
+    appInstalled.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Event event = new InteractionEvent(EventType.APP_INSTALLED);
+        DataSnap.trackEvent(event);
+      }
+    });
+    optInVendor.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Event event = new InteractionEvent(EventType.OPT_IN_VENDOR);
+        DataSnap.trackEvent(event);
+      }
+    });
+    optIntPushNotification.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Event event = new InteractionEvent(EventType.OPT_IN_PUSH_NOTIFICATIONS);
+        DataSnap.trackEvent(event);
+      }
+    });
+    optInLocation.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Event event = new InteractionEvent(EventType.OPT_IN_LOCATION);
+        DataSnap.trackEvent(event);
+      }
+    });
+    statusPing.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        String eventType = "status_ping";
+        Toast.makeText(self, "Not implemented yet", Toast.LENGTH_SHORT).show();
+      }
+    });
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu_main, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == android.R.id.home) {
+      finish();
+      return true;
     }
+    return super.onOptionsItemSelected(item);
+  }
+
+  public String getIpAddress() {
+    WifiManager wifiMan = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+    WifiInfo wifiInf = wifiMan.getConnectionInfo();
+    int ipAddress = wifiInf.getIpAddress();
+    String ip = String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff), (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
+    return ip;
+  }
+
+  public String getTime() {
+    Calendar c = Calendar.getInstance();
+    Date d = c.getTime();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss ZZ");
+    return sdf.format(d);
+  }
 }

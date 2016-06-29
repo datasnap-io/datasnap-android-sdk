@@ -7,22 +7,21 @@ import java.util.Map;
 
 public class GlobalPositionEvent extends Event {
 
-    @SerializedName("global-position")
-    private GlobalPosition globalPosition;
+  @SerializedName("global-position")
+  private GlobalPosition globalPosition;
 
-    public GlobalPositionEvent(EventType eventType, GlobalPosition globalPosition) {
-        super(eventType);
-        this.globalPosition = globalPosition;
-    }
+  public GlobalPositionEvent(EventType eventType, GlobalPosition globalPosition) {
+    super(eventType);
+    this.globalPosition = globalPosition;
+  }
 
-    public GlobalPosition getGlobalPosition() {
-        return globalPosition;
-    }
+  public GlobalPosition getGlobalPosition() {
+    return globalPosition;
+  }
 
-    public void setGlobalPosition(GlobalPosition globalPosition) {
-        this.globalPosition = globalPosition;
-    }
-
+  public void setGlobalPosition(GlobalPosition globalPosition) {
+    this.globalPosition = globalPosition;
+  }
 
 
 }

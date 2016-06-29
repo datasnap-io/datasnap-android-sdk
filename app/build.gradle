@@ -15,7 +15,7 @@ android {
     }
     buildTypes {
         release {
-             minifyEnabled
+            minifyEnabled
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -26,19 +26,19 @@ android {
 
 dependencies {
     provided fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile ('junit:junit:4.12')
-    androidTestCompile ('com.android.support.test.espresso:espresso-core:2.2.2')
-    androidTestCompile ('com.android.support.test:runner:0.3') {
+    androidTestCompile('junit:junit:4.12')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2')
+    androidTestCompile('com.android.support.test:runner:0.3') {
         exclude group: 'com.android.support', module: 'support-annotations'
         exclude module: 'gson'
     }
     androidTestCompile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile ('com.google.dexmaker:dexmaker:1.2')
-    androidTestCompile ('com.google.dexmaker:dexmaker-mockito:1.2')
+    androidTestCompile('com.google.dexmaker:dexmaker:1.2')
+    androidTestCompile('com.google.dexmaker:dexmaker-mockito:1.2')
     compile 'com.google.android.gms:play-services:6.1.+'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'org.slf4j:slf4j-api:1.7.2'
-    compile group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5.1'
     compile('org.apache.httpcomponents:httpmime:4.3') {
         exclude module: "httpclient"
     }

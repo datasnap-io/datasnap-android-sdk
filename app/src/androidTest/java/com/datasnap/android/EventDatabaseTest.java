@@ -3,6 +3,7 @@ package com.datasnap.android;
 /**
  * Created by paolopelagatti on 5/9/16.
  */
+
 import static android.support.test.InstrumentationRegistry.getTargetContext;
 
 import android.support.test.InstrumentationRegistry;
@@ -76,7 +77,7 @@ public class EventDatabaseTest {
   public void tearDown() throws Exception {
     database.close();
   }
-  
+
   @Test
   public void shouldAddEvent() throws Exception {
     Event event = new BeaconEvent(EventType.BEACON_SIGHTING, null, beacon1);

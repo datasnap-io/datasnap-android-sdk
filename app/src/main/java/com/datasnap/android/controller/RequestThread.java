@@ -46,99 +46,99 @@ import org.json.JSONObject;
  */
 public class RequestThread extends LooperThreadWithHandler implements IRequestLayer {
 
-    private HTTPRequester requester;
-    private Context context;
+  private HTTPRequester requester;
+  private Context context;
 
-    public RequestThread(HTTPRequester requester, Context context) {
-        this.requester = requester;
-        this.context = context;
-    }
-    /**
-     * Performs the request to the server.
-     *
-     */
-    public void send(final List<EventWrapper> batch, final EventRequestCallback callback) {
-        Handler handler = handler();
+  public RequestThread(HTTPRequester requester, Context context) {
+    this.requester = requester;
+    this.context = context;
+  }
 
-        final DsConfig ds = DsConfig.getInstance();
+  /**
+   * Performs the request to the server.
+   */
+  public void send(final List<EventWrapper> batch, final EventRequestCallback callback) {
+    Handler handler = handler();
 
-        handler.post(new Runnable() {
-            @TargetApi(Build.VERSION_CODES.KITKAT)
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                String url = ds.getHost();
-                LinkedList<EventWrapper> list = (LinkedList<EventWrapper>) batch;
-                ArrayList<String> stringArrayList = new ArrayList<String>();
-                StringBuilder builder = new StringBuilder();
-                for (EventWrapper event : list) {
-                    if (builder.length() != 0) {
-                        builder.append(",");
-                    }
-                    builder.append(event.getEventStr());
-                    stringArrayList.add(event.getEventStr());
-                }
-                builder.insert(0,"[");
-                builder.append("]");
-                String finalStr = builder.toString();
+    final DsConfig ds = DsConfig.getInstance();
 
-                HttpPost post = new HttpPost(url);
+    handler.post(new Runnable() {
+      @TargetApi(Build.VERSION_CODES.KITKAT)
+      @Override
+      public void run() {
+        long start = System.currentTimeMillis();
+        String url = ds.getHost();
+        LinkedList<EventWrapper> list = (LinkedList<EventWrapper>) batch;
+        ArrayList<String> stringArrayList = new ArrayList<String>();
+        StringBuilder builder = new StringBuilder();
+        for (EventWrapper event : list) {
+          if (builder.length() != 0) {
+            builder.append(",");
+          }
+          builder.append(event.getEventStr());
+          stringArrayList.add(event.getEventStr());
+        }
+        builder.insert(0, "[");
+        builder.append("]");
+        String finalStr = builder.toString();
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpPost post = new HttpPost(url);
 
-                try (GZIPOutputStream gzos = new GZIPOutputStream(baos)) {
-                    gzos.write(finalStr.getBytes("UTF-8"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-                byte[] finalGzippedBytes = baos.toByteArray();
-                HttpResponse response = null;
-                ByteArrayEntity se = new ByteArrayEntity(finalGzippedBytes);
-                se.setContentType("application/json");
-                post.setHeader("Content-Type", "application/json");
-                post.setHeader("Content-Encoding", "gzip");
-                post.setHeader("Accept", "application/json");
-                post.setHeader("Authorization",
-                        "Basic " + ds.getApiKey());
-                post.setEntity(se);
-                Logger.i("Preparing a request with %s events to the server.", batch.size());
-                Logger.i("Request size is: %s", post.getEntity().getContentLength());
-                response = HTTPRequester.send(post);
-                long duration = System.currentTimeMillis() - start;
-                AnalyticsStatistics.getInstance().updateRequestTime(duration);
-                boolean success = false;
-                int statusCode = response != null ? response.getStatusLine().getStatusCode() : 404;
-                if (response == null) {
-                    // there's been an error
-                    Logger.w("Failed to make request to the server.");
-                    if(!isNetworkAvailable())
-                        success = true;
-                } else if (response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 201  ) {
-                    Logger.d("Successfully sent events to the server" + list.size());
-                    success = true;
-                } else {
-                    try {
-                        // there's been a server error
-                        Logger.e("Received a failed response from the server. %s",
-                                EntityUtils.toString(response.getEntity()));
+        try (GZIPOutputStream gzos = new GZIPOutputStream(baos)) {
+          gzos.write(finalStr.getBytes("UTF-8"));
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
 
-                    } catch (ParseException e) {
-                        Logger.w(e, "Failed to parse the response from the server.");
-                    } catch (IOException e) {
-                        Logger.w(e, "Failed to read the response from the server.");
-                    }
-                }
-                //its all success for now. Any http error will be discarded to not impact device.
-                callback.onRequestCompleted(success, statusCode);
-            }
-        });
-    }
+        byte[] finalGzippedBytes = baos.toByteArray();
+        HttpResponse response = null;
+        ByteArrayEntity se = new ByteArrayEntity(finalGzippedBytes);
+        se.setContentType("application/json");
+        post.setHeader("Content-Type", "application/json");
+        post.setHeader("Content-Encoding", "gzip");
+        post.setHeader("Accept", "application/json");
+        post.setHeader("Authorization",
+            "Basic " + ds.getApiKey());
+        post.setEntity(se);
+        Logger.i("Preparing a request with %s events to the server.", batch.size());
+        Logger.i("Request size is: %s", post.getEntity().getContentLength());
+        response = HTTPRequester.send(post);
+        long duration = System.currentTimeMillis() - start;
+        AnalyticsStatistics.getInstance().updateRequestTime(duration);
+        boolean success = false;
+        int statusCode = response != null ? response.getStatusLine().getStatusCode() : 404;
+        if (response == null) {
+          // there's been an error
+          Logger.w("Failed to make request to the server.");
+          if (!isNetworkAvailable())
+            success = true;
+        } else if (response.getStatusLine().getStatusCode() == 200 || response.getStatusLine().getStatusCode() == 201) {
+          Logger.d("Successfully sent events to the server" + list.size());
+          success = true;
+        } else {
+          try {
+            // there's been a server error
+            Logger.e("Received a failed response from the server. %s",
+                EntityUtils.toString(response.getEntity()));
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-            = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
+          } catch (ParseException e) {
+            Logger.w(e, "Failed to parse the response from the server.");
+          } catch (IOException e) {
+            Logger.w(e, "Failed to read the response from the server.");
+          }
+        }
+        //its all success for now. Any http error will be discarded to not impact device.
+        callback.onRequestCompleted(success, statusCode);
+      }
+    });
+  }
+
+  private boolean isNetworkAvailable() {
+    ConnectivityManager connectivityManager
+        = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+  }
 }

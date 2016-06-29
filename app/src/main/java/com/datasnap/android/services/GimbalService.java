@@ -65,7 +65,7 @@ public class GimbalService extends BaseService {
   }
 
   public void addBeaconSightingListener() {
-    if(gimbalBeaconEventListener!=null)
+    if (gimbalBeaconEventListener != null)
       gimbalBeaconManager.removeListener(gimbalBeaconEventListener);
     gimbalBeaconEventListener = new BeaconEventListener() {
       @Override
@@ -93,32 +93,32 @@ public class GimbalService extends BaseService {
     mainHandler.post(mainRunnable);
   }
 
-  public void addCommunicationSentListener(){
+  public void addCommunicationSentListener() {
     communicationSentListenerActive = true;
   }
 
-  public void addCommunicationOpenListener(){
+  public void addCommunicationOpenListener() {
     communicationOpenListenerActive = true;
   }
 
-  public void addGeofenceDepartListener(){
+  public void addGeofenceDepartListener() {
     geofenceDepartListenerActive = true;
   }
 
-  public void releaseBeaconSightingListener(){
+  public void releaseBeaconSightingListener() {
     gimbalBeaconManager.stopListening();
     gimbalBeaconManager.removeListener(gimbalBeaconEventListener);
   }
 
-  public void releaseCommunicationSentListener(){
+  public void releaseCommunicationSentListener() {
     communicationSentListenerActive = false;
   }
 
-  public void releaseCommunicationOpenListener(){
+  public void releaseCommunicationOpenListener() {
     communicationOpenListenerActive = false;
   }
 
-  public void releaseGeofenceDepartListener(){
+  public void releaseGeofenceDepartListener() {
     geofenceDepartListenerActive = false;
   }
 
@@ -147,7 +147,7 @@ public class GimbalService extends BaseService {
 
   public class DataSnapBinder extends Binder {
     public GimbalService getService() {
-      if(classesLoadingFailed)
+      if (classesLoadingFailed)
         return null;
       return GimbalService.this;
     }
@@ -208,7 +208,7 @@ public class GimbalService extends BaseService {
   }
 
   private void onVisitEndListener(Visit visit) {
-    if(geofenceDepartListenerActive) {
+    if (geofenceDepartListenerActive) {
       com.gimbal.android.Place gimbalPlace = visit.getPlace();
       Geofence geofence = new Geofence();
       geofence.setIdentifier(gimbalPlace.getIdentifier());
@@ -218,8 +218,8 @@ public class GimbalService extends BaseService {
     }
   }
 
-  private void initGimbalCommunicationListener(){
-    communicationListener = new CommunicationListener(){
+  private void initGimbalCommunicationListener() {
+    communicationListener = new CommunicationListener() {
       @Override
       public Collection<Communication> presentNotificationForCommunications(Collection<Communication> communications, Visit visit) {
         return presentNotificationForCommunicationsListener(communications, visit);
@@ -240,7 +240,7 @@ public class GimbalService extends BaseService {
     PlaceManager.getInstance().startMonitoring();
   }
 
-  private void initGimbalPlaceListener(){
+  private void initGimbalPlaceListener() {
     placeEventListener = new PlaceEventListener() {
       @Override
       public void onVisitStart(Visit visit) {
@@ -254,7 +254,7 @@ public class GimbalService extends BaseService {
       }
     };
     PlaceManager.getInstance().addListener(placeEventListener);
-    if(!PlaceManager.getInstance().isMonitoring()){
+    if (!PlaceManager.getInstance().isMonitoring()) {
       PlaceManager.getInstance().startMonitoring();
     }
   }

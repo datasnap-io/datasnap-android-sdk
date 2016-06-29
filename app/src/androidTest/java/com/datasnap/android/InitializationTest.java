@@ -90,7 +90,7 @@ public class InitializationTest {
     assertTrue(sharedPreferences.getBoolean(EventType.GEOFENCE_DEPART.name(), true));
   }
 
-  private Event getSampleEvent(){
+  private Event getSampleEvent() {
     return new InteractionEvent(EventType.BEACON_SIGHTING);
   }
 }

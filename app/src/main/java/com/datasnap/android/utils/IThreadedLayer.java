@@ -6,13 +6,13 @@ package com.datasnap.android.utils;
  */
 public interface IThreadedLayer {
 
-    /**
-     * Starts the threads associated with this layer
-     */
-    void start();
+  /**
+   * Starts the threads associated with this layer
+   */
+  void start();
 
-    /**
-     * Stops the threads associated with this layer
-     */
-    void quit();
+  /**
+   * Stops the threads associated with this layer
+   */
+  void quit();
 }
