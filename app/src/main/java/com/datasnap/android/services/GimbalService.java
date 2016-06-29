@@ -64,7 +64,7 @@ public class GimbalService extends BaseService {
     return true;
   }
 
-  public void addGimbalBeaconSightingListener() {
+  public void addBeaconSightingListener() {
     if(gimbalBeaconEventListener!=null)
       gimbalBeaconManager.removeListener(gimbalBeaconEventListener);
     gimbalBeaconEventListener = new BeaconEventListener() {
@@ -93,32 +93,32 @@ public class GimbalService extends BaseService {
     mainHandler.post(mainRunnable);
   }
 
-  public void addGimbalCommunicationSentListener(){
+  public void addCommunicationSentListener(){
     communicationSentListenerActive = true;
   }
 
-  public void addGimbalCommunicationOpenListener(){
+  public void addCommunicationOpenListener(){
     communicationOpenListenerActive = true;
   }
 
-  public void addGimbalGeofenceDepartListener(){
+  public void addGeofenceDepartListener(){
     geofenceDepartListenerActive = true;
   }
 
-  public void releaseGimbalBeaconSightingListener(){
+  public void releaseBeaconSightingListener(){
     gimbalBeaconManager.stopListening();
     gimbalBeaconManager.removeListener(gimbalBeaconEventListener);
   }
 
-  public void releaseGimbalCommunicationSentListener(){
+  public void releaseCommunicationSentListener(){
     communicationSentListenerActive = false;
   }
 
-  public void releaseGimbalCommunicationOpenListener(){
+  public void releaseCommunicationOpenListener(){
     communicationOpenListenerActive = false;
   }
 
-  public void releaseGimbalGeofenceDepartListener(){
+  public void releaseGeofenceDepartListener(){
     geofenceDepartListenerActive = false;
   }
 

@@ -39,14 +39,14 @@ public class DataSnapGimbalActivity extends Activity {
         VendorProperties vendorProperties = new VendorProperties();
         vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
         vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-        Config config = new Config();
-        config.context = getApplicationContext();
-        config.apiKeyId = apiKeyId;
-        config.apiKeySecret = apiKeySecret;
-        config.organizationId = "MY_ORGANIZATION";
-        config.projectId = "MY_PROJECT";
-        config.vendorProperties = vendorProperties;
-        DataSnap.initialize(config);
+        Config config = new Config.Builder()
+            .setApiKeyId(apiKeyId)
+            .setApiKeySecret(apiKeySecret)
+            .setOrganizationId("MY_ORGANIZATION")
+            .setProjectId("MY_PROJECT")
+            .setVendorProperties(vendorProperties)
+            .build();
+        DataSnap.initialize(getApplicationContext(), config);
         DataSnap.setFlushParams(100000, 50);
         Gimbal.setApiKey(this.getApplication(), "MY_GIMBAL_API_KEY");
         BeaconManager gimbalBeaconManager = new com.gimbal.android.BeaconManager();

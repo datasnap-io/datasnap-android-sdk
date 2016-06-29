@@ -15,7 +15,7 @@ public class BeaconEvent extends Event {
      * @param place
      * @param beacon
      */
-    public BeaconEvent(String eventType, Place place, Beacon beacon) {
+    public BeaconEvent(EventType eventType, Place place, Beacon beacon) {
         super(eventType);
         this.place = place;
         this.beacon = beacon;

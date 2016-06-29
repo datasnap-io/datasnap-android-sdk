@@ -8,7 +8,7 @@ public class CommunicationEvent extends Event {
     private Communication communication;
     private Campaign campaign;
 
-    public CommunicationEvent(String eventType, Communication communication, Campaign campaign) {
+    public CommunicationEvent(EventType eventType, Communication communication, Campaign campaign) {
         super(eventType);
         this.communication = communication;
         this.campaign = campaign;

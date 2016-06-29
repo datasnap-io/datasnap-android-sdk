@@ -68,14 +68,14 @@ public class DataSnapCustomEventActivity extends Activity {
         VendorProperties vendorProperties = new VendorProperties();
         vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
         vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-        Config config = new Config();
-        config.context = getApplicationContext();
-        config.apiKeyId = apiKeyId;
-        config.apiKeySecret = apiKeySecret;
-        config.organizationId = "MY_ORGANIZATION";
-        config.projectId = "MY_PROJECT";
-        config.vendorProperties = vendorProperties;
-        DataSnap.initialize(config);
+        Config config = new Config.Builder()
+            .setApiKeyId(apiKeyId)
+            .setApiKeySecret(apiKeySecret)
+            .setOrganizationId("MY_ORGANIZATION")
+            .setProjectId("MY_PROJECT")
+            .setVendorProperties(vendorProperties)
+            .build();
+        DataSnap.initialize(getApplicationContext(), config);
         DataSnap.setFlushParams(100000, 20);
         Gimbal.setApiKey(this.getApplication(), "MY_GIMBAL_API_KEY");
 
@@ -95,28 +95,27 @@ public class DataSnapCustomEventActivity extends Activity {
             @Override
             public void onBeaconSighting(BeaconSighting sighting) {
                 super.onBeaconSighting(sighting);
-                String eventType = "my_custom_event_type";
                 Beacon beacon = new Beacon();
                 beacon.setIdentifier(sighting.getBeacon().getIdentifier());
                 beacon.setBatteryLevel(sighting.getBeacon().getBatteryLevel().toString());
                 beacon.setRssi(sighting.getBeacon().getUuid());
                 beacon.setName(sighting.getBeacon().getName());
                 beacon.setBleVendorId("Gimbal");
-                Event event = new MyCustomBeaconEvent(eventType, "custom value", beacon);
+                Event event = new MyCustomBeaconEvent(EventType.BEACON_SIGHTING, "custom value", beacon);
                 DataSnap.trackEvent(event);
             }
         };
         HTTPRequester.startRequestCount();
         datasnapSightings = (Button) findViewById(R.id.datasnap_sightings);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if(!sharedPreferences.getBoolean(EventType.BEACON_SIGHTING, true)){
+        if(!sharedPreferences.getBoolean(EventType.BEACON_SIGHTING.name(), true)){
             datasnapSightings.setText("Turn on datasnap sightings");
         }
         //turn on and off datasnap's sent beacon sightings:
         datasnapSightings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean activeListener = sharedPreferences.getBoolean(EventType.BEACON_SIGHTING, true);
+                boolean activeListener = sharedPreferences.getBoolean(EventType.BEACON_SIGHTING.name(), true);
                 if(activeListener) {
                     DataSnap.setEventEnabled(EventType.BEACON_SIGHTING, false);
                     datasnapSightings.setText("Turn on datasnap sightings");
@@ -187,7 +186,7 @@ public class DataSnapCustomEventActivity extends Activity {
         private String myCustomField;
         private Beacon beacon;
 
-        public MyCustomBeaconEvent(String eventType, String myCustomField, Beacon beacon) {
+        public MyCustomBeaconEvent(EventType eventType, String myCustomField, Beacon beacon) {
             super(eventType);
             this.myCustomField = myCustomField;
             this.beacon = beacon;

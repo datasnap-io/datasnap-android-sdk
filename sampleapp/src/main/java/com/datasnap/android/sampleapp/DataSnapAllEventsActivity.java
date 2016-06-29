@@ -73,13 +73,13 @@ public class DataSnapAllEventsActivity extends Activity {
         setContentView(R.layout.activity_all_events);
         String apiKeyId = "MY_API_KEY";
         String apiKeySecret = "MY_API_SECRET";
-        Config config = new Config();
-        config.context = getApplicationContext();
-        config.apiKeyId = apiKeyId;
-        config.apiKeySecret = apiKeySecret;
-        config.organizationId = "MY_ORGANIZATION";
-        config.projectId = "MY_PROJECT";
-        DataSnap.initialize(config);
+        Config config = new Config.Builder()
+            .setApiKeyId(apiKeyId)
+            .setApiKeySecret(apiKeySecret)
+            .setOrganizationId("MY_ORGANIZATION")
+            .setProjectId("MY_PROJECT")
+            .build();
+        DataSnap.initialize(getApplicationContext(), config);
         user = User.getInstance();
         device = Device.getInstance();
         beaconSighting = (Button) findViewById(R.id.beacon_sighting);

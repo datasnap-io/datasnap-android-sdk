@@ -94,14 +94,14 @@ public class DataSnapTest {
     String apiKeySecret = "API SECRET";
     VendorProperties vendorProperties = new VendorProperties();
     vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-    Config config = new Config();
-    config.context = getTargetContext();
-    config.apiKeyId = apiKeyId;
-    config.apiKeySecret = apiKeySecret;
-    config.organizationId = "MY_ORGANIZATION";
-    config.projectId = "MY_PROJECT";
-    config.vendorProperties = vendorProperties;
-    DataSnap.initialize(config);
+    Config config = new Config.Builder()
+        .setApiKeyId(apiKeyId)
+        .setApiKeySecret(apiKeySecret)
+        .setOrganizationId("MY_ORGANIZATION")
+        .setProjectId("MY_PROJECT")
+        .setVendorProperties(vendorProperties)
+        .build();
+    DataSnap.initialize(getTargetContext(), config);
     sampleEvent = getSampleEvent();
   }
 

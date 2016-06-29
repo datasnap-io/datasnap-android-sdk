@@ -11,9 +11,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+//TODO documentation
 public abstract class Event {
 
-    protected String eventType;
+    protected EventType eventType;
     protected String[] organizationIds = new String[1];
     protected String[] projectIds = new String[1];
     protected String customerOrgId;
@@ -28,7 +29,8 @@ public abstract class Event {
             && this.projectIds.length > 0 && projectIds[0].length() > 0 && this.user != null;
     }
 
-    public Event(String eventType){
+    //TODO documentation
+    public Event(EventType eventType){
         this.eventType = eventType;
         this.user = User.getInstance();
         this.datasnap = new Datasnap(BuildConfig.VERSION_NAME, Device.getInstance());
@@ -36,7 +38,7 @@ public abstract class Event {
         this.projectIds[0] = DsConfig.getInstance().getProjectId();
     }
 
-    public Event(String eventType, String organizationId,
+    public Event(EventType eventType, String organizationId,
                  String projectId, String customerOrgId, String customerVenueOrgId, String venueOrgId, User user,
                  Device device, Map<String, Object> additionalProperties){
         this.eventType = eventType;
@@ -67,11 +69,11 @@ public abstract class Event {
     }
 
 
-    public String getEventType() {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public void setEventType(String eventType) {
+    public void setEventType(EventType eventType) {
         this.eventType = eventType;
     }
 

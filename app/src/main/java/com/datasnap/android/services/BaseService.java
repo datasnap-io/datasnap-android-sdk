@@ -66,4 +66,19 @@ public class BaseService extends Service {
     super.onDestroy();
   }
 
+  public void addBeaconSightingListener() {}
+
+  public void releaseBeaconSightingListener() {}
+
+  public void addCommunicationSentListener() {}
+
+  public void releaseCommunicationSentListener() {}
+
+  public void addCommunicationOpenListener() {}
+
+  public void addGeofenceDepartListener() {}
+
+  public void releaseGeofenceDepartListener() {}
+
+  public void releaseCommunicationOpenListener() {}
 }

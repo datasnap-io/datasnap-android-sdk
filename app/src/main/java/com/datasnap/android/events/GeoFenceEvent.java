@@ -12,7 +12,7 @@ public class GeoFenceEvent extends Event {
     private Place place;
     private Geofence geofence;
 
-    public GeoFenceEvent(String eventType, Place place, Geofence geofence) {
+    public GeoFenceEvent(EventType eventType, Place place, Geofence geofence) {
         super(eventType);
         this.place = place;
         this.geofence = geofence;

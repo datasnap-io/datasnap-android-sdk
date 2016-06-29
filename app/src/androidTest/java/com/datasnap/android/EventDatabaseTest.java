@@ -59,13 +59,13 @@ public class EventDatabaseTest {
 
     String apiKeyId = "API KEY";
     String apiKeySecret = "API SECRET";
-    Config config = new Config();
-    config.context = getTargetContext();
-    config.apiKeyId = apiKeyId;
-    config.apiKeySecret = apiKeySecret;
-    config.organizationId = "MY_ORGANIZATION";
-    config.projectId = "MY_PROJECT";
-    DataSnap.initialize(config);
+    Config config = new Config.Builder()
+        .setApiKeyId(apiKeyId)
+        .setApiKeySecret(apiKeySecret)
+        .setOrganizationId("MY_ORGANIZATION")
+        .setProjectId("MY_PROJECT")
+        .build();
+    DataSnap.initialize(getTargetContext(), config);
     GsonBuilder gsonBuilder = new GsonBuilder();
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
     gson = gsonBuilder.create();

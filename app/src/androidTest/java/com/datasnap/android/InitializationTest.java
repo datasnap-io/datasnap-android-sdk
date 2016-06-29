@@ -56,14 +56,14 @@ public class InitializationTest {
     VendorProperties vendorProperties = new VendorProperties();
     vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
     vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-    Config config = new Config();
-    config.context = getTargetContext();
-    config.apiKeyId = apiKeyId;
-    config.apiKeySecret = apiKeySecret;
-    config.organizationId = "MY_ORGANIZATION";
-    config.projectId = "MY_PROJECT";
-    config.vendorProperties = vendorProperties;
-    DataSnap.initialize(config);
+    Config config = new Config.Builder()
+        .setApiKeyId(apiKeyId)
+        .setApiKeySecret(apiKeySecret)
+        .setOrganizationId("MY_ORGANIZATION")
+        .setProjectId("MY_PROJECT")
+        .setVendorProperties(vendorProperties)
+        .build();
+    DataSnap.initialize(getTargetContext(), config);
     DataSnap.trackEvent(getSampleEvent());
   }
 
@@ -75,19 +75,19 @@ public class InitializationTest {
     VendorProperties vendorProperties = new VendorProperties();
     vendorProperties.setGimbalApiKey("MY_GIMBAL_API_KEY");
     vendorProperties.addVendor(VendorProperties.Vendor.GIMBAL);
-    Config config = new Config();
-    config.context = getTargetContext();
-    config.apiKeyId = apiKeyId;
-    config.apiKeySecret = apiKeySecret;
-    config.organizationId = "MY_ORGANIZATION";
-    config.projectId = "MY_PROJECT";
-    config.vendorProperties = vendorProperties;
-    DataSnap.initialize(config);
+    Config config = new Config.Builder()
+        .setApiKeyId(apiKeyId)
+        .setApiKeySecret(apiKeySecret)
+        .setOrganizationId("MY_ORGANIZATION")
+        .setProjectId("MY_PROJECT")
+        .setVendorProperties(vendorProperties)
+        .build();
+    DataSnap.initialize(getTargetContext(), config);
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getTargetContext());
-    assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_OPEN, true));
-    assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_SENT, true));
-    assertTrue(sharedPreferences.getBoolean(EventType.BEACON_SIGHTING, true));
-    assertTrue(sharedPreferences.getBoolean(EventType.GEOFENCE_DEPART, true));
+    assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_OPEN.name(), true));
+    assertTrue(sharedPreferences.getBoolean(EventType.COMMUNICATION_SENT.name(), true));
+    assertTrue(sharedPreferences.getBoolean(EventType.BEACON_SIGHTING.name(), true));
+    assertTrue(sharedPreferences.getBoolean(EventType.GEOFENCE_DEPART.name(), true));
   }
 
   private Event getSampleEvent(){

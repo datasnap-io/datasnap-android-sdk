@@ -10,7 +10,7 @@ public class GlobalPositionEvent extends Event {
     @SerializedName("global-position")
     private GlobalPosition globalPosition;
 
-    public GlobalPositionEvent(String eventType, GlobalPosition globalPosition) {
+    public GlobalPositionEvent(EventType eventType, GlobalPosition globalPosition) {
         super(eventType);
         this.globalPosition = globalPosition;
     }

@@ -4,7 +4,7 @@ public class UpdateEvent extends Event {
 
     // different types of updates- might link to other event types....
 
-    public UpdateEvent(String eventType) {
+    public UpdateEvent(EventType eventType) {
         super(eventType);
     }
 }
