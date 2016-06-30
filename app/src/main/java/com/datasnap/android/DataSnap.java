@@ -92,11 +92,13 @@ public final class DataSnap {
    * API Calls: trackEvent() for a single event
    */
   public static void trackEvent(Event event) {
-    //TODO add logs instead of returning/throwing exceptions
-    if (!isInitialized())
+    if (!isInitialized()) {
+      Logger.e("Datasnap is not properly initialized");
       return;
-    if (!event.validate())
-      throw new IllegalStateException("Mandatory event data missing. Please call DataSnap.initialize before using the library.");
+    }if (!event.validate()){
+      Logger.e("Mandatory event data missing. Please call DataSnap.initialize before using the library.");
+      return;
+    }
     GsonBuilder gsonBuilder = new GsonBuilder();
     gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
     Gson gson = gsonBuilder.create();
@@ -214,7 +216,7 @@ public final class DataSnap {
         initializeVendorServices();
       }
     };
-    User.initialize(mainHandler, mainRunnable, dataSnapContext);
+    User.initialize(mainHandler, mainRunnable, dataSnapContext, datasnapConfig.isAllowGoogleAdId());
   }
 
   private static void initializeVendorServices() {

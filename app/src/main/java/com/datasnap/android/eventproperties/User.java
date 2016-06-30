@@ -19,11 +19,11 @@ public class User {
     return instance;
   }
 
-  public static void initialize(Handler handler, Runnable runnable, final Context context) {
-    instance = new User(handler, runnable, context);
+  public static void initialize(Handler handler, Runnable runnable, final Context context, final boolean isAdIdAllowed) {
+    instance = new User(handler, runnable, context, isAdIdAllowed);
   }
 
-  private User(final Handler handler, final Runnable runnable, final Context context) {
+  private User(final Handler handler, final Runnable runnable, final Context context, final boolean isAdIdAllowed) {
     String android_id = Settings.Secure.getString(context.getContentResolver(),
         Settings.Secure.ANDROID_ID);
     id = new Id();
@@ -32,8 +32,9 @@ public class User {
       public void run() {
         try {
           AdvertisingIdClient.Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
-          id.setMobileDeviceGoogleAdvertisingId(adInfo.isLimitAdTrackingEnabled() ? adInfo.getId() : "");
-          id.setMobileDeviceGoogleAdvertisingIdOptIn("" + adInfo.isLimitAdTrackingEnabled());
+          boolean googleAdIdAllowed = isAdIdAllowed && adInfo.isLimitAdTrackingEnabled();
+          id.setMobileDeviceGoogleAdvertisingId(googleAdIdAllowed ? adInfo.getId() : "");
+          id.setMobileDeviceGoogleAdvertisingIdOptIn("" + googleAdIdAllowed);
           instance.setId(id);
           handler.post(runnable);
         } catch (Exception e) {

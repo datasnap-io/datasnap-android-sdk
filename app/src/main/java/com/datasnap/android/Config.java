@@ -26,6 +26,10 @@ public class Config {
     return builder.projectId;
   }
 
+  public boolean isAllowGoogleAdId() {
+    return builder.allowGoogleAdId;
+  }
+
   public VendorProperties getVendorProperties() {
     return builder.vendorProperties;
   }
@@ -35,6 +39,7 @@ public class Config {
     private String apiKeySecret;
     private String organizationId;
     private String projectId;
+    private boolean allowGoogleAdId = true;
     private VendorProperties vendorProperties;
 
     public Builder() {
@@ -64,6 +69,10 @@ public class Config {
     public Builder setProjectId(String projectId) {
       this.projectId = projectId;
       return this;
+    }
+
+    public void setAllowGoogleAdId(boolean allowGoogleAdId) {
+      this.allowGoogleAdId = allowGoogleAdId;
     }
 
     public Builder setVendorProperties(VendorProperties vendorProperties) {
