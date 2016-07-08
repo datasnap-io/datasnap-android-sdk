@@ -1,4 +1,13 @@
 apply plugin: 'com.android.library'
+
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'io.codearte.nexus-staging'
+
+group = "io.datasnap"
+archivesBaseName = "datasnap-android-sdk"
+version = "2.0.0"
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.1"
@@ -33,9 +42,9 @@ dependencies {
         exclude module: 'gson'
     }
     androidTestCompile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.google.dexmaker:dexmaker:1.2')
-    androidTestCompile('com.google.dexmaker:dexmaker-mockito:1.2')
-    compile 'com.google.android.gms:play-services:6.1.+'
+    androidTestCompile ('com.google.dexmaker:dexmaker:1.2')
+    androidTestCompile ('com.google.dexmaker:dexmaker-mockito:1.2')
+    compile 'com.google.android.gms:play-services:[6.1.0, 6.2)'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'org.slf4j:slf4j-api:1.7.2'
     compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5.1'
@@ -43,3 +52,81 @@ dependencies {
         exclude module: "httpclient"
     }
 }
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+        //Needed only for SNAPSHOT versions
+        //maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+    }
+}
+
+//task javadocJar(type: Jar) {
+//    classifier = 'javadoc'
+//    from javadoc
+//}
+
+//task sourcesJar(type: Jar) {
+//    classifier = 'sources'
+//    from sourceSets.main.allSource
+//}
+
+//artifacts {
+//    archives javadocJar, sourcesJar
+//}
+
+signing {
+    sign configurations.archives
+}
+
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: "ehamlin@grio.com", password: "bra\$\$Ball2")
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: "ehamlin@grio.com", password: "bra\$\$Ball2")
+            }
+
+            pom.project {
+                name 'Example Application'
+                packaging 'jar'
+                // optionally artifactId can be defined here
+                description 'A application used as an example on how to set up pushing  its components to the Central Repository.'
+                url 'http://www.example.com/example-application'
+
+                scm {
+                    connection 'scm:git:git@github.com:datasnap-io/datasnap-android-sdk.git'
+                    developerConnection 'scm:git:git@github.com:datasnap-io/datasnap-android-sdk.git'
+                    url 'git@github.com:datasnap-io/datasnap-android-sdk.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'ppelegatti'
+                        name 'Paolo Pelegatti'
+                        email 'ppelegatti@grio.com<'
+                    }
+                }
+            }
+        }
+    }
+}
+
