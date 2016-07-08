@@ -253,3 +253,7 @@ http://docs.datasnapio.apiary.io/#
 We offer the ability to check on our server status at anytime. Also if you are a client and we have issued you an API key then that means that we will email you of any downtime as soon as it occurs:
 
 http://status.datasnap.io/
+
+## License
+
+The Datasnap SDK is available under the Apache 2 license. See the LICENSE file for more info.
