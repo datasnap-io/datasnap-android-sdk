@@ -71,6 +71,10 @@ public class Config {
       return this;
     }
 
+    //allowGoogleAdId is a property that, when true, allows Datasnap to collect the IDFA for the device.
+    //If YES is passed for this parameter, ads must be served through the application.
+    //If not, the App Store will not accept the app.
+    //Provided email will be hashed before being sent to Datasnap server.
     public void setAllowGoogleAdId(boolean allowGoogleAdId) {
       this.allowGoogleAdId = allowGoogleAdId;
     }
