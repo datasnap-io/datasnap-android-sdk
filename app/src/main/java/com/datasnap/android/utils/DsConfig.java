@@ -93,7 +93,7 @@ public class DsConfig {
   private DsConfig(String apiKey) {
     String encodedBytes = Base64.encodeToString(apiKey.getBytes(), Base64.URL_SAFE | Base64.NO_WRAP);
     this.apiKey = encodedBytes;
-    host = DATASNAP_STAGING_SERVER_URL;
+    host = DATASNAP_API_SERVER_URL;
     organizationHost = ORGANIZATION_ENDPOINT;
     debug = LOGGING;
   }
