@@ -146,7 +146,6 @@ By default, the SDK collects a variety of data about the device to aid in statis
 - Device model
 - Device manufacturer
 - Device name
-- Device brand
 - Carrier name
 - Google Advertiser ID (dependent on user settings)
 
