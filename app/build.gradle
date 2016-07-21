@@ -6,7 +6,7 @@ apply plugin: 'io.codearte.nexus-staging'
 
 group = "io.datasnap"
 archivesBaseName = "datasnap-android-sdk"
-version = "2.0.0"
+version = "2.0.1"
 
 android {
     compileSdkVersion 21
@@ -16,8 +16,8 @@ android {
 
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0.2"
+        versionCode 3
+        versionName "2.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         // Enabling multidex support.
         multiDexEnabled true
@@ -65,25 +65,10 @@ buildscript {
     }
 }
 
-//task javadocJar(type: Jar) {
-//    classifier = 'javadoc'
-//    from javadoc
-//}
-
-//task sourcesJar(type: Jar) {
-//    classifier = 'sources'
-//    from sourceSets.main.allSource
-//}
-
-//artifacts {
-//    archives javadocJar, sourcesJar
-//}
 
 signing {
     sign configurations.archives
 }
-
-
 
 uploadArchives {
     repositories {
@@ -91,19 +76,19 @@ uploadArchives {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: "ehamlin@grio.com", password: "bra\$\$Ball2")
+                authentication(userName: ossrhUsername, password: ossrhPassword)
             }
 
             snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: "ehamlin@grio.com", password: "bra\$\$Ball2")
+                authentication(userName: ossrhUsername, password: ossrhPassword)
             }
 
             pom.project {
-                name 'Example Application'
+                name 'Datasnap Android SDK'
                 packaging 'jar'
                 // optionally artifactId can be defined here
-                description 'A application used as an example on how to set up pushing  its components to the Central Repository.'
-                url 'http://www.example.com/example-application'
+                description 'SDK for sending location-based events to the Datasnap server.'
+                url 'https://github.com/datasnap-io/datasnap-android-sdk'
 
                 scm {
                     connection 'scm:git:git@github.com:datasnap-io/datasnap-android-sdk.git'
@@ -129,4 +114,5 @@ uploadArchives {
         }
     }
 }
+
 
