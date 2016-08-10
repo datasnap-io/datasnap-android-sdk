@@ -1,23 +1,23 @@
 package com.datasnap.android.eventproperties;
 
 public class GeofenceCircle {
-    private String radius;
-    private Location location;
+  private String radius;
+  private Location location;
 
-    public String getRadius() {
-        return radius;
-    }
+  public String getRadius() {
+    return radius;
+  }
 
-    public void setRadius(String radius) {
-        this.radius = radius;
-    }
+  public void setRadius(String radius) {
+    this.radius = radius;
+  }
 
-    public Location getPropLocation() {
-        return location;
-    }
+  public Location getPropLocation() {
+    return location;
+  }
 
-    public void setPropLocation(Location location) {
-        this.location = location;
-    }
+  public void setPropLocation(Location location) {
+    this.location = location;
+  }
 
 }

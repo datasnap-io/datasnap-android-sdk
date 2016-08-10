@@ -1,0 +1,71 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_vertical_margin">
+
+  <Button
+    android:id="@+id/beacon_sighting"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Beacon Sighting"/>
+  <Button
+    android:id="@+id/beacon_depart"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Beacon Depart"/>
+  <Button
+    android:id="@+id/beacon_arrive"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Beacon Arrive"/>
+  <Button
+    android:id="@+id/geofence_depart"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Geofence Depart"/>
+  <Button
+    android:id="@+id/global_position_sighting"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Global Position Sighting"/>
+  <Button
+    android:id="@+id/ds_communication_open"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Communication Open"/>
+  <Button
+    android:id="@+id/ds_communication_sent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Communication Sent"/>
+  <Button
+    android:id="@+id/app_installed"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="App installed"/>
+  <Button
+    android:id="@+id/opt_in_vendor"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Opt In Vendor"/>
+  <Button
+    android:id="@+id/opt_in_push_notifications"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Opt In Push Notifications"/>
+  <Button
+    android:id="@+id/opt_in_location"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Opt In Location"/>
+  <Button
+    android:id="@+id/status_ping"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Status Ping"/>
+
+</LinearLayout>

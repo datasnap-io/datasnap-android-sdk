@@ -8,57 +8,53 @@ import java.util.List;
  * Handles communication with the database using its own thread to achieve SQL thread safety.
  */
 public interface EventDatabaseLayerInterface extends IThreadedLayer {
-    //
-    // Callbacks
-    //
+  //
+  // Callbacks
+  //
 
+  /**
+   * Called when an enqueue completes.
+   */
+  public interface EnqueueCallback {
     /**
-     * Called when an enqueue completes.
-     */
-    public interface EnqueueCallback {
-        /**
-         * Called when an enqueue finishes.
-         *
-         * @param success  Whether the enqueue was successful.
-         * @param rowCount The new database size
-         */
-        void onEnqueue(boolean success, long rowCount);
-    }
-
-    /**
-     * Callback for when a database payload query returns
+     * Called when an enqueue finishes.
      *
-     *
+     * @param success  Whether the enqueue was successful.
+     * @param rowCount The new database size
      */
-    public interface PayloadCallback {
-        void onPayload(long minId, long maxId, List<EventWrapper> payloads);
-    }
+    void onEnqueue(boolean success, long rowCount);
+  }
 
-    /**
-     * Callback for when payloads are removed from the database
-     *
-     *
-     */
-    public interface RemoveCallback {
-        void onRemoved(int removed);
-    }
+  /**
+   * Callback for when a database payload query returns
+   */
+  public interface PayloadCallback {
+    void onPayload(long minId, long maxId, List<EventWrapper> payloads);
+  }
 
-    //
-    // Methods
-    //
+  /**
+   * Callback for when payloads are removed from the database
+   */
+  public interface RemoveCallback {
+    void onRemoved(int removed);
+  }
 
-    /**
-     * Adds a payload to the database
-     */
-    void enqueue(EventWrapper payload, EnqueueCallback callback);
+  //
+  // Methods
+  //
 
-    /**
-     * Gets the next payloads from the database
-     */
-    void nextEvent(PayloadCallback callback);
+  /**
+   * Adds a payload to the database
+   */
+  void enqueue(EventWrapper payload, EnqueueCallback callback);
 
-    /**
-     * Removes payloads from the database
-     */
-    void removePayloads(final long minId, long maxId, RemoveCallback callback);
+  /**
+   * Gets the next payloads from the database
+   */
+  void nextEvent(PayloadCallback callback);
+
+  /**
+   * Removes payloads from the database
+   */
+  void removePayloads(final long minId, long maxId, RemoveCallback callback);
 }

@@ -1,7 +1,7 @@
 <resources>
 
-    <string name="app_name">Datasnap Estimote Sample</string>
-    <string name="action_settings">Settings</string>
-    <string name="ds_server">432</string>
+  <string name="app_name">Datasnap Sample</string>
+  <string name="action_settings">Settings</string>
+  <string name="ds_server">432</string>
 
 </resources>

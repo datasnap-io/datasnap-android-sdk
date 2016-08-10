@@ -9,7 +9,9 @@ import com.datasnap.android.utils.Logger;
 import java.io.IOException;
 
 */
-/** Abstraction so we don't try to load the required classes if unavailable. *//*
+/**
+ * Abstraction so we don't try to load the required classes if unavailable.
+ *//*
 
 class AdvertisingId {
   static String get(Context context) {

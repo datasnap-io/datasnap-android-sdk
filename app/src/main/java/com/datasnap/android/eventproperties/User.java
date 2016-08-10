@@ -1,46 +1,80 @@
 package com.datasnap.android.eventproperties;
 
+import android.content.Context;
+import android.provider.Settings;
+
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+
+import android.os.Handler;
+
 public class User {
 
-    private Tags tags;
-    private Id id;
-    private Audience audience;
-    private UserProperties userProperties;
-    // private boolean optInLocation;
-    //  private boolean optInPushNotifications;
-    // private boolean optInVendor;
+  private Tags tags;
+  private Id id;
+  private Audience audience;
+  private UserProperties userProperties;
+  private static User instance;
 
-    public Tags getTags() {
-        return tags;
-    }
+  public static User getInstance() {
+    return instance;
+  }
 
-    public void setTags(Tags tags) {
-        this.tags = tags;
-    }
+  public static void initialize(Handler handler, Runnable runnable, final Context context, final boolean isAdIdAllowed) {
+    instance = new User(handler, runnable, context, isAdIdAllowed);
+  }
 
-    public Id getId() {
-        return id;
-    }
+  private User(final Handler handler, final Runnable runnable, final Context context, final boolean isAdIdAllowed) {
+    String android_id = Settings.Secure.getString(context.getContentResolver(),
+        Settings.Secure.ANDROID_ID);
+    id = new Id();
+    id.setGlobalDistinctId(android_id);
+    new Thread(new Runnable() {
+      public void run() {
+        try {
+          AdvertisingIdClient.Info adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
+          boolean googleAdIdAllowed = isAdIdAllowed && adInfo.isLimitAdTrackingEnabled();
+          id.setMobileDeviceGoogleAdvertisingId(googleAdIdAllowed ? adInfo.getId() : "");
+          id.setMobileDeviceGoogleAdvertisingIdOptIn("" + googleAdIdAllowed);
+          instance.setId(id);
+          handler.post(runnable);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }).start();
+  }
 
-    public void setId(Id id) {
-        this.id = id;
-    }
+  public Tags getTags() {
+    return tags;
+  }
 
-    public Audience getAudience() {
-        return audience;
-    }
+  public void setTags(Tags tags) {
+    this.tags = tags;
+  }
 
-    public void setAudience(Audience audience) {
-        this.audience = audience;
-    }
+  public Id getId() {
+    return id;
+  }
 
-    public UserProperties getUserProperties() {
-        return userProperties;
-    }
+  public void setId(Id id) {
+    this.id = id;
+  }
 
-    public void setUserProperties(UserProperties userProperties) {
-        this.userProperties = userProperties;
-    }
+  public Audience getAudience() {
+    return audience;
+  }
+
+  public void setAudience(Audience audience) {
+    this.audience = audience;
+  }
+
+  public UserProperties getUserProperties() {
+    return userProperties;
+  }
+
+  public void setUserProperties(UserProperties userProperties) {
+    this.userProperties = userProperties;
+  }
     
  /*   public boolean getOptInLocation() {
         return optInLocation;
@@ -64,5 +98,5 @@ public class User {
 
 
 }
-	
+
 	
