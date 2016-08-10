@@ -76,11 +76,11 @@ uploadArchives {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+                authentication(userName: System.getenv('GRADLE_USERNAME'), password: System.getenv('GRADLE_PASSWORD'))
             }
 
             snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+                authentication(userName: System.getenv('GRADLE_USERNAME'), password: System.getenv('GRADLE_PASSWORD'))
             }
 
             pom.project {
